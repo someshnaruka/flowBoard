@@ -20,5 +20,14 @@ One coherent app chrome with permission-aware navigation.
 - [x] `feat(view): sidebar tree from visible-tree selector (T08)`
 - [x] `feat(view): user switcher with toast (T08)`
 
+## Tested
+- [x] `npm run typecheck` / `test` / `build` / `lint`
+- [x] Sidebar collapse 260↔56
+- [x] Alice/Bob/Carol switch changes visible tree (permissions)
+- [x] List select updates top bar title
+- [x] User switcher role badge + “Viewing as” toast
+- [x] Tree skeleton on first load  
+See also `plan/TESTED.md`.
+
 ## AI notes
-_What Cursor got right, what I corrected or rejected._
+_Shell layout + tree wired to selectors; toast on switchUser. No Figma pull (rate limit earlier)._

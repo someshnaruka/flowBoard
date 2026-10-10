@@ -18,5 +18,12 @@ Reusable pieces so views stay consistent.
 - [x] `feat(ui): avatar stack, due date and empty state (T09)`
 - [x] `feat(ui): confirm dialog and save indicator (T09)`
 
+## Tested
+- [x] `npm run typecheck` / `test` / `build`
+- [x] `status-badge.test.tsx` — StatusBadge + PriorityBadge variants/tokens
+- [x] `due-date.test.tsx` — overdue + empty state
+- [x] ConfirmDialog / SaveIndicator / AvatarStack / EmptyState typecheck clean  
+See also `plan/TESTED.md`.
+
 ## AI notes
-_What Cursor got right, what I corrected or rejected._
+_Variant props via cva; colors from Tailwind status/priority tokens only._

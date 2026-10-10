@@ -11,3 +11,5 @@ First give me a short plan and the files you will touch, then implement.
 ```
 
 After each step: run typecheck and tests, review the diff, commit, tick the box in the issue.
+
+When marking an issue Done (last commit): fill `## Tested` in the issue.md and update plan/TESTED.md with automated + manual checks.
