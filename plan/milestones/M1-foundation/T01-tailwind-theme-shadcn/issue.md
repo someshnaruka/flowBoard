@@ -20,7 +20,7 @@ Violet design tokens and base UI primitives.
 
 ## Commit plan
 - [x] `feat(ui): configure tailwind theme tokens (T01)`
-- [ ] `feat(ui): initialise shadcn/ui and add base components (T01)`
+- [x] `feat(ui): initialise shadcn/ui and add base components (T01)`
 - [ ] `feat(ui): dark mode tokens and theme preference (T01)`
 
 ## AI notes

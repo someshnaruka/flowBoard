@@ -1,81 +1,41 @@
+import { toast } from 'sonner'
+import { Badge } from '@/view/ui/badge'
+import { Button } from '@/view/ui/button'
+import { Toaster } from '@/view/ui/sonner'
+import { TooltipProvider } from '@/view/ui/tooltip'
+
 function App() {
   return (
-    <div className="flex min-h-svh flex-col gap-6 bg-white p-6 font-sans text-body text-slate-700">
-      <header className="min-w-0">
-        <h1 className="text-page-title text-slate-900">Flowboard tokens</h1>
-        <p className="mt-1 text-meta text-slate-500">
-          Tailwind theme smoke check (T01)
-        </p>
-      </header>
+    <TooltipProvider>
+      <div className="flex min-h-svh flex-col gap-6 bg-background p-6 font-sans text-body text-foreground">
+        <header className="min-w-0">
+          <h1 className="text-page-title">Flowboard UI</h1>
+          <p className="mt-1 text-meta text-muted-foreground">
+            shadcn primitives smoke check (T01)
+          </p>
+        </header>
 
-      <section className="flex min-w-0 flex-col gap-3">
-        <h2 className="text-drawer-title text-slate-900">Brand</h2>
-        <div className="flex flex-wrap gap-2">
-          <span className="rounded-badge bg-brand px-2 py-1 text-meta text-brand-foreground">
-            brand
-          </span>
-          <span className="rounded-badge bg-brand-100 px-2 py-1 text-meta text-brand-700">
-            brand-100
-          </span>
-          <button
+        <section className="flex min-w-0 flex-wrap items-center gap-3">
+          <Button
             type="button"
-            className="rounded-control bg-brand px-3 py-1.5 text-body font-medium text-brand-foreground transition-colors duration-150 hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:bg-brand-800"
+            onClick={() => toast.success('Theme tokens are wired')}
           >
-            Primary
-          </button>
-        </div>
-      </section>
-
-      <section className="flex min-w-0 flex-col gap-3">
-        <h2 className="text-drawer-title text-slate-900">Status</h2>
-        <div className="flex flex-wrap gap-2">
-          <span className="rounded-badge bg-status-todo-muted px-2 py-1 text-meta text-status-todo">
-            todo
-          </span>
+            Show toast
+          </Button>
+          <Badge>brand primary</Badge>
+          <Badge variant="secondary">secondary</Badge>
+          <Badge variant="outline">outline</Badge>
           <span className="rounded-badge bg-status-active-muted px-2 py-1 text-meta text-status-active">
-            active
+            status.active
           </span>
-          <span className="rounded-badge bg-status-done-muted px-2 py-1 text-meta text-status-done">
-            done
-          </span>
-        </div>
-      </section>
-
-      <section className="flex min-w-0 flex-col gap-3">
-        <h2 className="text-drawer-title text-slate-900">Priority</h2>
-        <div className="flex flex-wrap gap-2">
           <span className="rounded-badge bg-priority-urgent-muted px-2 py-1 text-meta text-priority-urgent">
-            urgent
+            priority.urgent
           </span>
-          <span className="rounded-badge bg-priority-high-muted px-2 py-1 text-meta text-priority-high">
-            high
-          </span>
-          <span className="rounded-badge bg-priority-normal-muted px-2 py-1 text-meta text-priority-normal">
-            normal
-          </span>
-          <span className="rounded-badge bg-priority-low-muted px-2 py-1 text-meta text-priority-low">
-            low
-          </span>
-          <span className="rounded-badge bg-priority-none-muted px-2 py-1 text-meta text-priority-none">
-            none
-          </span>
-        </div>
-      </section>
+        </section>
 
-      <section className="flex min-w-0 flex-col gap-3">
-        <h2 className="text-drawer-title text-slate-900">Surfaces</h2>
-        <div className="h-list-row rounded-card border border-slate-200 bg-white p-3 shadow-card">
-          <p className="truncate text-card-title text-slate-900">
-            Card radius + shadow
-          </p>
-        </div>
-        <div className="h-top-bar rounded-drawer border border-slate-200 bg-slate-50 px-4 shadow-panel">
-          <p className="flex h-full items-center text-body">
-            Top bar height token
-          </p>
-        </div>
-      </section>
-    </div>
+        <Toaster />
+      </div>
+    </TooltipProvider>
   )
 }
 
