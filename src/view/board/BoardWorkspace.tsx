@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { LayoutList } from 'lucide-react'
 import { useFlowStore } from '@/controller/store'
+import { ListView } from '@/view/list/ListView'
 import { EmptyState } from '@/view/ui/empty-state'
 import { BoardSkeleton } from './BoardSkeleton'
 import { KanbanBoard } from './KanbanBoard'
@@ -46,18 +46,13 @@ export function BoardWorkspace() {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <ViewBar listId={selectedListId} />
-      {view === 'list' ? (
-        <EmptyState
-          title="List view"
-          description="List view arrives in T12."
-          icon={<LayoutList className="size-5" aria-hidden />}
-          className="h-full"
-        />
-      ) : (
-        <div className="min-h-0 flex-1 overflow-hidden">
+      <div className="min-h-0 flex-1 overflow-hidden">
+        {view === 'list' ? (
+          <ListView listId={selectedListId} />
+        ) : (
           <KanbanBoard listId={selectedListId} />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
