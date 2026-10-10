@@ -7,7 +7,7 @@
 One product feel.
 
 ## Requirements
-- Audit against .cursorrules tokens: padding, row heights, truncation (min-w-0), focus rings, hover states, icon sizes
+- Audit against `.cursor/rules/flowboard.mdc` tokens: padding, row heights, truncation (min-w-0), focus rings, hover states, icon sizes
 - Only tree/board/list regions scroll
 
 ## Acceptance criteria

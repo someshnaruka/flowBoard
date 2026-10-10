@@ -14,7 +14,7 @@ MVC under `src/`:
 - `controller/` — Zustand store and orchestration
 - `view/` — React components
 
-See `.cursorrules` and `plan/project.md` for full rules and the milestone plan.
+See `.cursor/rules/` and `plan/project.md` for full rules and the milestone plan.
 
 ## Scripts
 

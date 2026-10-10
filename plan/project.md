@@ -7,7 +7,7 @@ Hierarchy (workspace > space > folder > list), tasks with kanban and list views,
 Vite, React 18, TypeScript, Tailwind 3.4, shadcn/ui, Zustand + Immer, dnd-kit, lucide-react, Vitest, Playwright.
 
 ## Architecture
-MVC: `model/` pure services and types, `controller/` Zustand store, `view/` React components. See `.cursorrules`.
+MVC: `model/` pure services and types, `controller/` Zustand store, `view/` React components. See `.cursor/rules/flowboard.mdc`.
 
 ## Milestones
 | ID | Milestone | Day |
@@ -28,7 +28,7 @@ Each milestone folder has a `milestone.md` and one folder per task containing an
 5. Record AI corrections in AI_USAGE.md as you go.
 
 ## Stretch goals chosen
-Optimistic UI with rollback (T15), client-side search (T17).
+Optimistic UI with rollback (T15), client-side search (T17), dark mode (T01), keyboard shortcuts cheatsheet (T16).
 
 ## Cut list (if behind)
-Search, shortcuts, card popovers, density toggle, subtasks, tree drag reorder.
+Density toggle, tree drag reorder.

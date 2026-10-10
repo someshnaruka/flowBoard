@@ -1,0 +1,26 @@
+---
+description: Always match Flowboard Figma UI when implementing milestone issues
+alwaysApply: true
+---
+
+# Figma UI is the visual source of truth
+
+When working on **any** milestone issue under `plan/milestones/`, treat the Figma file as the canonical UI for layout, spacing, hierarchy, states, dark mode, and shortcuts — alongside `.cursor/rules/flowboard.mdc` and the issue’s acceptance criteria.
+
+## File
+https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
+
+## Before implementing UI (M3–M5, and T01 theme)
+1. Identify the matching screen(s) for the issue (e.g. T10 → Board; T13 → drawer; T01 → tokens / dark mode 21–26; T16 → shortcuts 24–25).
+2. Prefer fetching design context / screenshots from Figma via the Figma MCP when building or restyling views.
+3. Match: shell (sidebar 260/56, top 48, view bar 44), column 288, tree 28, list rows 36, radii, violet brand, status/priority colors, empty/loading/error states.
+4. Do not invent alternate chrome, card layouts, or token values that conflict with Figma unless the issue explicitly overrides them.
+
+## Screen map (quick)
+- 01–04 Core: board, drawer, list, states
+- 05 Components / tokens
+- 06–09 Shell, switcher, full & read-only drawer
+- 10–20 Loading, search, card/tree menus, DnD, list pagination, dev menu, confirm/undo, Bob permissions
+- 21–27 Dark mode, theme preference, keyboard shortcuts
+
+Issue text wins for behavior; Figma wins for how it looks.

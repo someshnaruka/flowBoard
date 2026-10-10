@@ -1,3 +1,8 @@
+---
+description: Flowboard project rules — stack, MVC, styling, UX, testing
+alwaysApply: true
+---
+
 # Flowboard: Cursor project rules
 
 You are helping build "Flowboard", a mini project-management app (ClickUp / Asana / Linear style) for a frontend take-home assignment. Quality, consistency and maintainability are judged, not just features.
@@ -64,6 +69,7 @@ Rules:
 - Radius: 4 badges, 6 controls, 8 cards, 12 drawer/dialogs.
 - Accent: brand violet (see `colors.brand` in the Tailwind config). Color is used only for selection/focus (violet) and for meaning (status and priority).
 - Status colors: todo=slate, active=blue, done=green. Priority colors: urgent=red, high=orange, normal=blue, low=slate, none=muted.
+- Dark mode: `class="dark"` on `<html>` with shadcn dark variables. Theme preference Light | Dark | System in the user menu; persist `flowboard.theme` in localStorage. Dark brand may lift slightly for contrast; status/priority keep semantic hues. See Figma screens 21–26.
 - Every interactive element has `hover:`, `focus-visible:ring-2`, and `active:` states, plus `transition-colors duration-150`.
 - Truncate long text with `truncate` and always add `min-w-0` on flex children.
 - The page never scrolls. Only the sidebar tree, board and list regions scroll internally.
@@ -74,11 +80,16 @@ Rules:
 - Destructive actions (archive/delete) always go through `ConfirmDialog` naming the item and consequences. Offer Undo toast where possible.
 - Drag and drop: visible drag overlay, drop-target highlight, insertion line, position and status persist on drop.
 - Drawer: Escape and overlay-click close, focus trap, focus returns to the originating card, pushes the board on `xl` screens, read-only banner when user lacks edit rights.
+- Keyboard shortcuts (Figma 24–25): `/` search, `C` create task, `?` cheatsheet, `Esc` close, `1`/`2` board/list, `[` collapse sidebar, `Enter` open card, `⌘D` duplicate, `⌘E` archive, `⌘⌫` delete, `⌘⇧L` cycle theme. Disable letter shortcuts while typing in inputs.
 
 ## Testing rules
 - Store factory `createFlowStore(seed)` so every test starts from a fresh state.
 - Test success AND failure paths: permissions, invalid parent, invalid status, cycle prevention, archive cascade, task move with status remap, reorder.
 - Keep tests meaningful rather than numerous.
+
+## Design source of truth
+- Figma UI: https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
+- On every milestone issue that touches UI (or theme): match the relevant Figma screen for layout, tokens, states, dark mode, and shortcuts. Issue acceptance criteria own behavior; Figma owns appearance.
 
 ## How to work with me
 - Do ONE task at a time. Change only the files needed for it. Do not refactor unrelated code.
