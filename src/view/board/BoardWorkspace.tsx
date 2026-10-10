@@ -1,12 +1,33 @@
+import { useEffect, useState } from 'react'
 import { LayoutList } from 'lucide-react'
 import { useFlowStore } from '@/controller/store'
 import { EmptyState } from '@/view/ui/empty-state'
+import { BoardSkeleton } from './BoardSkeleton'
 import { KanbanBoard } from './KanbanBoard'
 import { ViewBar } from './ViewBar'
 
 export function BoardWorkspace() {
   const selectedListId = useFlowStore((state) => state.selectedListId)
   const view = useFlowStore((state) => state.view)
+  const [loadingListId, setLoadingListId] = useState<string | null>(
+    selectedListId,
+  )
+
+  useEffect(() => {
+    if (!selectedListId) {
+      setLoadingListId(null)
+      return
+    }
+
+    setLoadingListId(selectedListId)
+    const timer = window.setTimeout(() => {
+      setLoadingListId((current) =>
+        current === selectedListId ? null : current,
+      )
+    }, 280)
+
+    return () => window.clearTimeout(timer)
+  }, [selectedListId])
 
   if (!selectedListId) {
     return (
@@ -16,6 +37,10 @@ export function BoardWorkspace() {
         className="h-full"
       />
     )
+  }
+
+  if (loadingListId === selectedListId) {
+    return <BoardSkeleton />
   }
 
   return (

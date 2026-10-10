@@ -95,13 +95,21 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
             collapsed={collapsed}
             onToggleCollapse={() => toggleCollapse(status.id)}
           >
-            {columnTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                taskId={task.id}
-                onOpen={() => openDrawer(task.id)}
+            {columnTasks.length === 0 ? (
+              <EmptyState
+                title="No tasks"
+                description="Create a task to fill this column."
+                className="rounded-card border border-dashed border-border py-8"
               />
-            ))}
+            ) : (
+              columnTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  taskId={task.id}
+                  onOpen={() => openDrawer(task.id)}
+                />
+              ))
+            )}
           </Column>
         )
       })}

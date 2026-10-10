@@ -8,11 +8,11 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-10 (T08 done)
+**As of:** 2026-10-10 (T10 done)
 
-- **Done:** M1, M2, T08, **T09** shared UI primitives
-- **Next:** **T10** static kanban board
-- **Tests:** 36 Vitest tests green (`npm run test`)
+- **Done:** M1, M2, T08–T09, **T10** static kanban board
+- **Next:** **T11** drag and drop
+- **Tests:** 40 Vitest tests green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 
 ---

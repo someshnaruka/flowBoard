@@ -70,7 +70,15 @@ npm run build   # also runs on husky pre-push
 - [x] `typecheck` / `test` / `build`
 - [x] Primitives use theme tokens only (`status.*`, `priority.*`); variants via props
 
-### T10–T13
+### T10 Kanban board (static)
+- [x] `typecheck` / `test` / `build`
+- [x] Manual / UX checks (run `npm run dev`):
+  - [x] Board columns match list statuses (permission-filtered)
+  - [x] Task cards show title clamp, priority, due, avatars, subtask count
+  - [x] View bar Board|List toggle; + Task creates into first todo status
+  - [x] Skeleton on list switch; empty column state; column collapse
+
+### T11–T13
 _Not done yet — fill when completing each issue._
 
 ---
