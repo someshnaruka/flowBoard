@@ -51,6 +51,3 @@ export function sortTasks(
   }
   return [...tasks].sort((a, b) => compareTasks(a, b, key, dir))
 }
-
-/** In-memory page size for list Load more. */
-export const LIST_PAGE_SIZE = 5

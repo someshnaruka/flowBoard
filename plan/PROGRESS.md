@@ -15,6 +15,7 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 - **Tests:** 45 Vitest tests green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 - **Branch:** `feat/Flowboard` (all new work from T12 onward)
+- **T12 follow-up:** list uses `react-window` virtualization; status/priority are badge chips
 
 ---
 

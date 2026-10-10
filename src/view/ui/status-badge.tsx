@@ -4,13 +4,14 @@ import type { StatusCategory } from '@/model/types'
 import { cn } from '@/view/ui/utils'
 
 const statusBadgeVariants = cva(
-  'inline-flex items-center rounded-badge px-1.5 py-0.5 text-meta font-medium transition-colors duration-150',
+  'inline-flex max-w-full items-center rounded-badge border border-transparent px-1.5 py-0.5 text-meta font-medium transition-colors duration-150',
   {
     variants: {
       status: {
-        todo: 'bg-status-todo-muted text-status-todo',
-        active: 'bg-status-active-muted text-status-active',
-        done: 'bg-status-done-muted text-status-done',
+        todo: 'border-status-todo/20 bg-status-todo-muted text-status-todo',
+        active:
+          'border-status-active/20 bg-status-active-muted text-status-active',
+        done: 'border-status-done/20 bg-status-done-muted text-status-done',
       },
     },
     defaultVariants: {

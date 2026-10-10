@@ -4,15 +4,17 @@ import type { Priority } from '@/model/types'
 import { cn } from '@/view/ui/utils'
 
 const priorityBadgeVariants = cva(
-  'inline-flex items-center rounded-badge px-1.5 py-0.5 text-meta font-medium transition-colors duration-150',
+  'inline-flex max-w-full items-center rounded-badge border border-transparent px-1.5 py-0.5 text-meta font-medium transition-colors duration-150',
   {
     variants: {
       priority: {
-        urgent: 'bg-priority-urgent-muted text-priority-urgent',
-        high: 'bg-priority-high-muted text-priority-high',
-        normal: 'bg-priority-normal-muted text-priority-normal',
-        low: 'bg-priority-low-muted text-priority-low',
-        none: 'bg-priority-none-muted text-priority-none',
+        urgent:
+          'border-priority-urgent/20 bg-priority-urgent-muted text-priority-urgent',
+        high: 'border-priority-high/20 bg-priority-high-muted text-priority-high',
+        normal:
+          'border-priority-normal/20 bg-priority-normal-muted text-priority-normal',
+        low: 'border-priority-low/20 bg-priority-low-muted text-priority-low',
+        none: 'border-border bg-priority-none-muted text-priority-none',
       },
     },
     defaultVariants: {

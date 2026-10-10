@@ -4,26 +4,28 @@
 **Status:** Done
 
 ## Goal
-Dense table with sorting and pagination.
+Dense table with sorting and virtualization.
 
 ## Requirements
 - Sticky header, 36px rows: status, title, assignees, priority, due date
+- Status and priority rendered as `StatusBadge` / `PriorityBadge`
 - Sort by due date and priority
-- In-memory pagination with Load more
-- Row click opens drawer
+- Virtualized rows with `react-window` (no Load more)
+- Row click opens drawer; new tasks appear and scroll into view
 
 ## Acceptance criteria
-- [x] Sort works both directions; pagination footer shows counts
+- [x] Sort works both directions; virtualized list shows all tasks including newly created ones
 
 ## Commit plan
 - [x] `feat(list): table layout (T12)`
 - [x] `feat(list): sorting (T12)`
 - [x] `feat(list): load-more pagination (T12)`
+- [x] `fix(list): virtualize rows and badge chips (T12)`
 
 ## Tested
 - [x] `npm run typecheck` / `test` / `build`
 - [x] `list-sort.test.ts` — priority desc, due asc + nulls last, both directions
-- [x] Manual: Board|List toggle; sort headers; Load more counts; row click sets drawerTaskId
+- [x] Manual: Board|List toggle; sort headers; + Task appears in list; status/priority badges
 
 ## AI notes
-_What Cursor got right, what I corrected or rejected._
+Replaced Load more with react-window after review feedback. Fixed list not showing new tasks (was capped by page size).

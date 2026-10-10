@@ -92,7 +92,8 @@ npm run build   # also runs on husky pre-push
 - [x] Manual / UX checks (run `npm run dev`):
   - [x] View bar List toggle shows sticky header + 36px rows
   - [x] Sort Priority and Due both directions
-  - [x] Footer “Showing X of Y”; Load more pages by 5
+  - [x] `react-window` virtualization; + Task appears in list (scrolls into view)
+  - [x] Status and priority use badge chips
   - [x] Row click sets `drawerTaskId` (drawer UI in T13)
 
 ### T13

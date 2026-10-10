@@ -1,17 +1,23 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import {
+  List,
+  useListRef,
+  type RowComponentProps,
+} from 'react-window'
 import { selectTasksForList } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
-import { Button } from '@/view/ui/button'
+import type { Task } from '@/model/types'
 import { EmptyState } from '@/view/ui/empty-state'
 import { cn } from '@/view/ui/utils'
 import { ListRow } from './ListRow'
 import {
-  LIST_PAGE_SIZE,
   sortTasks,
   type ListSortDir,
   type ListSortKey,
 } from './list-sort'
+
+const ROW_HEIGHT = 36
 
 type ListViewProps = {
   listId: string
@@ -23,6 +29,11 @@ type SortHeaderProps = {
   activeKey: ListSortKey | null
   dir: ListSortDir
   onSort: (key: ListSortKey) => void
+}
+
+type RowProps = {
+  tasks: Task[]
+  onOpen: (taskId: string) => void
 }
 
 function SortHeader({
@@ -53,9 +64,33 @@ function SortHeader({
   )
 }
 
+function VirtualRow({
+  index,
+  style,
+  tasks,
+  onOpen,
+}: RowComponentProps<RowProps>) {
+  const task = tasks[index]
+  if (!task) {
+    return null
+  }
+
+  return (
+    // VIRTUALIZE-STYLE-EXCEPTION — react-window absolute positioning
+    <div style={style}>
+      <ListRow taskId={task.id} onOpen={() => onOpen(task.id)} />
+    </div>
+  )
+}
+
 export function ListView({ listId }: ListViewProps) {
   const currentUserId = useFlowStore((state) => state.currentUserId)
   const openDrawer = useFlowStore((state) => state.openDrawer)
+  const taskCount = useFlowStore(
+    (state) =>
+      Object.values(state.tasks).filter((task) => task.listId === listId)
+        .length,
+  )
   const tasksStamp = useFlowStore((state) =>
     Object.values(state.tasks)
       .filter((task) => task.listId === listId)
@@ -63,30 +98,37 @@ export function ListView({ listId }: ListViewProps) {
         (task) =>
           `${task.id}:${task.statusId}:${task.position}:${task.title}:${task.dueDate ?? ''}:${task.priority}:${task.updatedAt}`,
       )
+      .sort()
       .join('\0'),
   )
 
   const tasks = useMemo(() => {
     void currentUserId
+    void taskCount
     void tasksStamp
     return selectTasksForList(getDefaultFlowStore().getState(), listId)
-  }, [currentUserId, listId, tasksStamp])
+  }, [currentUserId, listId, taskCount, tasksStamp])
 
   const [sortKey, setSortKey] = useState<ListSortKey | null>(null)
   const [sortDir, setSortDir] = useState<ListSortDir>('asc')
-  const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE)
-
-  useEffect(() => {
-    setVisibleCount(LIST_PAGE_SIZE)
-  }, [listId, sortKey, sortDir])
 
   const sorted = useMemo(
     () => sortTasks(tasks, sortKey, sortDir),
     [tasks, sortKey, sortDir],
   )
 
-  const visible = sorted.slice(0, visibleCount)
-  const hasMore = visibleCount < sorted.length
+  const listRef = useListRef(null)
+  const prevLengthRef = useRef(sorted.length)
+
+  useEffect(() => {
+    if (sorted.length > prevLengthRef.current) {
+      listRef.current?.scrollToRow({
+        index: sorted.length - 1,
+        align: 'smart',
+      })
+    }
+    prevLengthRef.current = sorted.length
+  }, [listRef, sorted.length])
 
   const onSort = (key: ListSortKey) => {
     if (sortKey === key) {
@@ -96,6 +138,19 @@ export function ListView({ listId }: ListViewProps) {
     setSortKey(key)
     setSortDir(key === 'priority' ? 'desc' : 'asc')
   }
+
+  const rowProps = useMemo<RowProps>(
+    () => ({
+      tasks: sorted,
+      onOpen: openDrawer,
+    }),
+    [sorted, openDrawer],
+  )
+
+  const rowKey = useCallback(
+    (index: number, data: RowProps) => data.tasks[index]?.id ?? index,
+    [],
+  )
 
   if (sorted.length === 0) {
     return (
@@ -109,7 +164,7 @@ export function ListView({ listId }: ListViewProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col" aria-label="List view">
-      <div className="sticky top-0 z-10 grid h-list-row shrink-0 grid-cols-[7rem_minmax(0,1fr)_6.5rem_5.5rem_5.5rem] items-center gap-3 border-b border-border bg-background px-4">
+      <div className="sticky top-0 z-10 grid h-list-row shrink-0 grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem] items-center gap-3 border-b border-border bg-background px-4">
         <span className="text-meta font-medium text-muted-foreground">
           Status
         </span>
@@ -127,7 +182,7 @@ export function ListView({ listId }: ListViewProps) {
           onSort={onSort}
         />
         <SortHeader
-          label="Due"
+          label="Due date"
           sortKey="dueDate"
           activeKey={sortKey}
           dir={sortDir}
@@ -135,35 +190,23 @@ export function ListView({ listId }: ListViewProps) {
         />
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        {visible.map((task) => (
-          <ListRow
-            key={task.id}
-            taskId={task.id}
-            onOpen={() => openDrawer(task.id)}
-          />
-        ))}
+      <div className="min-h-0 flex-1">
+        <List
+          listRef={listRef}
+          className="h-full outline-none"
+          style={{ height: '100%' }}
+          rowCount={sorted.length}
+          rowHeight={ROW_HEIGHT}
+          rowComponent={VirtualRow}
+          rowProps={rowProps}
+          rowKey={rowKey}
+        />
       </div>
 
-      <footer className="flex h-11 shrink-0 items-center justify-between gap-3 border-t border-border px-4">
+      <footer className="flex h-10 shrink-0 items-center border-t border-border px-4">
         <p className="text-meta text-muted-foreground">
-          Showing {visible.length} of {sorted.length}
+          {sorted.length} task{sorted.length === 1 ? '' : 's'}
         </p>
-        {hasMore ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-8 rounded-control"
-            onClick={() =>
-              setVisibleCount((count) =>
-                Math.min(count + LIST_PAGE_SIZE, sorted.length),
-              )
-            }
-          >
-            Load more
-          </Button>
-        ) : null}
       </footer>
     </div>
   )

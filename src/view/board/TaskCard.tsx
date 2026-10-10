@@ -75,9 +75,7 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
       </p>
 
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-        {task.priority !== 'none' ? (
-          <PriorityBadge priority={task.priority} />
-        ) : null}
+        <PriorityBadge priority={task.priority} />
         <DueDate dueDate={task.dueDate} />
       </div>
 

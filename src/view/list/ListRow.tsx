@@ -67,7 +67,7 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
       type="button"
       onClick={onOpen}
       className={cn(
-        'grid h-list-row w-full grid-cols-[7rem_minmax(0,1fr)_6.5rem_5.5rem_5.5rem] items-center gap-3 border-b border-border px-4 text-left',
+        'grid h-list-row w-full grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem] items-center gap-3 border-b border-border px-4 text-left',
         'transition-colors duration-150 hover:bg-accent/50',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40',
         'active:bg-accent/70',
@@ -75,7 +75,11 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
     >
       <div className="min-w-0">
         {status ? (
-          <StatusBadge status={status.category} label={status.name} />
+          <StatusBadge
+            status={status.category}
+            label={status.name}
+            className="max-w-full truncate"
+          />
         ) : (
           <span className="text-meta text-muted-foreground">—</span>
         )}
@@ -85,7 +89,7 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
         <AvatarStack users={assignees} max={3} size="sm" />
       </div>
       <div className="min-w-0">
-        <PriorityBadge priority={task.priority} />
+        <PriorityBadge priority={task.priority} className="max-w-full truncate" />
       </div>
       <div className="min-w-0">
         <DueDate dueDate={task.dueDate} />
