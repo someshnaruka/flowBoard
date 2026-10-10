@@ -16,7 +16,7 @@ Safe container CRUD, move, reorder and archive.
 
 ## Commit plan
 - [x] `feat(model): create, rename and validate parents (T05)`
-- [ ] `feat(model): move, reorder, archive and restore (T05)`
+- [x] `feat(model): move, reorder, archive and restore (T05)`
 - [ ] `test(model): hierarchy edge cases (T05)`
 
 ## AI notes
