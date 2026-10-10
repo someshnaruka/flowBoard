@@ -17,38 +17,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/view/ui/dropdown-menu'
+import { UserAvatar } from '@/view/ui/user-avatar'
 import { cn } from '@/view/ui/utils'
-
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-}
-
-const AVATAR_BG: Record<string, string> = {
-  'user-alice': 'bg-brand',
-  'user-bob': 'bg-status-active',
-  'user-carol': 'bg-status-done',
-}
-
-function AvatarChip({ user, size = 'md' }: { user: User; size?: 'sm' | 'md' }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full font-medium text-white',
-        size === 'sm' ? 'size-6 text-meta' : 'size-7 text-body',
-        AVATAR_BG[user.id] ?? 'bg-muted-foreground',
-      )}
-      aria-hidden
-    >
-      {initials(user.name)}
-    </span>
-  )
-}
 
 type UserSwitcherProps = {
   compact?: boolean
@@ -94,7 +64,11 @@ export function UserSwitcher({ compact = false }: UserSwitcherProps) {
           )}
           aria-label={`Current user ${currentUser.name}`}
         >
-          <AvatarChip user={currentUser} size="sm" />
+          <UserAvatar
+            name={currentUser.name}
+            avatarUrl={currentUser.avatarUrl}
+            size="sm"
+          />
           {!compact ? (
             <>
               <span className="min-w-0 max-w-[7rem] truncate text-body">
@@ -122,7 +96,11 @@ export function UserSwitcher({ compact = false }: UserSwitcherProps) {
             className="gap-2 rounded-control"
             onSelect={() => onSelectUser(user)}
           >
-            <AvatarChip user={user} size="sm" />
+            <UserAvatar
+              name={user.name}
+              avatarUrl={user.avatarUrl}
+              size="sm"
+            />
             <span className="min-w-0 flex-1 truncate">{user.name}</span>
             <Badge
               variant={user.role === 'admin' ? 'default' : 'secondary'}

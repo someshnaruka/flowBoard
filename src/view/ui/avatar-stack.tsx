@@ -1,27 +1,11 @@
+import { UserAvatar } from '@/view/ui/user-avatar'
 import { cn } from '@/view/ui/utils'
 
 export type AvatarUser = {
   id: string
   name: string
+  avatarUrl?: string | null
   colorClass?: string
-}
-
-const FALLBACK_COLORS = [
-  'bg-brand',
-  'bg-status-active',
-  'bg-status-done',
-  'bg-priority-high',
-  'bg-muted-foreground',
-] as const
-
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
 }
 
 type AvatarStackProps = {
@@ -53,19 +37,15 @@ export function AvatarStack({
       className={cn('flex items-center -space-x-1.5', className)}
       aria-label={users.map((user) => user.name).join(', ')}
     >
-      {visible.map((user, index) => (
-        <span
+      {visible.map((user) => (
+        <UserAvatar
           key={user.id}
-          title={user.name}
-          className={cn(
-            'inline-flex items-center justify-center rounded-full border-2 border-background font-medium text-white',
-            size === 'sm' ? 'size-6 text-meta' : 'size-7 text-body',
-            user.colorClass ??
-              FALLBACK_COLORS[index % FALLBACK_COLORS.length],
-          )}
-        >
-          {initials(user.name)}
-        </span>
+          name={user.name}
+          avatarUrl={user.avatarUrl}
+          fallbackClassName={user.colorClass}
+          size={size}
+          className="border-2 border-background"
+        />
       ))}
       {overflow > 0 ? (
         <span

@@ -42,6 +42,7 @@ function miniState(overrides?: {
         email: 'member@flowboard.dev',
         role: 'member',
         color: '#64748b',
+        avatarUrl: '',
       },
     },
   }

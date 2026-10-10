@@ -36,8 +36,10 @@ export type User = {
   name: string
   email: string
   role: UserRole
-  /** Stable accent for avatars. */
+  /** Stable accent for fallback avatars. */
   color: string
+  /** Profile image URL (CDN). */
+  avatarUrl: string
 }
 
 export type Grant = {

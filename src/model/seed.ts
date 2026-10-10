@@ -101,6 +101,8 @@ function buildUsers(): Record<string, User> {
       email: 'alice@flowboard.dev',
       role: 'admin',
       color: '#7c3aed',
+      avatarUrl:
+        'https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_1.png',
     },
     'user-bob': {
       id: 'user-bob',
@@ -108,6 +110,8 @@ function buildUsers(): Record<string, User> {
       email: 'bob@flowboard.dev',
       role: 'member',
       color: '#2563eb',
+      avatarUrl:
+        'https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_2.png',
     },
     'user-carol': {
       id: 'user-carol',
@@ -115,6 +119,8 @@ function buildUsers(): Record<string, User> {
       email: 'carol@flowboard.dev',
       role: 'member',
       color: '#16a34a',
+      avatarUrl:
+        'https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_3.png',
     },
   }
 }
