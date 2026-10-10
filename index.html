@@ -11,6 +11,24 @@
       rel="stylesheet"
     />
     <title>Flowboard</title>
+    <script>
+      ;(function () {
+        try {
+          var key = 'flowboard.theme'
+          var stored = localStorage.getItem(key)
+          var preference =
+            stored === 'light' || stored === 'dark' || stored === 'system'
+              ? stored
+              : 'system'
+          var dark =
+            preference === 'dark' ||
+            (preference === 'system' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.classList.toggle('dark', dark)
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        } catch (_) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

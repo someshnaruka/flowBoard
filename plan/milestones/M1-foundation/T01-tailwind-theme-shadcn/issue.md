@@ -1,7 +1,7 @@
 # T01: Tailwind theme and shadcn/ui
 
 **Milestone:** M1 Foundation
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Violet design tokens and base UI primitives.
@@ -15,13 +15,13 @@ Violet design tokens and base UI primitives.
 - Add button, sheet, alert-dialog, dropdown-menu, context-menu, popover, select, sonner, skeleton, badge, avatar, input, textarea, tooltip, collapsible, toggle-group, scroll-area, calendar, command
 
 ## Acceptance criteria
-- [ ] Test page shows button, badge and toast using theme tokens
-- [ ] Toggling Light/Dark/System updates surfaces; System follows `prefers-color-scheme`
+- [x] Test page shows button, badge and toast using theme tokens
+- [x] Toggling Light/Dark/System updates surfaces; System follows `prefers-color-scheme`
 
 ## Commit plan
 - [x] `feat(ui): configure tailwind theme tokens (T01)`
 - [x] `feat(ui): initialise shadcn/ui and add base components (T01)`
-- [ ] `feat(ui): dark mode tokens and theme preference (T01)`
+- [x] `feat(ui): dark mode tokens and theme preference (T01)`
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._
