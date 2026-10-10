@@ -1,7 +1,7 @@
 # T00: Scaffold and tooling
 
 **Milestone:** M1 Foundation
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Runnable Vite + React + TS project with MVC folders.
@@ -14,12 +14,12 @@ Runnable Vite + React + TS project with MVC folders.
 - README stub
 
 ## Acceptance criteria
-- [ ] npm run dev, build and typecheck pass
+- [x] npm run dev, build and typecheck pass
 
 ## Commit plan
 - [x] `chore: init vite react-ts project (T00)`
 - [x] `chore: configure strict ts, alias, eslint and prettier (T00)`
-- [ ] `chore: add mvc folder structure and readme stub (T00)`
+- [x] `chore: add mvc folder structure and readme stub (T00)`
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._

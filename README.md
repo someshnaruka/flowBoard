@@ -1,32 +1,34 @@
-# React + TypeScript + Vite
+# Flowboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Mini project-management app (ClickUp / Asana / Linear style) for a frontend take-home.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Vite, React 18, TypeScript, Tailwind 3.4, shadcn/ui, Zustand + Immer, dnd-kit, Vitest, Playwright.
 
-## React Compiler
+## Architecture
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+MVC under `src/`:
 
-## Expanding the Oxlint configuration
+- `model/` — pure types and services (no React)
+- `controller/` — Zustand store and orchestration
+- `view/` — React components
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+See `.cursorrules` and `plan/project.md` for full rules and the milestone plan.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Typecheck and production build |
+| `npm run typecheck` | TypeScript project references check |
+| `npm run test` | Run Vitest |
+| `npm run lint` | Run ESLint |
+
+## Getting started
+
+```bash
+npm install
+npm run dev
 ```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
