@@ -10,8 +10,8 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 **As of:** 2026-10-10 (T08 done)
 
-- **Done:** M1, M2, **T08** app shell / tree / user switcher
-- **Next:** **T09** shared UI primitives (StatusBadge, PriorityBadge, …)
+- **Done:** M1, M2, T08, **T09** shared UI primitives
+- **Next:** **T10** static kanban board
 - **Tests:** 36 Vitest tests green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 
@@ -156,6 +156,12 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 ---
 
 ## Changelog (append-only)
+
+### 2026-10-10 — T09 UI primitives
+
+- Variant-based `StatusBadge` / `PriorityBadge` (theme tokens only).
+- `AvatarStack`, `DueDate`, `EmptyState`, `ConfirmDialog`, `SaveIndicator`.
+- Component tests for badges + due date.
 
 ### 2026-10-10 — T08 app shell
 

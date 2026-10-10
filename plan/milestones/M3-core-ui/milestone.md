@@ -4,7 +4,7 @@ App shell, tree, board, drag and drop, list view and task drawer.
 
 ## Tasks
 - [x] T08 App shell, sidebar tree, user switcher
-- [ ] T09 Shared UI primitives
+- [x] T09 Shared UI primitives
 - [ ] T10 Kanban board (static)
 - [ ] T11 Drag and drop
 - [ ] T12 List view
