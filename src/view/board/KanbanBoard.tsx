@@ -6,6 +6,7 @@ import {
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import { EmptyState } from '@/view/ui/empty-state'
 import { Column } from './Column'
+import { TaskCard } from './TaskCard'
 
 type KanbanBoardProps = {
   listId: string
@@ -13,12 +14,13 @@ type KanbanBoardProps = {
 
 export function KanbanBoard({ listId }: KanbanBoardProps) {
   const currentUserId = useFlowStore((state) => state.currentUserId)
+  const openDrawer = useFlowStore((state) => state.openDrawer)
   const tasksStamp = useFlowStore((state) =>
     Object.values(state.tasks)
       .filter((task) => task.listId === listId)
       .map(
         (task) =>
-          `${task.id}:${task.statusId}:${task.position}:${task.title}:${task.updatedAt}`,
+          `${task.id}:${task.statusId}:${task.position}:${task.title}:${task.updatedAt}:${task.assigneeIds.join(',')}:${task.dueDate ?? ''}:${task.priority}`,
       )
       .join('\0'),
   )
@@ -94,14 +96,11 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
             onToggleCollapse={() => toggleCollapse(status.id)}
           >
             {columnTasks.map((task) => (
-              <div
+              <TaskCard
                 key={task.id}
-                className="rounded-card border border-border bg-card p-3 shadow-card"
-              >
-                <p className="line-clamp-2 min-w-0 text-card-title text-foreground">
-                  {task.title}
-                </p>
-              </div>
+                taskId={task.id}
+                onOpen={() => openDrawer(task.id)}
+              />
             ))}
           </Column>
         )
