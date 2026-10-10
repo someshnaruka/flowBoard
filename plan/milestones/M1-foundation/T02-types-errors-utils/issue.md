@@ -1,7 +1,7 @@
 # T02: Types, errors, ids and positions
 
 **Milestone:** M1 Foundation
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Typed domain core used by every other layer.
@@ -13,12 +13,12 @@ Typed domain core used by every other layer.
 - position.ts: between/after/before fractional helpers + rebalance
 
 ## Acceptance criteria
-- [ ] position.ts unit tests pass
-- [ ] No React imports in model/
+- [x] position.ts unit tests pass
+- [x] No React imports in model/
 
 ## Commit plan
 - [x] `feat(model): add domain types and result/error helpers (T02)`
-- [ ] `feat(model): add id and fractional position utils with tests (T02)`
+- [x] `feat(model): add id and fractional position utils with tests (T02)`
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._
