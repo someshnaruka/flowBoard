@@ -134,4 +134,46 @@ describe('flow store', () => {
     expect(task?.priority).toBe('urgent')
     expect(task?.statusId).toBe('status-backlog-active')
   })
+
+  it('creates a list with default statuses and archives with restore', async () => {
+    const store = createFlowStore(createSeed())
+    const created = await store.getState().createContainer({
+      kind: 'list',
+      name: 'New backlog list',
+      parentId: 'folder-platform',
+    })
+    expect(isOk(created)).toBe(true)
+    if (!isOk(created)) {
+      return
+    }
+
+    const statuses = Object.values(store.getState().statuses).filter(
+      (status) => status.listId === created.data.id,
+    )
+    expect(statuses).toHaveLength(3)
+
+    const archived = await store.getState().archiveContainer(created.data.id)
+    expect(isOk(archived)).toBe(true)
+    expect(store.getState().nodes[created.data.id]?.archivedAt).not.toBeNull()
+
+    const restored = await store.getState().restoreContainer(created.data.id)
+    expect(isOk(restored)).toBe(true)
+    expect(store.getState().nodes[created.data.id]?.archivedAt).toBeNull()
+  })
+
+  it('duplicates and deletes a task', async () => {
+    const store = createFlowStore(createSeed())
+    const duplicated = await store.getState().duplicateTask('task-backlog-2')
+    expect(isOk(duplicated)).toBe(true)
+    if (!isOk(duplicated)) {
+      return
+    }
+    expect(duplicated.data.title).toContain('(copy)')
+
+    store.getState().openDrawer(duplicated.data.id)
+    const deleted = await store.getState().deleteTask(duplicated.data.id)
+    expect(isOk(deleted)).toBe(true)
+    expect(store.getState().tasks[duplicated.data.id]).toBeUndefined()
+    expect(store.getState().drawerTaskId).toBeNull()
+  })
 })

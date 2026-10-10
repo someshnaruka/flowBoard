@@ -105,3 +105,21 @@ export function selectBreadcrumb(
   }
   return chain
 }
+
+/** Active (non-archived) siblings of a node, ordered by position. */
+export function selectSiblings(
+  state: AppState,
+  nodeId: string,
+): ContainerNode[] {
+  const node = state.nodes[nodeId]
+  if (!node) {
+    return []
+  }
+
+  return Object.values(state.nodes)
+    .filter(
+      (sibling) =>
+        sibling.parentId === node.parentId && sibling.archivedAt == null,
+    )
+    .sort((a, b) => a.position - b.position)
+}

@@ -74,11 +74,21 @@ export function SidebarTree() {
   const selectedListId = useFlowStore((state) => state.selectedListId)
   const collapsedRail = useFlowStore((state) => state.sidebarCollapsed)
   const expandedKey = useFlowStore((state) => state.expandedNodeIds.join('\0'))
+  const nodesStamp = useFlowStore((state) =>
+    Object.values(state.nodes)
+      .map(
+        (node) =>
+          `${node.id}:${node.name}:${node.position}:${node.parentId}:${node.archivedAt ?? ''}`,
+      )
+      .sort()
+      .join('\0'),
+  )
 
   const tree = useMemo(() => {
     void currentUserId
+    void nodesStamp
     return selectVisibleTree(getDefaultFlowStore().getState())
-  }, [currentUserId])
+  }, [currentUserId, nodesStamp])
 
   const expandedIds = useMemo(
     () => new Set(expandedKey.length > 0 ? expandedKey.split('\0') : []),

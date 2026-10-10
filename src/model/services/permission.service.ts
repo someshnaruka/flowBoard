@@ -160,6 +160,9 @@ export function filterTree(
   const directIds = new Set<string>()
 
   for (const node of Object.values(state.nodes)) {
+    if (node.archivedAt) {
+      continue
+    }
     if (!canView(state, userId, node.id)) {
       continue
     }
@@ -171,7 +174,7 @@ export function filterTree(
 
   const childrenByParent = new Map<string | null, ContainerNode[]>()
   for (const node of Object.values(state.nodes)) {
-    if (!includeIds.has(node.id)) {
+    if (node.archivedAt || !includeIds.has(node.id)) {
       continue
     }
     const key = node.parentId

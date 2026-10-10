@@ -6,8 +6,6 @@ import {
   Folder,
   LayoutList,
   Lock,
-  MoreHorizontal,
-  Plus,
 } from 'lucide-react'
 import type { NodeKind } from '@/model/types'
 import { Button } from '@/view/ui/button'
@@ -17,6 +15,7 @@ import {
   TooltipTrigger,
 } from '@/view/ui/tooltip'
 import { cn } from '@/view/ui/utils'
+import { TreeNodeMenu } from './TreeNodeMenu'
 
 const KIND_ICON: Record<NodeKind, typeof Folder> = {
   workspace: Building2,
@@ -43,6 +42,7 @@ type TreeRowProps = {
 }
 
 export function TreeRow({
+  id,
   name,
   kind,
   depth,
@@ -129,38 +129,7 @@ export function TreeRow({
         </button>
       </div>
 
-      <div className="flex shrink-0 items-center opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-5 rounded-badge p-0"
-              aria-label={`Add under ${name}`}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <Plus className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Add</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="size-5 rounded-badge p-0"
-              aria-label={`Menu for ${name}`}
-              onClick={(event) => event.stopPropagation()}
-            >
-              <MoreHorizontal className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>More</TooltipContent>
-        </Tooltip>
-      </div>
+      <TreeNodeMenu id={id} name={name} kind={kind} isShell={isShell} />
     </div>
   )
 }
