@@ -1,12 +1,55 @@
 import type {
   AppState,
   ContainerNode,
+  Grant,
+  Priority,
   Status,
+  Task,
   User,
 } from './types'
 import { POSITION_GAP } from './position'
 
 const NOW = '2026-10-10T12:00:00.000Z'
+
+/**
+ * Grants matrix (nearest grant wins; Alice is admin and bypasses all):
+ *
+ * | Node / List              | Alice | Bob              | Carol            |
+ * |--------------------------|-------|------------------|------------------|
+ * | space-engineering        | ✅    | ✅ (public)      | ✅ (public)      |
+ * | list-backlog             | ✅    | ✅               | ❌ DENY          |
+ * | list-sprint              | ✅    | ❌ DENY          | ✅               |
+ * | space-leadership (priv.) | ✅    | ❌ DENY          | ✅ ALLOW         |
+ * | list-okrs                | ✅    | ❌ (via space)   | ✅ (via allow)   |
+ */
+function buildGrants(): Record<string, Grant> {
+  return {
+    'grant-bob-deny-leadership': {
+      id: 'grant-bob-deny-leadership',
+      userId: 'user-bob',
+      nodeId: 'space-leadership',
+      effect: 'deny',
+    },
+    'grant-bob-deny-sprint': {
+      id: 'grant-bob-deny-sprint',
+      userId: 'user-bob',
+      nodeId: 'list-sprint',
+      effect: 'deny',
+    },
+    'grant-carol-allow-leadership': {
+      id: 'grant-carol-allow-leadership',
+      userId: 'user-carol',
+      nodeId: 'space-leadership',
+      effect: 'allow',
+    },
+    'grant-carol-deny-backlog': {
+      id: 'grant-carol-deny-backlog',
+      userId: 'user-carol',
+      nodeId: 'list-backlog',
+      effect: 'deny',
+    },
+  }
+}
 
 function node(
   partial: Omit<ContainerNode, 'createdAt' | 'updatedAt' | 'archivedAt'> & {
@@ -18,6 +61,35 @@ function node(
     createdAt: NOW,
     updatedAt: NOW,
     ...partial,
+  }
+}
+
+function task(partial: {
+  id: string
+  listId: string
+  title: string
+  statusId: string
+  priority: Priority
+  assigneeIds?: string[]
+  dueDate?: string | null
+  position: number
+  description?: string
+  parentTaskId?: string | null
+}): Task {
+  return {
+    id: partial.id,
+    listId: partial.listId,
+    title: partial.title,
+    description: partial.description ?? '',
+    statusId: partial.statusId,
+    priority: partial.priority,
+    assigneeIds: partial.assigneeIds ?? [],
+    dueDate: partial.dueDate ?? null,
+    position: partial.position,
+    parentTaskId: partial.parentTaskId ?? null,
+    archivedAt: null,
+    createdAt: NOW,
+    updatedAt: NOW,
   }
 }
 
@@ -153,17 +225,216 @@ function buildStatuses(): Record<string, Status> {
   }
 }
 
-/**
- * Seed AppState: hierarchy, users and list statuses.
- * Tasks and grants are added in the following seed commit.
- */
+function buildTasks(): Record<string, Task> {
+  const tasks: Task[] = [
+    // list-backlog (8)
+    task({
+      id: 'task-backlog-1',
+      listId: 'list-backlog',
+      title: 'Audit tree permission edges',
+      statusId: 'status-backlog-todo',
+      priority: 'high',
+      assigneeIds: ['user-alice'],
+      dueDate: '2026-10-05',
+      position: POSITION_GAP,
+    }),
+    task({
+      id: 'task-backlog-2',
+      listId: 'list-backlog',
+      title: 'Design empty states for board',
+      statusId: 'status-backlog-todo',
+      priority: 'normal',
+      assigneeIds: ['user-carol'],
+      dueDate: '2026-10-20',
+      position: POSITION_GAP * 2,
+    }),
+    task({
+      id: 'task-backlog-3',
+      listId: 'list-backlog',
+      title: 'Spike fractional ranking',
+      statusId: 'status-backlog-active',
+      priority: 'urgent',
+      assigneeIds: ['user-bob'],
+      dueDate: '2026-10-08',
+      position: POSITION_GAP * 3,
+    }),
+    task({
+      id: 'task-backlog-4',
+      listId: 'list-backlog',
+      title: 'Document seed grants matrix',
+      statusId: 'status-backlog-done',
+      priority: 'low',
+      assigneeIds: ['user-alice'],
+      dueDate: null,
+      position: POSITION_GAP * 4,
+    }),
+    task({
+      id: 'task-backlog-5',
+      listId: 'list-backlog',
+      title: 'Keyboard shortcut cheatsheet',
+      statusId: 'status-backlog-todo',
+      priority: 'none',
+      assigneeIds: [],
+      dueDate: '2026-11-01',
+      position: POSITION_GAP * 5,
+    }),
+    task({
+      id: 'task-backlog-6',
+      listId: 'list-backlog',
+      title: 'Avatar stack overflow cases',
+      statusId: 'status-backlog-active',
+      priority: 'normal',
+      assigneeIds: ['user-carol', 'user-bob'],
+      dueDate: '2026-10-12',
+      position: POSITION_GAP * 6,
+    }),
+    task({
+      id: 'task-backlog-7',
+      listId: 'list-backlog',
+      title: 'Persist UI density preference',
+      statusId: 'status-backlog-todo',
+      priority: 'low',
+      assigneeIds: ['user-alice'],
+      dueDate: '2026-09-30',
+      position: POSITION_GAP * 7,
+    }),
+    task({
+      id: 'task-backlog-8',
+      listId: 'list-backlog',
+      title: 'Archive cascade undo toast',
+      statusId: 'status-backlog-todo',
+      priority: 'high',
+      assigneeIds: ['user-bob'],
+      dueDate: '2026-10-18',
+      position: POSITION_GAP * 8,
+    }),
+
+    // list-sprint (6)
+    task({
+      id: 'task-sprint-1',
+      listId: 'list-sprint',
+      title: 'Ship kanban column DnD',
+      statusId: 'status-sprint-active',
+      priority: 'urgent',
+      assigneeIds: ['user-alice', 'user-carol'],
+      dueDate: '2026-10-09',
+      position: POSITION_GAP,
+    }),
+    task({
+      id: 'task-sprint-2',
+      listId: 'list-sprint',
+      title: 'List view pagination',
+      statusId: 'status-sprint-todo',
+      priority: 'high',
+      assigneeIds: ['user-carol'],
+      dueDate: '2026-10-15',
+      position: POSITION_GAP * 2,
+    }),
+    task({
+      id: 'task-sprint-3',
+      listId: 'list-sprint',
+      title: 'Task drawer focus trap',
+      statusId: 'status-sprint-active',
+      priority: 'normal',
+      assigneeIds: ['user-alice'],
+      dueDate: '2026-10-11',
+      position: POSITION_GAP * 3,
+    }),
+    task({
+      id: 'task-sprint-4',
+      listId: 'list-sprint',
+      title: 'Status remap on list move',
+      statusId: 'status-sprint-done',
+      priority: 'normal',
+      assigneeIds: ['user-bob'],
+      dueDate: '2026-10-01',
+      position: POSITION_GAP * 4,
+    }),
+    task({
+      id: 'task-sprint-5',
+      listId: 'list-sprint',
+      title: 'Sidebar collapse animation',
+      statusId: 'status-sprint-todo',
+      priority: 'low',
+      assigneeIds: [],
+      dueDate: null,
+      position: POSITION_GAP * 5,
+    }),
+    task({
+      id: 'task-sprint-6',
+      listId: 'list-sprint',
+      title: 'Confirm dialog copy pass',
+      statusId: 'status-sprint-todo',
+      priority: 'none',
+      assigneeIds: ['user-carol'],
+      dueDate: '2026-10-07',
+      position: POSITION_GAP * 6,
+    }),
+
+    // list-okrs (5)
+    task({
+      id: 'task-okrs-1',
+      listId: 'list-okrs',
+      title: 'Q4 narrative for board',
+      statusId: 'status-okrs-active',
+      priority: 'high',
+      assigneeIds: ['user-alice'],
+      dueDate: '2026-10-06',
+      position: POSITION_GAP,
+    }),
+    task({
+      id: 'task-okrs-2',
+      listId: 'list-okrs',
+      title: 'Hiring plan review',
+      statusId: 'status-okrs-todo',
+      priority: 'urgent',
+      assigneeIds: ['user-carol'],
+      dueDate: '2026-10-04',
+      position: POSITION_GAP * 2,
+    }),
+    task({
+      id: 'task-okrs-3',
+      listId: 'list-okrs',
+      title: 'Budget checkpoint',
+      statusId: 'status-okrs-todo',
+      priority: 'normal',
+      assigneeIds: ['user-alice', 'user-carol'],
+      dueDate: '2026-10-25',
+      position: POSITION_GAP * 3,
+    }),
+    task({
+      id: 'task-okrs-4',
+      listId: 'list-okrs',
+      title: 'Customer advisory notes',
+      statusId: 'status-okrs-done',
+      priority: 'low',
+      assigneeIds: ['user-carol'],
+      dueDate: null,
+      position: POSITION_GAP * 4,
+    }),
+    task({
+      id: 'task-okrs-5',
+      listId: 'list-okrs',
+      title: 'Risk register update',
+      statusId: 'status-okrs-active',
+      priority: 'high',
+      assigneeIds: ['user-alice'],
+      dueDate: '2026-10-03',
+      position: POSITION_GAP * 5,
+    }),
+  ]
+
+  return Object.fromEntries(tasks.map((item) => [item.id, item]))
+}
+
+/** Seed AppState used by the store factory and demos. */
 export function createSeed(): AppState {
   return {
     nodes: buildNodes(),
     statuses: buildStatuses(),
     users: buildUsers(),
-    grants: {},
-    tasks: {},
+    grants: buildGrants(),
+    tasks: buildTasks(),
     currentUserId: 'user-alice',
   }
 }

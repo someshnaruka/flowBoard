@@ -1,7 +1,7 @@
 # T03: Seed fixtures
 
 **Milestone:** M1 Foundation
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Realistic data that makes the Alice vs Bob demo obvious.
@@ -13,12 +13,12 @@ Realistic data that makes the Alice vs Bob demo obvious.
 - Comment table documenting the grants matrix
 
 ## Acceptance criteria
-- [ ] createSeed() returns valid AppState
-- [ ] Mix of priorities, assignees and overdue dates
+- [x] createSeed() returns valid AppState
+- [x] Mix of priorities, assignees and overdue dates
 
 ## Commit plan
 - [x] `feat(model): seed hierarchy, users and statuses (T03)`
-- [ ] `feat(model): seed tasks and permission grants (T03)`
+- [x] `feat(model): seed tasks and permission grants (T03)`
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._

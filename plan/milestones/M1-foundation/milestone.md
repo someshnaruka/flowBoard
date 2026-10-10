@@ -6,7 +6,7 @@ Project scaffold, design tokens, domain types and seed data.
 - [x] T00 Scaffold and tooling
 - [x] T01 Tailwind theme and shadcn/ui
 - [x] T02 Types, errors, ids and positions
-- [ ] T03 Seed fixtures
+- [x] T03 Seed fixtures
 
 ## Milestone done when
 All tasks above are Done and `npm run typecheck && npm run test && npm run build` pass.
