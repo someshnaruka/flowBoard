@@ -52,7 +52,7 @@ describe('position helpers', () => {
   })
 
   it('supports a chain of mid-inserts without colliding', () => {
-    let left = 0
+    const left = 0
     let right = POSITION_GAP
     const seen = new Set<number>()
 

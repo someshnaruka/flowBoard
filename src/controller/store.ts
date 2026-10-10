@@ -22,6 +22,7 @@ export type UiState = {
   view: BoardView
   drawerTaskId: string | null
   expandedNodeIds: string[]
+  sidebarCollapsed: boolean
   network: NetworkConfig
 }
 
@@ -65,6 +66,7 @@ export type FlowStore = FlowState & {
   setView: (view: BoardView) => void
   openDrawer: (taskId: string | null) => void
   toggleExpanded: (nodeId: string) => void
+  toggleSidebar: () => void
   switchUser: (userId: string) => void
   setNetworkConfig: (patch: Partial<NetworkConfig>) => void
   setFailNext: (value?: boolean) => void
@@ -84,6 +86,7 @@ function initialUi(seed: AppState): UiState {
     expandedNodeIds: Object.values(seed.nodes)
       .filter((node) => node.kind !== 'list')
       .map((node) => node.id),
+    sidebarCollapsed: false,
     network: defaultNetworkConfig(),
   }
 }
@@ -122,6 +125,12 @@ export function createFlowStore(
           } else {
             state.expandedNodeIds.push(nodeId)
           }
+        })
+      },
+
+      toggleSidebar: () => {
+        set((state) => {
+          state.sidebarCollapsed = !state.sidebarCollapsed
         })
       },
 

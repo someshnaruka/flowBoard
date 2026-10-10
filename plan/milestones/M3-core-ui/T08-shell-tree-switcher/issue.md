@@ -16,7 +16,7 @@ One coherent app chrome with permission-aware navigation.
 - [ ] Switching Alice/Bob/Carol visibly changes the tree
 
 ## Commit plan
-- [ ] `feat(view): app shell layout (T08)`
+- [x] `feat(view): app shell layout (T08)`
 - [ ] `feat(view): sidebar tree from visible-tree selector (T08)`
 - [ ] `feat(view): user switcher with toast (T08)`
 
