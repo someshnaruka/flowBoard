@@ -111,7 +111,7 @@ function buildUsers(): Record<string, User> {
       role: 'member',
       color: '#2563eb',
       avatarUrl:
-        'https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_2.png',
+        'https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_3.png',
     },
     'user-carol': {
       id: 'user-carol',
@@ -120,7 +120,7 @@ function buildUsers(): Record<string, User> {
       role: 'member',
       color: '#16a34a',
       avatarUrl:
-        'https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_3.png',
+        'https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_2.png',
     },
   }
 }
