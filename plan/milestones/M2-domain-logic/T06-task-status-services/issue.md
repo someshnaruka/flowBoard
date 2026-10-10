@@ -1,7 +1,7 @@
 # T06: Task and status services
 
 **Milestone:** M2 Domain logic (model + controller)
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Task rules and status integrity.
@@ -13,13 +13,13 @@ Task rules and status integrity.
 - Status add/rename/reorder/delete (block delete if in use)
 
 ## Acceptance criteria
-- [ ] Tests for success and failure paths
+- [x] Tests for success and failure paths
 
 ## Commit plan
 - [x] `feat(model): task create, update and validation (T06)`
 - [x] `feat(model): status change, reorder and move between lists (T06)`
 - [x] `feat(model): status service (T06)`
-- [ ] `test(model): task and status edge cases (T06)`
+- [x] `test(model): task and status edge cases (T06)`
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._
