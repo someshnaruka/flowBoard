@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useDroppable } from '@dnd-kit/core'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import type { StatusCategory } from '@/model/types'
 import { Button } from '@/view/ui/button'
@@ -11,22 +12,34 @@ import {
 import { cn } from '@/view/ui/utils'
 
 type ColumnProps = {
+  statusId: string
   name: string
   category: StatusCategory
   count: number
   collapsed: boolean
+  highlighted?: boolean
   onToggleCollapse: () => void
   children: ReactNode
 }
 
 export function Column({
+  statusId,
   name,
   category,
   count,
   collapsed,
+  highlighted = false,
   onToggleCollapse,
   children,
 }: ColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: statusId,
+    data: { type: 'column' as const, statusId },
+    disabled: collapsed,
+  })
+
+  const dropActive = highlighted || isOver
+
   if (collapsed) {
     return (
       <section
@@ -60,7 +73,13 @@ export function Column({
 
   return (
     <section
-      className="flex h-full w-column shrink-0 flex-col rounded-card border border-border bg-muted/30"
+      ref={setNodeRef}
+      className={cn(
+        'flex h-full w-column shrink-0 flex-col rounded-card border bg-muted/30 transition-colors duration-150',
+        dropActive
+          ? 'border-brand bg-brand/5 ring-2 ring-brand/25'
+          : 'border-border',
+      )}
       aria-label={`${name} column`}
     >
       <header className="sticky top-0 z-10 flex h-10 shrink-0 items-center gap-2 border-b border-border bg-muted/80 px-2 backdrop-blur-sm">
@@ -84,11 +103,7 @@ export function Column({
         </Tooltip>
       </header>
 
-      <div
-        className={cn(
-          'flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2',
-        )}
-      >
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
         {children}
       </div>
     </section>

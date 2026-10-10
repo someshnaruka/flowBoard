@@ -1,15 +1,38 @@
 import { useMemo, useState } from 'react'
 import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  defaultDropAnimationSideEffects,
+  type DropAnimation,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import {
   selectStatusesForList,
   selectTasksForList,
 } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import { EmptyState } from '@/view/ui/empty-state'
 import { Column } from './Column'
-import { TaskCard } from './TaskCard'
+import { SortableTaskCard } from './SortableTaskCard'
+import { TaskDragOverlay } from './TaskDragOverlay'
+import { useBoardDnd } from './useBoardDnd'
 
 type KanbanBoardProps = {
   listId: string
+}
+
+const dropAnimation: DropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: '0.4',
+      },
+    },
+  }),
 }
 
 export function KanbanBoard({ listId }: KanbanBoardProps) {
@@ -54,6 +77,7 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
   }, [currentUserId, listId, statusesStamp, tasksStamp])
 
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => new Set())
+  const dnd = useBoardDnd(statuses, tasksByStatus)
 
   const toggleCollapse = (statusId: string) => {
     setCollapsedIds((prev) => {
@@ -78,41 +102,71 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
   }
 
   return (
-    <div
-      className="flex h-full min-h-0 gap-3 overflow-x-auto overflow-y-hidden p-4"
-      aria-label="Kanban board"
+    <DndContext
+      sensors={dnd.sensors}
+      collisionDetection={closestCorners}
+      onDragStart={dnd.onDragStart}
+      onDragOver={dnd.onDragOver}
+      onDragEnd={(event) => {
+        void dnd.onDragEnd(event)
+      }}
+      onDragCancel={dnd.onDragCancel}
     >
-      {statuses.map((status) => {
-        const columnTasks = tasksByStatus.get(status.id) ?? []
-        const collapsed = collapsedIds.has(status.id)
+      <div
+        className="flex h-full min-h-0 gap-3 overflow-x-auto overflow-y-hidden p-4"
+        aria-label="Kanban board"
+      >
+        {statuses.map((status) => {
+          const columnTaskIds = dnd.columns[status.id] ?? []
+          const collapsed = collapsedIds.has(status.id)
 
-        return (
-          <Column
-            key={status.id}
-            name={status.name}
-            category={status.category}
-            count={columnTasks.length}
-            collapsed={collapsed}
-            onToggleCollapse={() => toggleCollapse(status.id)}
-          >
-            {columnTasks.length === 0 ? (
-              <EmptyState
-                title="No tasks"
-                description="Create a task to fill this column."
-                className="rounded-card border border-dashed border-border py-8"
-              />
-            ) : (
-              columnTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  taskId={task.id}
-                  onOpen={() => openDrawer(task.id)}
-                />
-              ))
-            )}
-          </Column>
-        )
-      })}
-    </div>
+          return (
+            <Column
+              key={status.id}
+              statusId={status.id}
+              name={status.name}
+              category={status.category}
+              count={columnTaskIds.length}
+              collapsed={collapsed}
+              highlighted={
+                dnd.highlightedContainer === status.id && Boolean(dnd.activeId)
+              }
+              onToggleCollapse={() => toggleCollapse(status.id)}
+            >
+              <SortableContext
+                id={status.id}
+                items={columnTaskIds}
+                strategy={verticalListSortingStrategy}
+              >
+                {columnTaskIds.length === 0 ? (
+                  <EmptyState
+                    title="No tasks"
+                    description="Drop or create a task here."
+                    className="pointer-events-none rounded-card border border-dashed border-border py-8"
+                  />
+                ) : (
+                  columnTaskIds.map((taskId) => (
+                    <SortableTaskCard
+                      key={taskId}
+                      taskId={taskId}
+                      onOpen={() => openDrawer(taskId)}
+                      showInsertionLine={
+                        Boolean(dnd.activeId) &&
+                        dnd.overId === taskId &&
+                        dnd.activeId !== taskId
+                      }
+                    />
+                  ))
+                )}
+              </SortableContext>
+            </Column>
+          )
+        })}
+      </div>
+
+      <DragOverlay dropAnimation={dropAnimation}>
+        {dnd.activeId ? <TaskDragOverlay taskId={dnd.activeId} /> : null}
+      </DragOverlay>
+    </DndContext>
   )
 }

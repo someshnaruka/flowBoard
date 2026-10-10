@@ -1,11 +1,13 @@
 import { useStore } from 'zustand'
 import { createStore, type StoreApi } from 'zustand/vanilla'
 import { immer } from 'zustand/middleware/immer'
-import { isErr, ok, type Result } from '@/model/errors'
+import { fail, isErr, ok, type Result } from '@/model/errors'
 import { createSeed } from '@/model/seed'
 import { assertCan, canView } from '@/model/services/permission.service'
 import {
+  changeStatus as changeStatusService,
   createTask as createTaskService,
+  reorderTask as reorderTaskService,
   type CreateTaskInput,
 } from '@/model/services/task.service'
 import type { AppState, Task } from '@/model/types'
@@ -61,6 +63,13 @@ function firstVisibleListId(state: AppState, userId: string): string | null {
   return null
 }
 
+export type PlaceTaskInput = {
+  taskId: string
+  statusId: string
+  afterId?: string | null
+  beforeId?: string | null
+}
+
 export type FlowStore = FlowState & {
   setSelectedListId: (listId: string | null) => void
   setView: (view: BoardView) => void
@@ -71,6 +80,7 @@ export type FlowStore = FlowState & {
   setNetworkConfig: (patch: Partial<NetworkConfig>) => void
   setFailNext: (value?: boolean) => void
   createTask: (input: CreateTaskInput) => Promise<Result<Task>>
+  placeTask: (input: PlaceTaskInput) => Promise<Result<Task>>
 }
 
 function initialUi(seed: AppState): UiState {
@@ -205,6 +215,65 @@ export function createFlowStore(
         })
 
         return ok(serviceResult.data.task)
+      },
+
+      placeTask: async (input) => {
+        const snapshot = get()
+        const existing = snapshot.tasks[input.taskId]
+        if (!existing) {
+          return fail('NOT_FOUND', `Task ${input.taskId} not found`)
+        }
+
+        const permission = assertCan(
+          snapshot,
+          snapshot.currentUserId,
+          existing.listId,
+          'edit',
+        )
+        if (isErr(permission)) {
+          return permission
+        }
+
+        let domain = domainSnapshot(snapshot)
+
+        if (existing.statusId !== input.statusId) {
+          const statusResult = changeStatusService(
+            domain,
+            snapshot.currentUserId,
+            { taskId: input.taskId, statusId: input.statusId },
+          )
+          if (isErr(statusResult)) {
+            return statusResult
+          }
+          domain = statusResult.data.state
+        }
+
+        const reorderResult = reorderTaskService(
+          domain,
+          snapshot.currentUserId,
+          {
+            taskId: input.taskId,
+            afterId: input.afterId,
+            beforeId: input.beforeId,
+          },
+        )
+        if (isErr(reorderResult)) {
+          return reorderResult
+        }
+
+        const network = await simulateNetwork(get().network)
+        set((state) => {
+          state.network.failNext = false
+        })
+        if (isErr(network)) {
+          return network
+        }
+
+        set((state) => {
+          applyDomain(state, reorderResult.data.state)
+        })
+
+        return ok(reorderResult.data.task)
       },
     })),
   )
