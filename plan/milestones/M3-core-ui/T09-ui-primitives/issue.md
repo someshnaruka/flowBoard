@@ -14,7 +14,7 @@ Reusable pieces so views stay consistent.
 - [ ] Quick component test for PriorityBadge/DueDate
 
 ## Commit plan
-- [ ] `feat(ui): status and priority badges (T09)`
+- [x] `feat(ui): status and priority badges (T09)`
 - [ ] `feat(ui): avatar stack, due date and empty state (T09)`
 - [ ] `feat(ui): confirm dialog and save indicator (T09)`
 
