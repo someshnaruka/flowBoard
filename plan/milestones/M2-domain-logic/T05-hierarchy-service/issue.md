@@ -1,7 +1,7 @@
 # T05: Hierarchy service
 
 **Milestone:** M2 Domain logic (model + controller)
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Safe container CRUD, move, reorder and archive.
@@ -12,12 +12,12 @@ Safe container CRUD, move, reorder and archive.
 - Return Result, never throw
 
 ## Acceptance criteria
-- [ ] Tests: valid/invalid parents, cycle, archive cascade + restore, reorder
+- [x] Tests: valid/invalid parents, cycle, archive cascade + restore, reorder
 
 ## Commit plan
 - [x] `feat(model): create, rename and validate parents (T05)`
 - [x] `feat(model): move, reorder, archive and restore (T05)`
-- [ ] `test(model): hierarchy edge cases (T05)`
+- [x] `test(model): hierarchy edge cases (T05)`
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._
