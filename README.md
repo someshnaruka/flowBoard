@@ -16,6 +16,9 @@ MVC under `src/`:
 
 See `.cursor/rules/` and `plan/project.md` for full rules and the milestone plan.
 
+- Checklist (milestones / issues): [`plan/CHECKLIST.md`](plan/CHECKLIST.md)
+- Progress & flows: [`plan/PROGRESS.md`](plan/PROGRESS.md)
+
 ## Scripts
 
 | Command | Description |
