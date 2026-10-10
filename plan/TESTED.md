@@ -62,6 +62,7 @@ npm run build   # also runs on husky pre-push
   - [x] Selecting a list updates top bar title
   - [x] User switcher shows role badge + “Viewing as …” toast
   - [x] First-load tree skeletons appear briefly
+- [x] **Bugfix:** blank screen from unstable Zustand selectors (`selectVisibleTree` / `Object.values(users)` new refs every render) — memoized domain slices instead
 
 ### T09 Shared UI primitives
 - [x] `status-badge.test.tsx` — StatusBadge + PriorityBadge token classes

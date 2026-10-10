@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react'
-import {
-  selectVisibleTree,
-} from '@/controller/selectors'
+import { useEffect, useMemo, useState } from 'react'
+import { selectVisibleTree } from '@/controller/selectors'
 import { useFlowStore } from '@/controller/store'
 import type { VisibleTreeNode } from '@/model/services/permission.service'
 import { Skeleton } from '@/view/ui/skeleton'
@@ -66,8 +64,30 @@ function TreeNodes({
 }
 
 export function SidebarTree() {
-  const tree = useFlowStore(selectVisibleTree)
+  // Select stable domain slices, then memoize the tree. Selecting
+  // selectVisibleTree() directly returns a new array every time and
+  // infinite-loops useSyncExternalStore (blank screen).
+  const currentUserId = useFlowStore((state) => state.currentUserId)
+  const nodes = useFlowStore((state) => state.nodes)
+  const grants = useFlowStore((state) => state.grants)
+  const users = useFlowStore((state) => state.users)
+  const statuses = useFlowStore((state) => state.statuses)
+  const tasks = useFlowStore((state) => state.tasks)
   const collapsedRail = useFlowStore((state) => state.sidebarCollapsed)
+
+  const tree = useMemo(
+    () =>
+      selectVisibleTree({
+        currentUserId,
+        nodes,
+        grants,
+        users,
+        statuses,
+        tasks,
+      }),
+    [currentUserId, nodes, grants, users, statuses, tasks],
+  )
+
   const [ready, setReady] = useState(false)
 
   useEffect(() => {

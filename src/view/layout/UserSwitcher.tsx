@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Check, ChevronsUpDown, Moon, Sun, Monitor } from 'lucide-react'
 import { toast } from 'sonner'
 import { selectCurrentUser } from '@/controller/selectors'
@@ -56,7 +57,8 @@ type UserSwitcherProps = {
 
 export function UserSwitcher({ compact = false }: UserSwitcherProps) {
   const currentUser = useFlowStore(selectCurrentUser)
-  const users = useFlowStore((state) => Object.values(state.users))
+  const usersById = useFlowStore((state) => state.users)
+  const users = useMemo(() => Object.values(usersById), [usersById])
   const switchUser = useFlowStore((state) => state.switchUser)
   const { preference, setPreference } = useTheme()
 
