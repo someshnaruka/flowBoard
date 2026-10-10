@@ -1,7 +1,7 @@
 # T08: App shell, sidebar tree, user switcher
 
 **Milestone:** M3 Core UI
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 One coherent app chrome with permission-aware navigation.
@@ -13,12 +13,12 @@ One coherent app chrome with permission-aware navigation.
 - Skeleton on first load
 
 ## Acceptance criteria
-- [ ] Switching Alice/Bob/Carol visibly changes the tree
+- [x] Switching Alice/Bob/Carol visibly changes the tree
 
 ## Commit plan
 - [x] `feat(view): app shell layout (T08)`
 - [x] `feat(view): sidebar tree from visible-tree selector (T08)`
-- [ ] `feat(view): user switcher with toast (T08)`
+- [x] `feat(view): user switcher with toast (T08)`
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._

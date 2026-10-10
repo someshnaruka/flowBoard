@@ -10,11 +10,11 @@ Master tracker for milestones and issues. Tick boxes here when an issue’s `iss
 |---|---|---|
 | M1 Foundation | Done | 4 / 4 |
 | M2 Domain logic | Done | 4 / 4 |
-| M3 Core UI | Todo | 0 / 6 |
+| M3 Core UI | In progress | 1 / 6 |
 | M4 Flows and feedback | Todo | 0 / 2 |
 | M5 Polish and delivery | Todo | 0 / 6 |
 
-**Overall:** 8 / 22 issues
+**Overall:** 9 / 22 issues
 
 ---
 
@@ -38,7 +38,7 @@ Milestone: [x] Done
 
 ## M3 — Core UI
 
-- [ ] **T08** App shell, sidebar tree, user switcher
+- [x] **T08** App shell, sidebar tree, user switcher
 - [ ] **T09** Shared UI primitives
 - [ ] **T10** Kanban board (static)
 - [ ] **T11** Drag and drop

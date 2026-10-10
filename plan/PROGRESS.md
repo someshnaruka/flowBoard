@@ -8,10 +8,10 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-10 (after M2 push)
+**As of:** 2026-10-10 (T08 done)
 
-- **Done:** M1 Foundation, M2 Domain logic
-- **Next:** M3 Core UI — start at **T08** (app shell, tree, user switcher)
+- **Done:** M1, M2, **T08** app shell / tree / user switcher
+- **Next:** **T09** shared UI primitives (StatusBadge, PriorityBadge, …)
 - **Tests:** 36 Vitest tests green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 
@@ -156,6 +156,13 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 ---
 
 ## Changelog (append-only)
+
+### 2026-10-10 — T08 app shell
+
+- `AppShell` + collapsible sidebar (260↔56) + top bar.
+- `SidebarTree` from `selectVisibleTree` — Alice/Bob/Carol switch changes the tree.
+- `UserSwitcher` with role badges, theme menu, “Viewing as” toast.
+- Main pane still a placeholder until T10 kanban.
 
 ### 2026-10-10 — M1 + M2 complete
 
