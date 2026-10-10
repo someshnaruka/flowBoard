@@ -1,7 +1,7 @@
 import { fail, ok, type Result } from '../errors'
 import { newId } from '../id'
-import { after } from '../position'
-import type { AppState, Priority, Task } from '../types'
+import { after, before, between } from '../position'
+import type { AppState, Priority, Status, StatusCategory, Task } from '../types'
 
 export type TaskMutation = {
   state: AppState
@@ -244,4 +244,266 @@ export function deleteTask(
   }
 
   return ok({ state: next, deletedIds })
+}
+
+export type ChangeStatusInput = {
+  taskId: string
+  statusId: string
+}
+
+export function changeStatus(
+  state: AppState,
+  _actorId: string,
+  input: ChangeStatusInput,
+): Result<TaskMutation> {
+  const existing = state.tasks[input.taskId]
+  if (!existing) {
+    return fail('NOT_FOUND', `Task ${input.taskId} not found`)
+  }
+
+  const listCheck = assertListWritable(state, existing.listId)
+  if ('error' in listCheck) {
+    return listCheck
+  }
+
+  const statusCheck = assertStatusOnList(
+    state,
+    existing.listId,
+    input.statusId,
+  )
+  if ('error' in statusCheck) {
+    return statusCheck
+  }
+
+  const task: Task = {
+    ...existing,
+    statusId: input.statusId,
+    updatedAt: nowIso(),
+  }
+  const next = cloneState(state)
+  next.tasks[task.id] = task
+  return ok({ state: next, task })
+}
+
+export type ReorderTaskInput = {
+  taskId: string
+  afterId?: string | null
+  beforeId?: string | null
+}
+
+export function reorderTask(
+  state: AppState,
+  _actorId: string,
+  input: ReorderTaskInput,
+): Result<TaskMutation> {
+  const existing = state.tasks[input.taskId]
+  if (!existing) {
+    return fail('NOT_FOUND', `Task ${input.taskId} not found`)
+  }
+
+  const listCheck = assertListWritable(state, existing.listId)
+  if ('error' in listCheck) {
+    return listCheck
+  }
+
+  const afterTask =
+    input.afterId != null ? state.tasks[input.afterId] : undefined
+  const beforeTask =
+    input.beforeId != null ? state.tasks[input.beforeId] : undefined
+
+  if (input.afterId != null && !afterTask) {
+    return fail('NOT_FOUND', `afterId ${input.afterId} not found`)
+  }
+  if (input.beforeId != null && !beforeTask) {
+    return fail('NOT_FOUND', `beforeId ${input.beforeId} not found`)
+  }
+
+  const sameGroup = (other: Task) =>
+    other.listId === existing.listId &&
+    other.parentTaskId === existing.parentTaskId
+
+  if (afterTask && !sameGroup(afterTask)) {
+    return fail('VALIDATION', 'afterId must be in the same list group')
+  }
+  if (beforeTask && !sameGroup(beforeTask)) {
+    return fail('VALIDATION', 'beforeId must be in the same list group')
+  }
+  if (input.afterId === input.taskId || input.beforeId === input.taskId) {
+    return fail('VALIDATION', 'Cannot reorder relative to self')
+  }
+
+  let position: number
+  if (afterTask && beforeTask) {
+    position = between(afterTask.position, beforeTask.position)
+  } else if (afterTask) {
+    position = after(afterTask.position)
+  } else if (beforeTask) {
+    position = before(beforeTask.position)
+  } else {
+    const siblings = (
+      existing.parentTaskId
+        ? Object.values(state.tasks).filter(
+            (task) => task.parentTaskId === existing.parentTaskId,
+          )
+        : getListTasks(state, existing.listId)
+    ).filter((task) => task.id !== existing.id)
+    position =
+      siblings.length > 0
+        ? after(siblings[siblings.length - 1]?.position)
+        : after(null)
+  }
+
+  const task: Task = {
+    ...existing,
+    position,
+    updatedAt: nowIso(),
+  }
+  const next = cloneState(state)
+  next.tasks[task.id] = task
+  return ok({ state: next, task })
+}
+
+function statusesForList(state: AppState, listId: string): Status[] {
+  return Object.values(state.statuses)
+    .filter((status) => status.listId === listId)
+    .sort((a, b) => a.position - b.position)
+}
+
+function remapStatusId(
+  state: AppState,
+  fromStatusId: string,
+  targetListId: string,
+): Result<string> {
+  const fromStatus = state.statuses[fromStatusId]
+  if (!fromStatus) {
+    return fail('INVALID_STATUS', `Status ${fromStatusId} not found`)
+  }
+
+  const targetStatuses = statusesForList(state, targetListId)
+  if (targetStatuses.length === 0) {
+    return fail('INVALID_STATUS', `List ${targetListId} has no statuses`)
+  }
+
+  const sameCategory = targetStatuses.find(
+    (status) => status.category === fromStatus.category,
+  )
+  if (sameCategory) {
+    return ok(sameCategory.id)
+  }
+
+  const fallbackTodo = targetStatuses.find(
+    (status) => status.category === ('todo' satisfies StatusCategory),
+  )
+  if (fallbackTodo) {
+    return ok(fallbackTodo.id)
+  }
+
+  return ok(targetStatuses[0]!.id)
+}
+
+export type MoveTaskToListInput = {
+  taskId: string
+  targetListId: string
+  /** Optional explicit status on the target list; otherwise remapped by category. */
+  statusId?: string
+  afterId?: string | null
+  beforeId?: string | null
+}
+
+export function moveTaskToList(
+  state: AppState,
+  _actorId: string,
+  input: MoveTaskToListInput,
+): Result<TaskMutation> {
+  const existing = state.tasks[input.taskId]
+  if (!existing) {
+    return fail('NOT_FOUND', `Task ${input.taskId} not found`)
+  }
+  if (existing.parentTaskId) {
+    return fail('VALIDATION', 'Move subtasks with their parent task')
+  }
+
+  const sourceCheck = assertListWritable(state, existing.listId)
+  if ('error' in sourceCheck) {
+    return sourceCheck
+  }
+  const targetCheck = assertListWritable(state, input.targetListId)
+  if ('error' in targetCheck) {
+    return targetCheck
+  }
+
+  let statusId = input.statusId
+  if (statusId) {
+    const statusCheck = assertStatusOnList(
+      state,
+      input.targetListId,
+      statusId,
+    )
+    if ('error' in statusCheck) {
+      return statusCheck
+    }
+  } else {
+    const remapped = remapStatusId(state, existing.statusId, input.targetListId)
+    if ('error' in remapped) {
+      return remapped
+    }
+    statusId = remapped.data
+  }
+
+  const siblings = getListTasks(state, input.targetListId).filter(
+    (task) => task.id !== existing.id,
+  )
+  const afterTask =
+    input.afterId != null ? state.tasks[input.afterId] : undefined
+  const beforeTask =
+    input.beforeId != null ? state.tasks[input.beforeId] : undefined
+
+  if (input.afterId != null && !afterTask) {
+    return fail('NOT_FOUND', `afterId ${input.afterId} not found`)
+  }
+  if (input.beforeId != null && !beforeTask) {
+    return fail('NOT_FOUND', `beforeId ${input.beforeId} not found`)
+  }
+
+  let position: number
+  if (afterTask && beforeTask) {
+    position = between(afterTask.position, beforeTask.position)
+  } else if (afterTask) {
+    position = after(afterTask.position)
+  } else if (beforeTask) {
+    position = before(beforeTask.position)
+  } else if (siblings.length > 0) {
+    position = after(siblings[siblings.length - 1]?.position)
+  } else {
+    position = after(null)
+  }
+
+  const timestamp = nowIso()
+  const next = cloneState(state)
+  const task: Task = {
+    ...existing,
+    listId: input.targetListId,
+    statusId,
+    position,
+    updatedAt: timestamp,
+  }
+  next.tasks[task.id] = task
+
+  for (const child of Object.values(state.tasks)) {
+    if (child.parentTaskId !== existing.id) {
+      continue
+    }
+    const childStatus = remapStatusId(state, child.statusId, input.targetListId)
+    if ('error' in childStatus) {
+      return childStatus
+    }
+    next.tasks[child.id] = {
+      ...child,
+      listId: input.targetListId,
+      statusId: childStatus.data,
+      updatedAt: timestamp,
+    }
+  }
+
+  return ok({ state: next, task })
 }
