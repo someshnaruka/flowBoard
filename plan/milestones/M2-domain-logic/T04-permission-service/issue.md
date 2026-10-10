@@ -16,7 +16,7 @@ Single source of truth for who can see and edit what.
 
 ## Commit plan
 - [x] `feat(model): implement can-view and can-edit rules (T04)`
-- [ ] `feat(model): add tree filtering with shell ancestors (T04)`
+- [x] `feat(model): add tree filtering with shell ancestors (T04)`
 - [ ] `test(model): permission service coverage (T04)`
 
 ## AI notes

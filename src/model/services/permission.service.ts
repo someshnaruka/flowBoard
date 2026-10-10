@@ -139,3 +139,60 @@ export function assertCan(
 
   return ok(true)
 }
+
+export type VisibleTreeNode = {
+  id: string
+  node: ContainerNode
+  /** True when included only so the user can navigate to an allowed descendant. */
+  isShell: boolean
+  children: VisibleTreeNode[]
+}
+
+/**
+ * Visible hierarchy for a user. Directly visible nodes plus ancestors of
+ * allowed nodes as navigable shells (isShell: true).
+ */
+export function filterTree(
+  state: AppState,
+  userId: string,
+): VisibleTreeNode[] {
+  const includeIds = new Set<string>()
+  const directIds = new Set<string>()
+
+  for (const node of Object.values(state.nodes)) {
+    if (!canView(state, userId, node.id)) {
+      continue
+    }
+    directIds.add(node.id)
+    for (const ancestor of getAncestorChain(state, node.id)) {
+      includeIds.add(ancestor.id)
+    }
+  }
+
+  const childrenByParent = new Map<string | null, ContainerNode[]>()
+  for (const node of Object.values(state.nodes)) {
+    if (!includeIds.has(node.id)) {
+      continue
+    }
+    const key = node.parentId
+    const siblings = childrenByParent.get(key) ?? []
+    siblings.push(node)
+    childrenByParent.set(key, siblings)
+  }
+
+  for (const siblings of childrenByParent.values()) {
+    siblings.sort((a, b) => a.position - b.position)
+  }
+
+  function build(parentId: string | null): VisibleTreeNode[] {
+    const siblings = childrenByParent.get(parentId) ?? []
+    return siblings.map((node) => ({
+      id: node.id,
+      node,
+      isShell: !directIds.has(node.id),
+      children: build(node.id),
+    }))
+  }
+
+  return build(null)
+}
