@@ -17,7 +17,7 @@ Typed domain core used by every other layer.
 - [ ] No React imports in model/
 
 ## Commit plan
-- [ ] `feat(model): add domain types and result/error helpers (T02)`
+- [x] `feat(model): add domain types and result/error helpers (T02)`
 - [ ] `feat(model): add id and fractional position utils with tests (T02)`
 
 ## AI notes
