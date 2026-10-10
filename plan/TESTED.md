@@ -78,7 +78,15 @@ npm run build   # also runs on husky pre-push
   - [x] View bar Board|List toggle; + Task creates into first todo status
   - [x] Skeleton on list switch; empty column state; column collapse
 
-### T11–T13
+### T11 Drag and drop
+- [x] `typecheck` / `test` / `build`
+- [x] `store.test.ts` — placeTask across status; Bob FORBIDDEN on Sprint
+- [x] Manual / UX checks (run `npm run dev`):
+  - [x] Drag within column reorders; across columns updates status
+  - [x] DragOverlay, origin placeholder, drop-column highlight, insertion line
+  - [x] Keyboard sensor; drop failure toasts when `failNext` is set
+
+### T12–T13
 _Not done yet — fill when completing each issue._
 
 ---

@@ -1,7 +1,7 @@
 # T11: Drag and drop
 
 **Milestone:** M3 Core UI
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Status and position persist on drop.
@@ -13,11 +13,16 @@ Status and position persist on drop.
 - Keyboard sensor; mark transforms // DND-STYLE-EXCEPTION
 
 ## Acceptance criteria
-- [ ] Dropping updates status and order; failures toast
+- [x] Dropping updates status and order; failures toast
 
 ## Commit plan
-- [ ] `feat(board): sortable context and overlay (T11)`
-- [ ] `feat(board): persist status and position on drop (T11)`
+- [x] `feat(board): sortable context and overlay (T11)`
+- [x] `feat(board): persist status and position on drop (T11)`
+
+## Tested
+- [x] `npm run typecheck` / `test` / `build`
+- [x] Store: placeTask success + Bob FORBIDDEN
+- [x] Manual: drag within/across columns; overlay; drop highlight; failNext toast
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._

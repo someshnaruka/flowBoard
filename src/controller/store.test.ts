@@ -81,4 +81,41 @@ describe('flow store', () => {
       expect(store.getState().tasks[result.data.id]?.title).toBe('Store task')
     }
   })
+
+  it('places a task into another status with neighbors', async () => {
+    const store = createFlowStore(createSeed())
+    const before = store.getState().tasks['task-backlog-1']
+    expect(before?.statusId).toBe('status-backlog-todo')
+
+    const result = await store.getState().placeTask({
+      taskId: 'task-backlog-1',
+      statusId: 'status-backlog-active',
+      afterId: 'task-backlog-3',
+      beforeId: null,
+    })
+
+    expect(isOk(result)).toBe(true)
+    const placed = store.getState().tasks['task-backlog-1']
+    expect(placed?.statusId).toBe('status-backlog-active')
+    expect(placed?.position).toBeGreaterThan(
+      store.getState().tasks['task-backlog-3']!.position,
+    )
+  })
+
+  it('blocks Bob from placing on a denied list', async () => {
+    const store = createFlowStore(createSeed())
+    store.getState().switchUser('user-bob')
+
+    const result = await store.getState().placeTask({
+      taskId: 'task-sprint-1',
+      statusId: 'status-sprint-done',
+      afterId: null,
+      beforeId: null,
+    })
+
+    expect(isErr(result)).toBe(true)
+    if (isErr(result)) {
+      expect(result.error.code).toBe('FORBIDDEN')
+    }
+  })
 })
