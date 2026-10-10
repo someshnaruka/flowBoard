@@ -1,8 +1,19 @@
 import { useStore } from 'zustand'
 import { createStore, type StoreApi } from 'zustand/vanilla'
 import { immer } from 'zustand/middleware/immer'
+import { isErr, ok, type Result } from '@/model/errors'
 import { createSeed } from '@/model/seed'
-import type { AppState } from '@/model/types'
+import { assertCan, canView } from '@/model/services/permission.service'
+import {
+  createTask as createTaskService,
+  type CreateTaskInput,
+} from '@/model/services/task.service'
+import type { AppState, Task } from '@/model/types'
+import {
+  defaultNetworkConfig,
+  simulateNetwork,
+  type NetworkConfig,
+} from './simulateNetwork'
 
 export type BoardView = 'board' | 'list'
 
@@ -11,9 +22,43 @@ export type UiState = {
   view: BoardView
   drawerTaskId: string | null
   expandedNodeIds: string[]
+  network: NetworkConfig
 }
 
 export type FlowState = AppState & UiState
+
+function applyDomain(draft: FlowState, next: AppState): void {
+  draft.nodes = next.nodes
+  draft.statuses = next.statuses
+  draft.users = next.users
+  draft.grants = next.grants
+  draft.tasks = next.tasks
+  draft.currentUserId = next.currentUserId
+}
+
+function domainSnapshot(state: FlowState): AppState {
+  return {
+    nodes: state.nodes,
+    statuses: state.statuses,
+    users: state.users,
+    grants: state.grants,
+    tasks: state.tasks,
+    currentUserId: state.currentUserId,
+  }
+}
+
+function firstVisibleListId(state: AppState, userId: string): string | null {
+  const lists = Object.values(state.nodes)
+    .filter((node) => node.kind === 'list' && !node.archivedAt)
+    .sort((a, b) => a.position - b.position)
+
+  for (const list of lists) {
+    if (canView(state, userId, list.id)) {
+      return list.id
+    }
+  }
+  return null
+}
 
 export type FlowStore = FlowState & {
   setSelectedListId: (listId: string | null) => void
@@ -21,6 +66,9 @@ export type FlowStore = FlowState & {
   openDrawer: (taskId: string | null) => void
   toggleExpanded: (nodeId: string) => void
   switchUser: (userId: string) => void
+  setNetworkConfig: (patch: Partial<NetworkConfig>) => void
+  setFailNext: (value?: boolean) => void
+  createTask: (input: CreateTaskInput) => Promise<Result<Task>>
 }
 
 function initialUi(seed: AppState): UiState {
@@ -36,6 +84,7 @@ function initialUi(seed: AppState): UiState {
     expandedNodeIds: Object.values(seed.nodes)
       .filter((node) => node.kind !== 'list')
       .map((node) => node.id),
+    network: defaultNetworkConfig(),
   }
 }
 
@@ -76,18 +125,77 @@ export function createFlowStore(
         })
       },
 
+      setNetworkConfig: (patch) => {
+        set((state) => {
+          state.network = { ...state.network, ...patch }
+        })
+      },
+
+      setFailNext: (value = true) => {
+        set((state) => {
+          state.network.failNext = value
+        })
+      },
+
       switchUser: (userId) => {
-        const state = get()
-        if (!state.users[userId]) {
+        const current = get()
+        if (!current.users[userId]) {
           return
         }
 
         set((draft) => {
           draft.currentUserId = userId
+
+          if (
+            draft.selectedListId &&
+            !canView(draft, userId, draft.selectedListId)
+          ) {
+            draft.selectedListId = firstVisibleListId(draft, userId)
+          }
+
+          if (draft.drawerTaskId) {
+            const task = draft.tasks[draft.drawerTaskId]
+            if (!task || !canView(draft, userId, task.listId)) {
+              draft.drawerTaskId = null
+            }
+          }
+        })
+      },
+
+      createTask: async (input) => {
+        const snapshot = get()
+        const permission = assertCan(
+          snapshot,
+          snapshot.currentUserId,
+          input.listId,
+          'edit',
+        )
+        if (isErr(permission)) {
+          return permission
+        }
+
+        const serviceResult = createTaskService(
+          domainSnapshot(snapshot),
+          snapshot.currentUserId,
+          input,
+        )
+        if (isErr(serviceResult)) {
+          return serviceResult
+        }
+
+        const network = await simulateNetwork(get().network)
+        set((state) => {
+          state.network.failNext = false
+        })
+        if (isErr(network)) {
+          return network
+        }
+
+        set((state) => {
+          applyDomain(state, serviceResult.data.state)
         })
 
-        // Selection reset when the new user cannot see the current list/drawer
-        // is applied in a follow-up commit with permission helpers.
+        return ok(serviceResult.data.task)
       },
     })),
   )

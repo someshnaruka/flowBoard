@@ -18,8 +18,8 @@ Controller layer that gates every mutation.
 
 ## Commit plan
 - [x] `feat(controller): zustand store skeleton and selectors (T07)`
-- [ ] `feat(controller): permission-gated mutation pipeline (T07)`
-- [ ] `feat(controller): network simulation (T07)`
+- [x] `feat(controller): permission-gated mutation pipeline (T07)`
+- [x] `feat(controller): network simulation (T07)`
 - [ ] `test(controller): store permissions and failures (T07)`
 
 ## AI notes
