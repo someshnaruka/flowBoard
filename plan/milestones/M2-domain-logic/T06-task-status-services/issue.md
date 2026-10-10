@@ -16,7 +16,7 @@ Task rules and status integrity.
 - [ ] Tests for success and failure paths
 
 ## Commit plan
-- [ ] `feat(model): task create, update and validation (T06)`
+- [x] `feat(model): task create, update and validation (T06)`
 - [ ] `feat(model): status change, reorder and move between lists (T06)`
 - [ ] `feat(model): status service (T06)`
 - [ ] `test(model): task and status edge cases (T06)`
