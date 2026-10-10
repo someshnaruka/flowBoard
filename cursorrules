@@ -1,0 +1,89 @@
+# Flowboard: Cursor project rules
+
+You are helping build "Flowboard", a mini project-management app (ClickUp / Asana / Linear style) for a frontend take-home assignment. Quality, consistency and maintainability are judged, not just features.
+
+## Stack (do not add dependencies without asking)
+- Vite + React 18 + TypeScript (strict)
+- Tailwind CSS v3.4 ONLY for styling
+- shadcn/ui (Radix) components, generated into `src/view/ui`
+- Zustand + Immer for state
+- @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities for drag and drop
+- lucide-react for ALL icons (sizes: 16px inline, 20px headers)
+- sonner for toasts
+- date-fns for dates
+- Vitest + Testing Library for tests, Playwright for one E2E test
+- No backend. No localStorage except the documented UI-preference persistence.
+
+## Architecture: MVC (strict)
+```
+src/
+  model/        # M: pure TypeScript, NO React imports
+    types.ts  errors.ts  id.ts  position.ts  seed.ts
+    services/   hierarchy.service.ts  task.service.ts  status.service.ts  permission.service.ts
+  controller/   # C: Zustand store + orchestration
+    store.ts  selectors.ts  simulateNetwork.ts  hooks/
+  view/         # V: React components only
+    layout/ tree/ board/ list/ task/ ui/
+  tests/
+```
+Rules:
+1. `model/` never imports from `controller/` or `view/`. Services are pure functions: `(state, actor, input) => Result<T>`. They never throw and never mutate their inputs.
+2. `controller/` is the only layer that mutates state. Every mutation action runs this pipeline: permission check -> validation (via services) -> simulated latency/failure -> apply -> toast/activity.
+3. `view/` components never import from `model/services`. They read via selectors/hooks and call store actions. No business rules in components.
+4. Components stay small (target under 150 lines). Split when a component does more than one job.
+
+## Errors and results
+- Every service and store action returns `Result<T> = { data: T } | { error: { code: ErrorCode; message: string } }`.
+- ErrorCode: `FORBIDDEN | NOT_FOUND | VALIDATION | INVALID_PARENT | INVALID_STATUS | CONFLICT | NETWORK_ERROR`.
+- Use helper constructors `ok(data)` and `fail(code, message)` from `model/errors.ts`.
+
+## Data rules
+- IDs: only via `newId()` in `model/id.ts` (wraps `crypto.randomUUID()`). Seed data uses readable fixed IDs such as `user-alice`, `list-backlog`.
+- Ordering: `position` is a fractional number. Use helpers in `model/position.ts` (`between(a, b)`, `after(a)`, `before(b)`). Never renumber siblings.
+- Hierarchy: workspace > space > folder > list > tasks. Valid parent map is enforced in `hierarchy.service`. Prevent cycles.
+- Containers are archived (soft delete, `archivedAt`), cascading to descendants, and restorable. Tasks can be hard-deleted after confirmation.
+- Task title: required, max 500 chars. Task status must belong to the task's list status set.
+- Moving a task to another list remaps status by category, falling back to the first `todo` status of the target list.
+
+## Permissions (enforced in model + controller, NEVER only in UI)
+- Admin bypasses everything. Members: nearest grant on node or ancestors wins (deny or allow); otherwise any private ancestor hides the node; otherwise visible.
+- Selectors return only nodes and tasks the current user can see.
+- Every mutation calls `assertCan(...)` first and returns `FORBIDDEN` on failure.
+- Switching users: reset selection if no longer visible, close the drawer, show a toast.
+
+## Styling rules (hard constraints)
+- Tailwind utility classes in JSX only. NO custom CSS files, CSS modules, SCSS, styled-components, or inline `style=`.
+- Only exception: dnd-kit transform/transition styles. Mark each with a comment `// DND-STYLE-EXCEPTION`.
+- The single global CSS file (`src/index.css`) may contain ONLY Tailwind directives and the CSS variables required by shadcn/ui. No custom classes.
+- All design tokens live in `tailwind.config.ts` (colors, fontFamily, borderRadius, boxShadow, spacing constants).
+- Use shared primitives everywhere: `StatusBadge`, `PriorityBadge`, `AvatarStack`, `EmptyState`, `Skeleton`, `ConfirmDialog`. Do not restyle the same thing twice.
+
+## Visual system (ClickUp-like, violet accent)
+- Font Inter. Sizes: 12 meta, 13 body/rows, 14 card titles, 16 drawer title, 20 page title. Weights 400/500 (600 for page titles only).
+- Spacing on a 4px grid. Cards `p-3`, panels `p-4`, gaps `gap-2`/`gap-3`. Row heights: tree 28px, list rows 36px, top bar 48px, view bar 44px.
+- Radius: 4 badges, 6 controls, 8 cards, 12 drawer/dialogs.
+- Accent: brand violet (see `colors.brand` in the Tailwind config). Color is used only for selection/focus (violet) and for meaning (status and priority).
+- Status colors: todo=slate, active=blue, done=green. Priority colors: urgent=red, high=orange, normal=blue, low=slate, none=muted.
+- Every interactive element has `hover:`, `focus-visible:ring-2`, and `active:` states, plus `transition-colors duration-150`.
+- Truncate long text with `truncate` and always add `min-w-0` on flex children.
+- The page never scrolls. Only the sidebar tree, board and list regions scroll internally.
+- Icon-only buttons need `aria-label` and a tooltip.
+
+## UX requirements to keep in mind for every feature
+- Loading: skeletons on first load and list switch. Empty: dedicated empty states. Errors: toast with Retry where useful. Permission denied: distinct amber toast with lock icon.
+- Destructive actions (archive/delete) always go through `ConfirmDialog` naming the item and consequences. Offer Undo toast where possible.
+- Drag and drop: visible drag overlay, drop-target highlight, insertion line, position and status persist on drop.
+- Drawer: Escape and overlay-click close, focus trap, focus returns to the originating card, pushes the board on `xl` screens, read-only banner when user lacks edit rights.
+
+## Testing rules
+- Store factory `createFlowStore(seed)` so every test starts from a fresh state.
+- Test success AND failure paths: permissions, invalid parent, invalid status, cycle prevention, archive cascade, task move with status remap, reorder.
+- Keep tests meaningful rather than numerous.
+
+## How to work with me
+- Do ONE task at a time. Change only the files needed for it. Do not refactor unrelated code.
+- Before large changes, state a short plan and the files you will touch.
+- Run `npm run typecheck` and `npm run test` mentally before finishing and tell me what to verify.
+- If a requirement is ambiguous, ask instead of guessing.
+- Never add libraries, never use `any`, never leave `console.log` or TODOs without telling me.
+- Keep a short note of what you did at the end of each response so I can record it in AI_USAGE.md.
