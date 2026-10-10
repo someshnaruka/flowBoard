@@ -17,7 +17,7 @@ Realistic data that makes the Alice vs Bob demo obvious.
 - [ ] Mix of priorities, assignees and overdue dates
 
 ## Commit plan
-- [ ] `feat(model): seed hierarchy, users and statuses (T03)`
+- [x] `feat(model): seed hierarchy, users and statuses (T03)`
 - [ ] `feat(model): seed tasks and permission grants (T03)`
 
 ## AI notes
