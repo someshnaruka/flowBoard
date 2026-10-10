@@ -18,7 +18,7 @@ Runnable Vite + React + TS project with MVC folders.
 
 ## Commit plan
 - [x] `chore: init vite react-ts project (T00)`
-- [ ] `chore: configure strict ts, alias, eslint and prettier (T00)`
+- [x] `chore: configure strict ts, alias, eslint and prettier (T00)`
 - [ ] `chore: add mvc folder structure and readme stub (T00)`
 
 ## AI notes
