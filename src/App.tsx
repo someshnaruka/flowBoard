@@ -10,7 +10,7 @@ import { TooltipProvider } from '@/view/ui/tooltip'
 function MainPlaceholder() {
   const selectedListId = useFlowStore((state) => state.selectedListId)
   const listName = useFlowStore((state) =>
-    selectedListId ? state.nodes[selectedListId]?.name : null,
+    selectedListId ? (state.nodes[selectedListId]?.name ?? null) : null,
   )
 
   return (

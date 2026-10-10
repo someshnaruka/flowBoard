@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { selectVisibleTree } from '@/controller/selectors'
-import { useFlowStore } from '@/controller/store'
+import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { VisibleTreeNode } from '@/model/services/permission.service'
 import { Skeleton } from '@/view/ui/skeleton'
 import { TreeRow } from './TreeRow'
@@ -9,20 +9,22 @@ function TreeNodes({
   nodes,
   depth,
   collapsedRail,
+  expandedIds,
+  selectedListId,
 }: {
   nodes: VisibleTreeNode[]
   depth: number
   collapsedRail: boolean
+  expandedIds: Set<string>
+  selectedListId: string | null
 }) {
-  const expandedNodeIds = useFlowStore((state) => state.expandedNodeIds)
-  const selectedListId = useFlowStore((state) => state.selectedListId)
   const toggleExpanded = useFlowStore((state) => state.toggleExpanded)
   const setSelectedListId = useFlowStore((state) => state.setSelectedListId)
 
   return (
     <>
       {nodes.map((item) => {
-        const isExpanded = expandedNodeIds.includes(item.id)
+        const isExpanded = expandedIds.has(item.id)
         const showChildren = isExpanded && item.children.length > 0
 
         return (
@@ -54,6 +56,8 @@ function TreeNodes({
                 nodes={item.children}
                 depth={depth + 1}
                 collapsedRail={collapsedRail}
+                expandedIds={expandedIds}
+                selectedListId={selectedListId}
               />
             ) : null}
           </div>
@@ -64,28 +68,21 @@ function TreeNodes({
 }
 
 export function SidebarTree() {
-  // Select stable domain slices, then memoize the tree. Selecting
-  // selectVisibleTree() directly returns a new array every time and
-  // infinite-loops useSyncExternalStore (blank screen).
+  // Subscribe only to primitives / stable action refs. Reading immer object
+  // slices (nodes, users, …) via useFlowStore can fail Object.is and loop.
   const currentUserId = useFlowStore((state) => state.currentUserId)
-  const nodes = useFlowStore((state) => state.nodes)
-  const grants = useFlowStore((state) => state.grants)
-  const users = useFlowStore((state) => state.users)
-  const statuses = useFlowStore((state) => state.statuses)
-  const tasks = useFlowStore((state) => state.tasks)
+  const selectedListId = useFlowStore((state) => state.selectedListId)
   const collapsedRail = useFlowStore((state) => state.sidebarCollapsed)
+  const expandedKey = useFlowStore((state) => state.expandedNodeIds.join('\0'))
 
-  const tree = useMemo(
-    () =>
-      selectVisibleTree({
-        currentUserId,
-        nodes,
-        grants,
-        users,
-        statuses,
-        tasks,
-      }),
-    [currentUserId, nodes, grants, users, statuses, tasks],
+  const tree = useMemo(() => {
+    void currentUserId
+    return selectVisibleTree(getDefaultFlowStore().getState())
+  }, [currentUserId])
+
+  const expandedIds = useMemo(
+    () => new Set(expandedKey.length > 0 ? expandedKey.split('\0') : []),
+    [expandedKey],
   )
 
   const [ready, setReady] = useState(false)
@@ -97,7 +94,11 @@ export function SidebarTree() {
 
   if (!ready) {
     return (
-      <div className="flex flex-col gap-1" aria-busy="true" aria-label="Loading tree">
+      <div
+        className="flex flex-col gap-1"
+        aria-busy="true"
+        aria-label="Loading tree"
+      >
         <Skeleton className="h-tree-row w-full rounded-control" />
         <Skeleton className="h-tree-row w-5/6 rounded-control" />
         <Skeleton className="h-tree-row w-4/5 rounded-control" />
@@ -117,7 +118,13 @@ export function SidebarTree() {
 
   return (
     <nav aria-label="Workspace tree" className="flex flex-col gap-0.5">
-      <TreeNodes nodes={tree} depth={0} collapsedRail={collapsedRail} />
+      <TreeNodes
+        nodes={tree}
+        depth={0}
+        collapsedRail={collapsedRail}
+        expandedIds={expandedIds}
+        selectedListId={selectedListId}
+      />
     </nav>
   )
 }
