@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { selectTasksForList } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
+import { Button } from '@/view/ui/button'
 import { EmptyState } from '@/view/ui/empty-state'
 import { cn } from '@/view/ui/utils'
 import { ListRow } from './ListRow'
 import {
+  LIST_PAGE_SIZE,
   sortTasks,
   type ListSortDir,
   type ListSortKey,
@@ -72,11 +74,19 @@ export function ListView({ listId }: ListViewProps) {
 
   const [sortKey, setSortKey] = useState<ListSortKey | null>(null)
   const [sortDir, setSortDir] = useState<ListSortDir>('asc')
+  const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE)
+
+  useEffect(() => {
+    setVisibleCount(LIST_PAGE_SIZE)
+  }, [listId, sortKey, sortDir])
 
   const sorted = useMemo(
     () => sortTasks(tasks, sortKey, sortDir),
     [tasks, sortKey, sortDir],
   )
+
+  const visible = sorted.slice(0, visibleCount)
+  const hasMore = visibleCount < sorted.length
 
   const onSort = (key: ListSortKey) => {
     if (sortKey === key) {
@@ -126,7 +136,7 @@ export function ListView({ listId }: ListViewProps) {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {sorted.map((task) => (
+        {visible.map((task) => (
           <ListRow
             key={task.id}
             taskId={task.id}
@@ -134,6 +144,27 @@ export function ListView({ listId }: ListViewProps) {
           />
         ))}
       </div>
+
+      <footer className="flex h-11 shrink-0 items-center justify-between gap-3 border-t border-border px-4">
+        <p className="text-meta text-muted-foreground">
+          Showing {visible.length} of {sorted.length}
+        </p>
+        {hasMore ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-8 rounded-control"
+            onClick={() =>
+              setVisibleCount((count) =>
+                Math.min(count + LIST_PAGE_SIZE, sorted.length),
+              )
+            }
+          >
+            Load more
+          </Button>
+        ) : null}
+      </footer>
     </div>
   )
 }

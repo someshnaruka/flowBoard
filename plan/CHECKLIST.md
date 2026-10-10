@@ -42,7 +42,7 @@ Milestone: [x] Done
 - [x] **T09** Shared UI primitives
 - [x] **T10** Kanban board (static)
 - [x] **T11** Drag and drop
-- [ ] **T12** List view
+- [x] **T12** List view
 - [ ] **T13** Task drawer
 
 Milestone: [ ] Done

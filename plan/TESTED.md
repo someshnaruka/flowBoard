@@ -86,7 +86,16 @@ npm run build   # also runs on husky pre-push
   - [x] DragOverlay, origin placeholder, drop-column highlight, insertion line
   - [x] Keyboard sensor; drop failure toasts when `failNext` is set
 
-### T12–T13
+### T12 List view
+- [x] `typecheck` / `test` / `build`
+- [x] `list-sort.test.ts` — priority / due date both directions; nulls last
+- [x] Manual / UX checks (run `npm run dev`):
+  - [x] View bar List toggle shows sticky header + 36px rows
+  - [x] Sort Priority and Due both directions
+  - [x] Footer “Showing X of Y”; Load more pages by 5
+  - [x] Row click sets `drawerTaskId` (drawer UI in T13)
+
+### T13
 _Not done yet — fill when completing each issue._
 
 ---

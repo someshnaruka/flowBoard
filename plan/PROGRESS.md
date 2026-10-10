@@ -8,12 +8,13 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-10 (T11 done)
+**As of:** 2026-10-10 (T12 done)
 
-- **Done:** M1, M2, T08–T10, **T11** board drag and drop
-- **Next:** **T12** list view
-- **Tests:** 42 Vitest tests green (`npm run test`)
+- **Done:** M1, M2, T08–T11, **T12** list view (on `feat/Flowboard`)
+- **Next:** **T13** task drawer
+- **Tests:** 45 Vitest tests green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
+- **Branch:** `feat/Flowboard` (all new work from T12 onward)
 
 ---
 
