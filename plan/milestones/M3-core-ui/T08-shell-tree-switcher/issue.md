@@ -17,7 +17,7 @@ One coherent app chrome with permission-aware navigation.
 
 ## Commit plan
 - [x] `feat(view): app shell layout (T08)`
-- [ ] `feat(view): sidebar tree from visible-tree selector (T08)`
+- [x] `feat(view): sidebar tree from visible-tree selector (T08)`
 - [ ] `feat(view): user switcher with toast (T08)`
 
 ## AI notes
