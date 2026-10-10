@@ -8,7 +8,9 @@ import {
   changeStatus as changeStatusService,
   createTask as createTaskService,
   reorderTask as reorderTaskService,
+  updateTask as updateTaskService,
   type CreateTaskInput,
+  type UpdateTaskInput,
 } from '@/model/services/task.service'
 import type { AppState, Task } from '@/model/types'
 import {
@@ -81,6 +83,9 @@ export type FlowStore = FlowState & {
   setFailNext: (value?: boolean) => void
   createTask: (input: CreateTaskInput) => Promise<Result<Task>>
   placeTask: (input: PlaceTaskInput) => Promise<Result<Task>>
+  updateTask: (
+    input: UpdateTaskInput & { statusId?: string },
+  ) => Promise<Result<Task>>
 }
 
 function initialUi(seed: AppState): UiState {
@@ -274,6 +279,74 @@ export function createFlowStore(
         })
 
         return ok(reorderResult.data.task)
+      },
+
+      updateTask: async (input) => {
+        const snapshot = get()
+        const existing = snapshot.tasks[input.taskId]
+        if (!existing) {
+          return fail('NOT_FOUND', `Task ${input.taskId} not found`)
+        }
+
+        const permission = assertCan(
+          snapshot,
+          snapshot.currentUserId,
+          existing.listId,
+          'edit',
+        )
+        if (isErr(permission)) {
+          return permission
+        }
+
+        let domain = domainSnapshot(snapshot)
+
+        if (input.statusId && input.statusId !== existing.statusId) {
+          const statusResult = changeStatusService(
+            domain,
+            snapshot.currentUserId,
+            { taskId: input.taskId, statusId: input.statusId },
+          )
+          if (isErr(statusResult)) {
+            return statusResult
+          }
+          domain = statusResult.data.state
+        }
+
+        const { statusId: _statusId, ...fields } = input
+        const hasFieldUpdates =
+          fields.title !== undefined ||
+          fields.description !== undefined ||
+          fields.priority !== undefined ||
+          fields.assigneeIds !== undefined ||
+          fields.dueDate !== undefined
+
+        let task = domain.tasks[input.taskId]!
+        if (hasFieldUpdates) {
+          const updateResult = updateTaskService(
+            domain,
+            snapshot.currentUserId,
+            fields,
+          )
+          if (isErr(updateResult)) {
+            return updateResult
+          }
+          domain = updateResult.data.state
+          task = updateResult.data.task
+        }
+
+        const network = await simulateNetwork(get().network)
+        set((state) => {
+          state.network.failNext = false
+        })
+        if (isErr(network)) {
+          return network
+        }
+
+        set((state) => {
+          applyDomain(state, domain)
+        })
+
+        return ok(task)
       },
     })),
   )

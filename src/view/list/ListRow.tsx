@@ -65,6 +65,7 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
   return (
     <button
       type="button"
+      data-task-id={taskId}
       onClick={onOpen}
       className={cn(
         'grid h-list-row w-full grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem] items-center gap-3 border-b border-border px-4 text-left',

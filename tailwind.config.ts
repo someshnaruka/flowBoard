@@ -140,6 +140,7 @@ const config: Config = {
         sidebar: '260px',
         'sidebar-collapsed': '56px',
         column: '288px',
+        drawer: '520px',
       },
     },
   },

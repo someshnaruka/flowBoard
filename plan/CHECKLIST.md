@@ -43,9 +43,9 @@ Milestone: [x] Done
 - [x] **T10** Kanban board (static)
 - [x] **T11** Drag and drop
 - [x] **T12** List view
-- [ ] **T13** Task drawer
+- [x] **T13** Task drawer
 
-Milestone: [ ] Done
+Milestone: [x] Done
 
 ## M4 — Flows and feedback
 

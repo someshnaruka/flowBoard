@@ -1,7 +1,7 @@
 # T13: Task drawer
 
 **Milestone:** M3 Core UI
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Detail panel that pushes the board on wide screens.
@@ -14,13 +14,18 @@ Detail panel that pushes the board on wide screens.
 - Esc and overlay close, focus trap, focus returns to card
 
 ## Acceptance criteria
-- [ ] Read-only for users without edit rights
+- [x] Read-only for users without edit rights
 
 ## Commit plan
-- [ ] `feat(task): drawer shell and focus behaviour (T13)`
-- [ ] `feat(task): properties grid and inline title (T13)`
-- [ ] `feat(task): description, subtasks and activity (T13)`
-- [ ] `feat(task): autosave and read-only mode (T13)`
+- [x] `feat(task): drawer shell and focus behaviour (T13)`
+- [x] `feat(task): properties grid and inline title (T13)`
+- [x] `feat(task): description, subtasks and activity (T13)`
+- [x] `feat(task): autosave and read-only mode (T13)`
+
+## Tested
+- [x] `npm run typecheck` / `test` / `build`
+- [x] `store.test.ts` — updateTask title/priority/status
+- [x] Manual: open from card/row; Esc/close returns focus; xl push vs overlay; title autosave; read-only banner when `!canEdit`
 
 ## AI notes
-_What Cursor got right, what I corrected or rejected._
+Activity feed is derived from created/updated timestamps (no activity model yet).

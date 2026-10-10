@@ -118,4 +118,20 @@ describe('flow store', () => {
       expect(result.error.code).toBe('FORBIDDEN')
     }
   })
+
+  it('updates task fields when permitted', async () => {
+    const store = createFlowStore(createSeed())
+    const result = await store.getState().updateTask({
+      taskId: 'task-backlog-1',
+      title: 'Renamed in drawer',
+      priority: 'urgent',
+      statusId: 'status-backlog-active',
+    })
+
+    expect(isOk(result)).toBe(true)
+    const task = store.getState().tasks['task-backlog-1']
+    expect(task?.title).toBe('Renamed in drawer')
+    expect(task?.priority).toBe('urgent')
+    expect(task?.statusId).toBe('status-backlog-active')
+  })
 })

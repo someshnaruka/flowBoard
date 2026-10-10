@@ -96,8 +96,14 @@ npm run build   # also runs on husky pre-push
   - [x] Status and priority use badge chips
   - [x] Row click sets `drawerTaskId` (drawer UI in T13)
 
-### T13
-_Not done yet — fill when completing each issue._
+### T13 Task drawer
+- [x] `typecheck` / `test` / `build`
+- [x] `store.test.ts` — updateTask fields + status
+- [x] Manual / UX checks (run `npm run dev`):
+  - [x] Card/row click opens drawer; Esc / close returns focus to `data-task-id`
+  - [x] `xl+` pushes board; narrower viewports use Sheet overlay
+  - [x] Title/description debounced autosave; properties persist
+  - [x] Read-only banner when `selectCanEditTask` is false
 
 ---
 

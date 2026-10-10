@@ -8,7 +8,10 @@ App shell, tree, board, drag and drop, list view and task drawer.
 - [x] T10 Kanban board (static)
 - [x] T11 Drag and drop
 - [x] T12 List view
-- [ ] T13 Task drawer
+- [x] T13 Task drawer
 
 ## Milestone done when
 All tasks above are Done and `npm run typecheck && npm run test && npm run build` pass.
+
+**M3 status:** Done (T08–T13).
+

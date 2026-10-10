@@ -8,14 +8,14 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-10 (T12 done)
+**As of:** 2026-10-10 (T13 / M3 done)
 
-- **Done:** M1, M2, T08–T11, **T12** list view (on `feat/Flowboard`)
-- **Next:** **T13** task drawer
-- **Tests:** 45 Vitest tests green (`npm run test`)
+- **Done:** M1, M2, **M3** (T08–T13) on `feat/Flowboard`
+- **Next:** **T14** CRUD flows
+- **Tests:** 46 Vitest tests green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
-- **Branch:** `feat/Flowboard` (all new work from T12 onward)
-- **T12 follow-up:** list uses `react-window` virtualization; status/priority are badge chips
+- **Branch:** `feat/Flowboard`
+- **T13:** 520px drawer — push at `xl`, Sheet overlay below; autosave; read-only banner
 
 ---
 

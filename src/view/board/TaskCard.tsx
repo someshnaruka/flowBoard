@@ -61,6 +61,7 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
   return (
     <button
       type="button"
+      data-task-id={taskId}
       onClick={onOpen}
       className={cn(
         'flex w-full flex-col gap-2 rounded-card border border-border bg-card p-3 text-left shadow-card',
