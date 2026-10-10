@@ -1,7 +1,7 @@
 # T14: CRUD flows and tree management
 
 **Milestone:** M4 Flows and feedback
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Complete create/rename/archive/delete experience.
@@ -13,12 +13,17 @@ Complete create/rename/archive/delete experience.
 - Undo toast for archive
 
 ## Acceptance criteria
-- [ ] Every destructive action is confirmed and explains consequences
+- [x] Every destructive action is confirmed and explains consequences
 
 ## Commit plan
-- [ ] `feat(tree): container create, rename and archive (T14)`
-- [ ] `feat(tree): restore and sibling reorder (T14)`
-- [ ] `feat(task): create, duplicate and delete flows (T14)`
+- [x] `feat(tree): container create, rename and archive (T14)`
+- [x] `feat(tree): restore and sibling reorder (T14)`
+- [x] `feat(task): create, duplicate and delete flows (T14)`
+
+## Tested
+- [x] `npm run typecheck` / `test` / `build`
+- [x] Store: create list + default statuses; archive/restore; duplicate/delete
+- [x] Manual: tree + / ⋯ menus; archive ConfirmDialog + Undo toast; drawer Duplicate/Delete
 
 ## AI notes
-_What Cursor got right, what I corrected or rejected._
+New lists get default To do / In progress / Done statuses. Tree hides archived nodes; restore via Undo toast.

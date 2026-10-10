@@ -3,7 +3,7 @@
 CRUD flows, confirmations, toasts, simulated failures and optimistic rollback.
 
 ## Tasks
-- [ ] T14 CRUD flows and tree management
+- [x] T14 CRUD flows and tree management
 - [ ] T15 Feedback, Dev menu, optimistic rollback
 
 ## Milestone done when

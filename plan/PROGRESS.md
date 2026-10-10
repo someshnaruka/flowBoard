@@ -8,14 +8,14 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-10 (T13 / M3 done)
+**As of:** 2026-10-10 (T14 done)
 
-- **Done:** M1, M2, **M3** (T08–T13) on `feat/Flowboard`
-- **Next:** **T14** CRUD flows
-- **Tests:** 46 Vitest tests green (`npm run test`)
+- **Done:** M1–M3, **T14** CRUD / tree management on `feat/Flowboard`
+- **Next:** **T15** feedback, Dev menu, optimistic rollback
+- **Tests:** 48 Vitest tests green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 - **Branch:** `feat/Flowboard`
-- **T13:** 520px drawer — push at `xl`, Sheet overlay below; autosave; read-only banner
+- **T14:** tree create/rename/archive (+ Undo), reorder; task duplicate/delete with confirm
 
 ---
 

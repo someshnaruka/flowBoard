@@ -1,10 +1,15 @@
-import { Lock, MoreHorizontal, X } from 'lucide-react'
+import { useState } from 'react'
+import { Copy, Lock, MoreHorizontal, Trash2, X } from 'lucide-react'
+import { toast } from 'sonner'
+import { useFlowStore } from '@/controller/store'
+import { ConfirmDialog } from '@/view/ui/confirm-dialog'
 import { SaveIndicator, type SaveStatus } from '@/view/ui/save-indicator'
 import { Button } from '@/view/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/view/ui/dropdown-menu'
 import {
@@ -16,6 +21,7 @@ import {
 type DrawerHeaderProps = {
   breadcrumb: string
   taskId: string
+  taskTitle: string
   saveStatus: SaveStatus
   readOnly: boolean
   onClose: () => void
@@ -24,10 +30,16 @@ type DrawerHeaderProps = {
 export function DrawerHeader({
   breadcrumb,
   taskId,
+  taskTitle,
   saveStatus,
   readOnly,
   onClose,
 }: DrawerHeaderProps) {
+  const duplicateTask = useFlowStore((state) => state.duplicateTask)
+  const deleteTask = useFlowStore((state) => state.deleteTask)
+  const openDrawer = useFlowStore((state) => state.openDrawer)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+
   return (
     <header className="flex shrink-0 flex-col gap-2 border-b border-border p-4">
       <div className="flex items-start gap-2">
@@ -52,10 +64,39 @@ export function DrawerHeader({
             <DropdownMenuItem
               onClick={() => {
                 void navigator.clipboard.writeText(taskId)
+                toast.success('Task ID copied')
               }}
             >
+              <Copy className="size-3.5" />
               Copy task ID
             </DropdownMenuItem>
+            {!readOnly ? (
+              <>
+                <DropdownMenuItem
+                  onClick={() => {
+                    void (async () => {
+                      const result = await duplicateTask(taskId)
+                      if ('error' in result) {
+                        toast.error(result.error.message)
+                        return
+                      }
+                      toast.success('Task duplicated')
+                      openDrawer(result.data.id)
+                    })()
+                  }}
+                >
+                  Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="size-3.5" />
+                  Delete
+                </DropdownMenuItem>
+              </>
+            ) : null}
           </DropdownMenuContent>
         </DropdownMenu>
         <Tooltip>
@@ -81,6 +122,25 @@ export function DrawerHeader({
           <span>Read-only — you don’t have edit access on this list.</span>
         </div>
       ) : null}
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={`Delete “${taskTitle}”?`}
+        description="This permanently deletes the task and any subtasks. This cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={() => {
+          void (async () => {
+            const result = await deleteTask(taskId)
+            if ('error' in result) {
+              toast.error(result.error.message)
+              return
+            }
+            toast.success('Task deleted')
+            onClose()
+          })()
+        }}
+      />
     </header>
   )
 }

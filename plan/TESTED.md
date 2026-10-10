@@ -107,7 +107,17 @@ npm run build   # also runs on husky pre-push
 
 ---
 
-## M4 / M5
+## M4 — Flows and feedback
+
+### T14 CRUD flows and tree management
+- [x] `typecheck` / `test` / `build`
+- [x] `store.test.ts` — create list statuses; archive/restore; duplicate/delete
+- [x] Manual: tree Add/Rename/Archive/Move; archive ConfirmDialog + Undo; drawer Duplicate/Delete
+
+### T15
+_Not done yet — fill when completing each issue._
+
+## M5
 
 _Fill when completing each issue._
 

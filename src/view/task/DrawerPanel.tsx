@@ -126,6 +126,7 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
         <DrawerHeader
           breadcrumb="Task unavailable"
           taskId={taskId}
+          taskTitle="Unavailable"
           saveStatus="idle"
           readOnly
           onClose={onClose}
@@ -160,6 +161,7 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
       <DrawerHeader
         breadcrumb={breadcrumb}
         taskId={task.id}
+        taskTitle={task.title}
         saveStatus={saveStatus}
         readOnly={!canEdit}
         onClose={onClose}

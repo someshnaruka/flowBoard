@@ -49,7 +49,7 @@ Milestone: [x] Done
 
 ## M4 — Flows and feedback
 
-- [ ] **T14** CRUD flows and tree management
+- [x] **T14** CRUD flows and tree management
 - [ ] **T15** Feedback, Dev menu, optimistic rollback
 
 Milestone: [ ] Done
