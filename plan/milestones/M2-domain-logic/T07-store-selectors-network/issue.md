@@ -17,7 +17,7 @@ Controller layer that gates every mutation.
 - [ ] Tests: Bob blocked on denied list (FORBIDDEN), switching user changes tree, failNext surfaces NETWORK_ERROR
 
 ## Commit plan
-- [ ] `feat(controller): zustand store skeleton and selectors (T07)`
+- [x] `feat(controller): zustand store skeleton and selectors (T07)`
 - [ ] `feat(controller): permission-gated mutation pipeline (T07)`
 - [ ] `feat(controller): network simulation (T07)`
 - [ ] `test(controller): store permissions and failures (T07)`
