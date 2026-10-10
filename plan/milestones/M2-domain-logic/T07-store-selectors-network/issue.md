@@ -1,7 +1,7 @@
 # T07: Store, selectors, simulated network
 
 **Milestone:** M2 Domain logic (model + controller)
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Controller layer that gates every mutation.
@@ -14,13 +14,13 @@ Controller layer that gates every mutation.
 - UI state: selectedListId, view, drawerTaskId, expandedNodeIds; switchUser resets invalid selection and closes drawer
 
 ## Acceptance criteria
-- [ ] Tests: Bob blocked on denied list (FORBIDDEN), switching user changes tree, failNext surfaces NETWORK_ERROR
+- [x] Tests: Bob blocked on denied list (FORBIDDEN), switching user changes tree, failNext surfaces NETWORK_ERROR
 
 ## Commit plan
 - [x] `feat(controller): zustand store skeleton and selectors (T07)`
 - [x] `feat(controller): permission-gated mutation pipeline (T07)`
 - [x] `feat(controller): network simulation (T07)`
-- [ ] `test(controller): store permissions and failures (T07)`
+- [x] `test(controller): store permissions and failures (T07)`
 
 ## AI notes
 _What Cursor got right, what I corrected or rejected._
