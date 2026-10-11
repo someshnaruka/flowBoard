@@ -1,11 +1,11 @@
 import {
   Calendar as CalendarIcon,
-  ChevronDown,
   Circle,
   List,
   SignalHigh,
   Users,
 } from 'lucide-react'
+import { DropdownCaret } from '@/view/ui/dropdown-caret'
 import type { ContainerNode, Priority, Status, User } from '@/model/types'
 import { AvatarStack } from '@/view/ui/avatar-stack'
 import { Button } from '@/view/ui/button'
@@ -53,7 +53,7 @@ function PropertyLabel({
   children: string
 }) {
   return (
-    <span className="flex items-center gap-1.5 self-center text-meta text-slate-600 dark:text-slate-300">
+        <span className="flex items-center gap-1.5 self-center text-meta text-muted-foreground">
       <Icon className="size-3.5 shrink-0 opacity-80" aria-hidden />
       {children}
     </span>
@@ -61,8 +61,9 @@ function PropertyLabel({
 }
 
 const triggerClass = cn(
-  'h-8 w-fit max-w-full justify-start gap-1 rounded-control px-1.5 text-body font-normal shadow-none',
-  'hover:bg-accent/60 focus-visible:ring-brand/40',
+  'h-8 w-fit max-w-full justify-start gap-1 rounded-control border border-transparent px-1.5 text-body font-normal shadow-none',
+  'hover:border-border hover:bg-accent/40',
+  'focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30',
 )
 
 export function DrawerProperties({
@@ -166,6 +167,7 @@ export function DrawerProperties({
         <DueDatePicker
           dueDate={dueDate}
           disabled={disabled}
+          showChevron={!disabled}
           onChange={onDueDateChange}
           trigger={
             <DueDate dueDate={dueDate} variant="detail" showIcon={false} />
@@ -176,7 +178,7 @@ export function DrawerProperties({
         <PriorityMenu
           value={priority}
           disabled={disabled}
-          className={triggerClass}
+          showChevron={!disabled}
           onChange={onPriorityChange}
         />
 
@@ -190,10 +192,9 @@ export function DrawerProperties({
               className={triggerClass}
             >
               <span className="text-body text-foreground">{listName}</span>
-              <ChevronDown
-                className="size-3.5 text-muted-foreground"
-                aria-hidden
-              />
+              {!disabled ? (
+                <DropdownCaret className="text-muted-foreground" />
+              ) : null}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent

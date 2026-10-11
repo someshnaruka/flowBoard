@@ -198,7 +198,7 @@ export function ListView({ listId }: ListViewProps) {
       className="flex h-full min-h-0 flex-col bg-background"
       aria-label="List view"
     >
-      <div className="sticky top-0 z-10 grid h-list-row shrink-0 grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem_2rem] items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 grid h-list-row shrink-0 grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_7.5rem_6.5rem_2rem] items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur-sm">
         <span className="text-meta font-medium text-slate-500 dark:text-slate-400">
           Status
         </span>

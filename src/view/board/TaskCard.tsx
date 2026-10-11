@@ -140,7 +140,11 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
             priority={task.priority}
             showChevron={false}
           />
-          <DueDatePopover taskId={taskId} dueDate={task.dueDate} />
+          <DueDatePopover
+            taskId={taskId}
+            dueDate={task.dueDate}
+            showChevron={false}
+          />
           {subtaskProgress.total > 0 ? (
             <span
               className="inline-flex items-center gap-1 text-meta text-muted-foreground"

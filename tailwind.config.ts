@@ -57,49 +57,49 @@ const config: Config = {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
+        // Figma 05 Components — badge fill (muted) + label (DEFAULT)
         status: {
           todo: {
-            DEFAULT: '#94A3B8',
+            DEFAULT: '#64748B',
             foreground: '#ffffff',
             muted: '#F1F5F9',
           },
           active: {
-            DEFAULT: '#3B82F6',
+            DEFAULT: '#2563EB',
             foreground: '#ffffff',
             muted: '#EFF6FF',
           },
           done: {
-            DEFAULT: '#22C55E',
+            DEFAULT: '#16A34A',
             foreground: '#ffffff',
             muted: '#F0FDF4',
           },
         },
         priority: {
           urgent: {
-            DEFAULT: '#EF4444',
+            DEFAULT: '#DC2626',
             foreground: '#ffffff',
             muted: '#FEF2F2',
           },
           high: {
-            DEFAULT: '#F97316',
+            DEFAULT: '#EA580C',
             foreground: '#ffffff',
             muted: '#FFF7ED',
           },
           normal: {
-            DEFAULT: '#3B82F6',
+            DEFAULT: '#2563EB',
             foreground: '#ffffff',
             muted: '#EFF6FF',
           },
           low: {
-            // Distinct from None — deeper slate (board/list parity)
             DEFAULT: '#64748B',
             foreground: '#ffffff',
-            muted: '#E2E8F0',
+            muted: '#F8FAFC',
           },
           none: {
-            DEFAULT: '#94A3B8',
+            DEFAULT: '#475569',
             foreground: '#0f172a',
-            muted: '#FFFFFF',
+            muted: '#F1F5F9',
           },
         },
         board: {

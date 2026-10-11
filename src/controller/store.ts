@@ -749,8 +749,8 @@ export function createFlowStore(
         if (created.data.node.kind === 'list') {
           const defaults: Array<{ name: string; category: 'todo' | 'active' | 'done' }> =
             [
-              { name: 'To do', category: 'todo' },
-              { name: 'In progress', category: 'active' },
+              { name: 'TODO', category: 'todo' },
+              { name: 'In Progress', category: 'active' },
               { name: 'Done', category: 'done' },
             ]
           for (const status of defaults) {

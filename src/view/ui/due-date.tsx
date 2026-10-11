@@ -1,4 +1,5 @@
 import { Calendar } from 'lucide-react'
+import { DropdownCaret } from '@/view/ui/dropdown-caret'
 import { cn } from '@/view/ui/utils'
 
 export type DueDateTone = 'default' | 'overdue' | 'soon' | 'none'
@@ -43,6 +44,7 @@ type DueDateProps = {
    */
   variant?: 'compact' | 'detail'
   showIcon?: boolean
+  showChevron?: boolean
   className?: string
   /** @deprecated use variant="detail" */
   detail?: boolean
@@ -61,6 +63,7 @@ export function DueDate({
   variant,
   detail = false,
   showIcon = true,
+  showChevron = false,
   className,
 }: DueDateProps) {
   const mode = variant ?? (detail ? 'detail' : 'compact')
@@ -79,7 +82,8 @@ export function DueDate({
         {showIcon ? (
           <Calendar className="size-3.5 shrink-0 opacity-70" aria-hidden />
         ) : null}
-        No date
+        <span>No date</span>
+        {showChevron ? <DropdownCaret /> : null}
       </span>
     )
   }
@@ -101,7 +105,8 @@ export function DueDate({
       {showIcon ? (
         <Calendar className="size-3.5 shrink-0 opacity-70" aria-hidden />
       ) : null}
-      {label}
+      <span>{label}</span>
+      {showChevron ? <DropdownCaret /> : null}
     </span>
   )
 }

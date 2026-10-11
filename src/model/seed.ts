@@ -222,14 +222,14 @@ function statusesForList(
     [`status-${prefix}-todo`]: {
       id: `status-${prefix}-todo`,
       listId,
-      name: 'To do',
+      name: 'TODO',
       category: 'todo',
       position: POSITION_GAP,
     },
     [`status-${prefix}-active`]: {
       id: `status-${prefix}-active`,
       listId,
-      name: 'In progress',
+      name: 'In Progress',
       category: 'active',
       position: POSITION_GAP * 2,
     },

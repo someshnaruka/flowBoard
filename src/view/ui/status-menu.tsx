@@ -16,7 +16,11 @@ type StatusMenuProps = {
   onChange: (statusId: string) => void
   disabled?: boolean
   className?: string
+  showChevron?: boolean
 }
+
+const fieldTriggerClass =
+  'h-auto w-fit shrink-0 justify-start gap-0 overflow-visible rounded-badge border border-transparent p-0 !text-body font-medium shadow-none hover:border-border hover:bg-accent/40 focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30'
 
 /** Figma drawer — compact status badges with check on selected row. */
 export function StatusMenu({
@@ -25,6 +29,7 @@ export function StatusMenu({
   onChange,
   disabled,
   className,
+  showChevron = true,
 }: StatusMenuProps) {
   const current = statuses.find((item) => item.id === value)
 
@@ -36,14 +41,14 @@ export function StatusMenu({
           variant="ghost"
           disabled={disabled}
           aria-label="Change status"
-          className={cn(
-            'h-8 w-fit max-w-full justify-start rounded-control px-0.5 font-normal shadow-none',
-            'hover:bg-accent/60 focus-visible:ring-brand/40',
-            className,
-          )}
+          className={cn(fieldTriggerClass, className)}
         >
           {current ? (
-            <StatusBadge status={current.category} label={current.name} />
+            <StatusBadge
+              status={current.category}
+              label={current.name}
+              showChevron={showChevron && !disabled}
+            />
           ) : (
             <span className="text-meta text-muted-foreground">Set status</span>
           )}

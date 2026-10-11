@@ -8,6 +8,7 @@ import {
 import { format, parseISO, startOfDay } from 'date-fns'
 import { Calendar } from '@/view/ui/calendar'
 import { Button } from '@/view/ui/button'
+import { DropdownCaret } from '@/view/ui/dropdown-caret'
 import {
   Popover,
   PopoverContent,
@@ -24,6 +25,7 @@ type DueDatePickerProps = {
   className?: string
   contentClassName?: string
   onTriggerClick?: (event: MouseEvent | PointerEvent) => void
+  showChevron?: boolean
 }
 
 function toIsoDate(date: Date): string {
@@ -39,6 +41,7 @@ export function DueDatePicker({
   className,
   contentClassName,
   onTriggerClick,
+  showChevron = true,
 }: DueDatePickerProps) {
   const [open, setOpen] = useState(false)
   const selected = dueDate ? parseISO(`${dueDate}T00:00:00`) : undefined
@@ -61,14 +64,18 @@ export function DueDatePicker({
           variant="ghost"
           disabled={disabled}
           className={cn(
-            'h-auto w-fit justify-start rounded-control px-1 py-0.5 text-body font-medium leading-none shadow-none',
-            'hover:bg-accent/60 focus-visible:ring-brand/40 [&_svg]:size-3.5',
+            'h-auto w-fit justify-start gap-1 rounded-badge border border-transparent px-1 py-0.5 text-body font-medium leading-none shadow-none',
+            'hover:border-border hover:bg-accent/40',
+            'focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30',
             className,
           )}
           onClick={onTriggerClick}
           onPointerDown={onTriggerClick}
         >
           {trigger}
+          {showChevron && !disabled ? (
+            <DropdownCaret className="text-muted-foreground" />
+          ) : null}
         </Button>
       </PopoverTrigger>
       {!disabled ? (

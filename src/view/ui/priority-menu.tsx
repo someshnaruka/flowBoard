@@ -1,5 +1,5 @@
 import type { ReactNode, SyntheticEvent } from 'react'
-import { Check, ChevronDown } from 'lucide-react'
+import { Check } from 'lucide-react'
 import type { Priority } from '@/model/types'
 import { Button } from '@/view/ui/button'
 import {
@@ -13,6 +13,9 @@ import { PriorityBadge } from '@/view/ui/priority-badge'
 import { cn } from '@/view/ui/utils'
 
 const PRIORITIES: Priority[] = ['urgent', 'high', 'normal', 'low', 'none']
+
+const fieldTriggerClass =
+  'h-auto w-fit shrink-0 justify-start gap-0 overflow-visible rounded-badge border border-transparent p-0 !text-body font-medium shadow-none hover:border-border hover:bg-accent/40 focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30'
 
 type PriorityMenuProps = {
   value: Priority
@@ -30,7 +33,7 @@ export function PriorityMenu({
   onChange,
   disabled,
   className,
-  showChevron = false,
+  showChevron = true,
   stopPropagation = false,
   trigger,
 }: PriorityMenuProps) {
@@ -46,22 +49,16 @@ export function PriorityMenu({
           variant="ghost"
           disabled={disabled}
           aria-label="Change priority"
-          className={cn(
-            'h-auto gap-0.5 rounded-badge p-0 font-normal shadow-none',
-            'hover:bg-transparent hover:ring-2 hover:ring-brand/30',
-            'focus-visible:ring-brand/40',
-            className,
-          )}
+          className={cn(fieldTriggerClass, className)}
           onClick={stop}
           onPointerDown={stop}
         >
-          {trigger ?? <PriorityBadge priority={value} />}
-          {showChevron ? (
-            <ChevronDown
-              className="size-3 text-muted-foreground"
-              aria-hidden
+          {trigger ?? (
+            <PriorityBadge
+              priority={value}
+              showChevron={showChevron && !disabled}
             />
-          ) : null}
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

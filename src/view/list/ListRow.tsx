@@ -91,7 +91,7 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
       onClick={onOpen}
       onKeyDown={onKeyDown}
       className={cn(
-        'group grid h-list-row w-full grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem_2rem] items-center gap-3 border-b border-border/70 px-4 text-left',
+        'group grid h-list-row w-full grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_7.5rem_6.5rem_2rem] items-center gap-3 border-b border-border/70 px-4 text-left',
         'transition-colors duration-150 hover:bg-muted/50',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40',
         'active:bg-muted/70',
@@ -102,11 +102,7 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
     >
       <div className="min-w-0">
         {status ? (
-          <StatusBadge
-            status={status.category}
-            label={status.name}
-            className="max-w-full truncate"
-          />
+          <StatusBadge status={status.category} label={status.name} />
         ) : (
           <span className="text-meta text-muted-foreground">—</span>
         )}
@@ -126,16 +122,19 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
           users={users}
         />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 overflow-visible">
         <PriorityPopover
           taskId={taskId}
           priority={task.priority}
-          className="max-w-full"
           showChevron={false}
         />
       </div>
       <div className="min-w-0">
-        <DueDatePopover taskId={taskId} dueDate={task.dueDate} />
+        <DueDatePopover
+          taskId={taskId}
+          dueDate={task.dueDate}
+          showChevron={false}
+        />
       </div>
       <div className="flex justify-end">
         <TaskCardMenu

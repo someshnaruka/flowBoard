@@ -68,12 +68,14 @@ type DueDatePopoverProps = {
   taskId: string
   dueDate: string | null
   className?: string
+  showChevron?: boolean
 }
 
 export function DueDatePopover({
   taskId,
   dueDate,
   className,
+  showChevron = true,
 }: DueDatePopoverProps) {
   const canEdit = useFlowStore((state) => selectCanEditTask(state, taskId))
   const updateTask = useFlowStore((state) => state.updateTask)
@@ -88,6 +90,7 @@ export function DueDatePopover({
       className={className}
       onTriggerClick={stop}
       contentClassName="z-[60]"
+      showChevron={showChevron}
       onChange={(next) => {
         void (async () => {
           const result = await updateTask({ taskId, dueDate: next })
