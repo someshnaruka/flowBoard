@@ -163,7 +163,7 @@ export function ListView({ listId }: ListViewProps) {
   if (sorted.length === 0) {
     return (
       <EmptyState
-        title={searching ? 'No matching tasks' : 'No tasks'}
+        title={searching ? 'No matching tasks' : 'No tasks here'}
         description={
           searching
             ? `Nothing matches “${searchQuery.trim()}” in this list.`

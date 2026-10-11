@@ -75,8 +75,12 @@ export function UserSwitcher({ compact = false }: UserSwitcherProps) {
                 {currentUser.name}
               </span>
               <Badge
-                variant={currentUser.role === 'admin' ? 'default' : 'secondary'}
-                className="rounded-badge px-1.5 py-0 text-meta font-medium"
+                variant="secondary"
+                className={cn(
+                  'rounded-badge px-1.5 py-0 text-meta font-medium',
+                  currentUser.role === 'admin' &&
+                    'border-transparent bg-brand-50 text-brand',
+                )}
               >
                 {currentUser.role}
               </Badge>

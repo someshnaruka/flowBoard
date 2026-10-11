@@ -61,8 +61,9 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
       statuses: selectStatusesForList(state, found.listId),
       subtasks: selectSubtasks(state, taskId),
       breadcrumb: selectBreadcrumb(state, found.listId)
+        .filter((node) => node.kind !== 'workspace')
         .map((node) => node.name)
-        .join(' / '),
+        .join(' › '),
       canEdit: selectCanEditTask(state, taskId),
       users: Object.values(state.users),
     }

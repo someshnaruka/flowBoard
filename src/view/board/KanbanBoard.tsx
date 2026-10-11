@@ -169,11 +169,11 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
               >
                 {columnTaskIds.length === 0 ? (
                   <EmptyState
-                    title={searching ? 'No matches' : 'No tasks'}
+                    title={searching ? 'No matches' : 'No tasks here'}
                     description={
                       searching
                         ? 'Try another column or clear search.'
-                        : 'Drop or create a task here.'
+                        : 'Drop a task or add one.'
                     }
                     className="pointer-events-none rounded-card border border-dashed border-border py-8"
                   />

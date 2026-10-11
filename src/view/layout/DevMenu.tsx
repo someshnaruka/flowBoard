@@ -1,4 +1,4 @@
-import { Bug } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import { toast } from 'sonner'
 import { useFlowStore } from '@/controller/store'
 import { Button } from '@/view/ui/button'
@@ -47,11 +47,12 @@ export function DevMenu() {
             <Button
               type="button"
               variant="outline"
-              size="icon"
-              className="size-8 rounded-control"
+              size="sm"
+              className="h-8 gap-1.5 rounded-control px-2.5 text-body"
               aria-label="Developer menu"
             >
-              <Bug className="size-4" />
+              <SlidersHorizontal className="size-3.5" />
+              Dev
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>

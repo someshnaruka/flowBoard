@@ -69,7 +69,7 @@ export function TreeRow({
             className={cn(
               'flex h-tree-row w-full items-center justify-center rounded-control transition-colors duration-150',
               'hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:bg-accent/80',
-              isSelected && 'bg-brand-100 text-brand-700',
+              isSelected && 'bg-brand-50 text-brand',
               isShell && 'opacity-70',
             )}
           >
@@ -86,7 +86,7 @@ export function TreeRow({
       className={cn(
         'group flex h-tree-row items-center gap-1 rounded-control pr-1 text-body transition-colors duration-150',
         'hover:bg-accent focus-within:bg-accent',
-        isSelected && 'bg-brand-100 text-brand-700 hover:bg-brand-100',
+        isSelected && 'bg-brand-50 text-brand hover:bg-brand-50',
         isShell && 'text-muted-foreground',
       )}
     >
@@ -118,7 +118,7 @@ export function TreeRow({
           onClick={onSelect}
           className="flex min-w-0 flex-1 items-center gap-1.5 rounded-control px-1 py-0.5 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
-          <Icon className="size-3.5 shrink-0 opacity-80" />
+          <Icon className="size-4 shrink-0 opacity-80" />
           <span className="min-w-0 truncate">{name}</span>
           {isPrivate ? (
             <Lock

@@ -8,14 +8,14 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-11 (T17 done)
+**As of:** 2026-10-11 (T18 done)
 
-- **Done:** M1–M4 + **T16–T17** on `feat/Flowboard`
-- **Next:** **T18** spacing / density audit
+- **Done:** M1–M4 + **T16–T18** on `feat/Flowboard`
+- **Next:** **T19** component and E2E tests
 - **Tests:** Vitest green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 - **Branch:** `feat/Flowboard`
-- **T17:** debounced list search, title highlight, empty-match state on board + list
+- **T18:** Figma-aligned shell (breadcrumbs/search/Dev), toast accents, column dots, selection/empty-state polish
 
 ---
 
@@ -158,6 +158,12 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 ---
 
 ## Changelog (append-only)
+
+### 2026-10-11 — T18 consistency audit
+
+- TopBar: workspace breadcrumbs + search + Dev/User (Figma 01).
+- ViewBar: list title + Board/List + Task; softer active toggle.
+- Toasts: left accent border + icons; Dev pill; Flowboard HQ mark; tree `brand-50` selection; column status dots.
 
 ### 2026-10-11 — T17 client-side search
 

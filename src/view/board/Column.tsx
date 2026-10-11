@@ -3,13 +3,18 @@ import { useDroppable } from '@dnd-kit/core'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import type { StatusCategory } from '@/model/types'
 import { Button } from '@/view/ui/button'
-import { StatusBadge } from '@/view/ui/status-badge'
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/view/ui/tooltip'
 import { cn } from '@/view/ui/utils'
+
+const STATUS_DOT: Record<StatusCategory, string> = {
+  todo: 'bg-status-todo',
+  active: 'bg-status-active',
+  done: 'bg-status-done',
+}
 
 type ColumnProps = {
   statusId: string
@@ -82,9 +87,17 @@ export function Column({
       )}
       aria-label={`${name} column`}
     >
-      <header className="sticky top-0 z-10 flex h-10 shrink-0 items-center gap-2 border-b border-border bg-muted/80 px-2 backdrop-blur-sm">
-        <StatusBadge status={category} label={name} className="min-w-0 truncate" />
-        <span className="text-meta text-muted-foreground tabular-nums">{count}</span>
+      <header className="sticky top-0 z-10 flex h-9 shrink-0 items-center gap-2 px-3 pt-2">
+        <span
+          className={cn('size-2 shrink-0 rounded-full', STATUS_DOT[category])}
+          aria-hidden
+        />
+        <span className="min-w-0 truncate text-body font-medium text-foreground">
+          {name}
+        </span>
+        <span className="text-meta text-muted-foreground tabular-nums">
+          {count}
+        </span>
         <div className="min-w-0 flex-1" />
         <Tooltip>
           <TooltipTrigger asChild>

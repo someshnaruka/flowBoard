@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { Layers } from 'lucide-react'
 import { useFlowStore } from '@/controller/store'
 import { cn } from '@/view/ui/utils'
 
@@ -24,14 +23,13 @@ export function Sidebar({ tree, footer }: SidebarProps) {
           collapsed && 'justify-center px-0',
         )}
       >
-        <div className="flex size-8 items-center justify-center rounded-control bg-brand text-brand-foreground">
-          <Layers className="size-4" aria-hidden />
+        <div className="flex size-6 items-center justify-center rounded-control bg-brand text-meta font-medium text-brand-foreground">
+          F
         </div>
         {!collapsed ? (
-          <div className="min-w-0">
-            <p className="truncate text-card-title text-foreground">Flowboard</p>
-            <p className="truncate text-meta text-muted-foreground">Acme Corp</p>
-          </div>
+          <p className="min-w-0 truncate text-card-title text-foreground">
+            Flowboard HQ
+          </p>
         ) : null}
       </div>
 
