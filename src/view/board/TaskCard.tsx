@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { ListTree } from 'lucide-react'
 import { selectSubtaskCount } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
@@ -26,6 +26,10 @@ function assigneesForTask(task: Task, users: Record<string, User>) {
 }
 
 export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
+  const shakeTaskId = useFlowStore((state) => state.shakeTaskId)
+  const clearShakeTask = useFlowStore((state) => state.clearShakeTask)
+  const isShaking = shakeTaskId === taskId
+
   const taskStamp = useFlowStore((state) => {
     const task = state.tasks[taskId]
     if (!task) {
@@ -54,6 +58,18 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
     }
   }, [taskId, taskStamp, usersStamp])
 
+  useEffect(() => {
+    if (!isShaking) {
+      return
+    }
+    const timer = window.setTimeout(() => {
+      clearShakeTask()
+    }, 400)
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [isShaking, clearShakeTask])
+
   if (!task) {
     return null
   }
@@ -68,6 +84,7 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
         'transition-colors duration-150 hover:border-brand/40 hover:bg-accent/40',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40',
         'active:bg-accent/60',
+        isShaking && 'animate-shake',
         className,
       )}
     >

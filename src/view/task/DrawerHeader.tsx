@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Copy, Lock, MoreHorizontal, Trash2, X } from 'lucide-react'
-import { toast } from 'sonner'
 import { useFlowStore } from '@/controller/store'
+import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { ConfirmDialog } from '@/view/ui/confirm-dialog'
 import { SaveIndicator, type SaveStatus } from '@/view/ui/save-indicator'
 import { Button } from '@/view/ui/button'
@@ -64,7 +64,7 @@ export function DrawerHeader({
             <DropdownMenuItem
               onClick={() => {
                 void navigator.clipboard.writeText(taskId)
-                toast.success('Task ID copied')
+                toastSuccess('Task ID copied')
               }}
             >
               <Copy className="size-3.5" />
@@ -77,10 +77,10 @@ export function DrawerHeader({
                     void (async () => {
                       const result = await duplicateTask(taskId)
                       if ('error' in result) {
-                        toast.error(result.error.message)
+                        notifyMutationError(result.error)
                         return
                       }
-                      toast.success('Task duplicated')
+                      toastSuccess('Task duplicated')
                       openDrawer(result.data.id)
                     })()
                   }}
@@ -133,10 +133,10 @@ export function DrawerHeader({
           void (async () => {
             const result = await deleteTask(taskId)
             if ('error' in result) {
-              toast.error(result.error.message)
+              notifyMutationError(result.error)
               return
             }
-            toast.success('Task deleted')
+            toastSuccess('Task deleted')
             onClose()
           })()
         }}

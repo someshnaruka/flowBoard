@@ -1,6 +1,7 @@
 import { useFlowStore } from '@/controller/store'
 import { BoardWorkspace } from '@/view/board/BoardWorkspace'
 import { AppShell } from '@/view/layout/AppShell'
+import { DevMenu } from '@/view/layout/DevMenu'
 import { UserSwitcher } from '@/view/layout/UserSwitcher'
 import { ThemeProvider, useTheme } from '@/view/theme/ThemeProvider'
 import { SidebarTree } from '@/view/tree/SidebarTree'
@@ -15,7 +16,12 @@ function FlowboardApp() {
     <>
       <AppShell
         tree={<SidebarTree />}
-        topBarTrailing={<UserSwitcher />}
+        topBarTrailing={
+          <>
+            <DevMenu />
+            <UserSwitcher />
+          </>
+        }
         sidebarFooter={<UserSwitcher compact={sidebarCollapsed} />}
       >
         <BoardWorkspace />

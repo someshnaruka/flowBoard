@@ -119,6 +119,60 @@ describe('flow store', () => {
     }
   })
 
+  it('rolls back optimistic placeTask on network failure and shakes', async () => {
+    const store = createFlowStore(createSeed())
+    const before = store.getState().tasks['task-backlog-1']!
+    expect(before.statusId).toBe('status-backlog-todo')
+
+    store.getState().setFailNext(true)
+    store.getState().setNetworkConfig({ latencyMs: 0 })
+
+    const placePromise = store.getState().placeTask({
+      taskId: 'task-backlog-1',
+      statusId: 'status-backlog-active',
+      afterId: null,
+      beforeId: null,
+    })
+
+    // Optimistic apply happens before the simulated network settles.
+    expect(store.getState().tasks['task-backlog-1']?.statusId).toBe(
+      'status-backlog-active',
+    )
+
+    const result = await placePromise
+    expect(isErr(result)).toBe(true)
+    if (isErr(result)) {
+      expect(result.error.code).toBe('NETWORK_ERROR')
+    }
+
+    const after = store.getState().tasks['task-backlog-1']!
+    expect(after.statusId).toBe(before.statusId)
+    expect(after.position).toBe(before.position)
+    expect(store.getState().shakeTaskId).toBe('task-backlog-1')
+  })
+
+  it('rolls back optimistic status update on network failure', async () => {
+    const store = createFlowStore(createSeed())
+    store.getState().setFailNext(true)
+    store.getState().setNetworkConfig({ latencyMs: 0 })
+
+    const updatePromise = store.getState().updateTask({
+      taskId: 'task-backlog-1',
+      statusId: 'status-backlog-done',
+    })
+
+    expect(store.getState().tasks['task-backlog-1']?.statusId).toBe(
+      'status-backlog-done',
+    )
+
+    const result = await updatePromise
+    expect(isErr(result)).toBe(true)
+    expect(store.getState().tasks['task-backlog-1']?.statusId).toBe(
+      'status-backlog-todo',
+    )
+    expect(store.getState().shakeTaskId).toBe('task-backlog-1')
+  })
+
   it('updates task fields when permitted', async () => {
     const store = createFlowStore(createSeed())
     const result = await store.getState().updateTask({

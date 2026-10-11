@@ -9,9 +9,9 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core'
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { toast } from 'sonner'
 import { useFlowStore } from '@/controller/store'
 import type { Status, Task } from '@/model/types'
+import { notifyMutationError } from '@/view/feedback/toasts'
 import {
   buildColumnItems,
   findContainer,
@@ -189,17 +189,26 @@ export function useBoardDnd(
     }
 
     const { afterId, beforeId } = neighborsForIndex(ordered, index)
-    const result = await placeTask({
+    const input = {
       taskId: draggedId,
       statusId,
       afterId,
       beforeId,
-    })
-
-    if ('error' in result) {
-      toast.error(result.error.message)
-      resetColumnsFromStore()
     }
+
+    const persistPlace = async () => {
+      const result = await placeTask(input)
+      if ('error' in result) {
+        resetColumnsFromStore()
+        notifyMutationError(result.error, {
+          onRetry: () => {
+            void persistPlace()
+          },
+        })
+      }
+    }
+
+    await persistPlace()
   }
 
   const onDragCancel = () => {

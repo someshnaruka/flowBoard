@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { toast } from 'sonner'
 import {
   selectBreadcrumb,
   selectCanEditTask,
@@ -9,6 +8,7 @@ import {
 } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Priority } from '@/model/types'
+import { notifyMutationError } from '@/view/feedback/toasts'
 import { DrawerActivity } from './DrawerActivity'
 import { DrawerDescription } from './DrawerDescription'
 import { DrawerHeader } from './DrawerHeader'
@@ -88,7 +88,7 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
       }
       const result = await updateTask({ taskId, title: nextTitle })
       if ('error' in result) {
-        toast.error(result.error.message)
+        notifyMutationError(result.error)
         return false
       }
       return true
@@ -104,7 +104,7 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
       }
       const result = await updateTask({ taskId, description: nextDescription })
       if ('error' in result) {
-        toast.error(result.error.message)
+        notifyMutationError(result.error)
         return false
       }
       return true
@@ -152,7 +152,11 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
   ): Promise<void> => {
     const result = await updateTask(patch)
     if ('error' in result) {
-      toast.error(result.error.message)
+      notifyMutationError(result.error, {
+        onRetry: () => {
+          void persist(patch)
+        },
+      })
     }
   }
 
@@ -210,7 +214,7 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
               parentTaskId: task.id,
             })
             if ('error' in result) {
-              toast.error(result.error.message)
+              notifyMutationError(result.error)
             }
           }}
         />

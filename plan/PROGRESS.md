@@ -8,14 +8,14 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-10 (T14 done)
+**As of:** 2026-10-11 (T15 done)
 
-- **Done:** M1–M3, **T14** CRUD / tree management on `feat/Flowboard`
-- **Next:** **T15** feedback, Dev menu, optimistic rollback
-- **Tests:** 48 Vitest tests green (`npm run test`)
+- **Done:** M1–M4 on `feat/Flowboard` (through **T15**)
+- **Next:** **T16** card interactions
+- **Tests:** Vitest green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 - **Branch:** `feat/Flowboard`
-- **T14:** tree create/rename/archive (+ Undo), reorder; task duplicate/delete with confirm
+- **T15:** toast taxonomy, Dev menu (latency / failure / fail-next), optimistic place/status + rollback shake + Retry
 
 ---
 
@@ -158,6 +158,12 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 ---
 
 ## Changelog (append-only)
+
+### 2026-10-11 — T15 feedback / Dev menu / optimistic rollback
+
+- Toast helpers: success, error+Retry, forbidden (amber + lock).
+- Top-bar Dev menu: latency, failure rate, fail-next mutation.
+- `placeTask` / status `updateTask` apply optimistically; network fail restores snapshot, sets `shakeTaskId`, board offers Retry.
 
 ### 2026-10-10 — T09 UI primitives
 

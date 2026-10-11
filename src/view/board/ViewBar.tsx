@@ -1,5 +1,4 @@
 import { LayoutGrid, List, Plus } from 'lucide-react'
-import { toast } from 'sonner'
 import {
   selectStatusesForList,
 } from '@/controller/selectors'
@@ -8,6 +7,7 @@ import {
   useFlowStore,
   type BoardView,
 } from '@/controller/store'
+import { notifyMutationError, toastError, toastSuccess } from '@/view/feedback/toasts'
 import { Button } from '@/view/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/view/ui/toggle-group'
 import {
@@ -36,7 +36,7 @@ export function ViewBar({ listId }: ViewBarProps) {
       statuses.find((item) => item.category === 'todo') ?? statuses[0]
 
     if (!status) {
-      toast.error('This list has no statuses')
+      toastError('This list has no statuses')
       return
     }
 
@@ -47,11 +47,15 @@ export function ViewBar({ listId }: ViewBarProps) {
     })
 
     if ('error' in result) {
-      toast.error(result.error.message)
+      notifyMutationError(result.error, {
+        onRetry: () => {
+          void onAddTask()
+        },
+      })
       return
     }
 
-    toast.success('Task created')
+    toastSuccess('Task created')
   }
 
   return (

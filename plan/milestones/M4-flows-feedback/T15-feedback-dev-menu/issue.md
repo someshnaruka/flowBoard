@@ -1,7 +1,7 @@
 # T15: Feedback, Dev menu, optimistic rollback
 
 **Milestone:** M4 Flows and feedback
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Failures are visible and recoverable.
@@ -12,12 +12,13 @@ Failures are visible and recoverable.
 - Optimistic drag and status change with snapshot rollback + shake
 
 ## Acceptance criteria
-- [ ] Fail next + drag rolls back and offers Retry
+- [x] Fail next + drag rolls back and offers Retry
 
 ## Commit plan
-- [ ] `feat(feedback): toast variants (T15)`
-- [ ] `feat(controller): dev menu for latency and failures (T15)`
-- [ ] `feat(controller): optimistic updates with rollback (T15)`
+- [x] `feat(feedback): toast variants (T15)`
+- [x] `feat(controller): dev menu for latency and failures (T15)`
+- [x] `feat(controller): optimistic updates with rollback (T15)`
 
 ## AI notes
+- Toast helpers in `view/feedback/toasts.tsx`; Dev menu in top bar; `placeTask` / status `updateTask` optimistic + shake on rollback.
 _What Cursor got right, what I corrected or rejected._

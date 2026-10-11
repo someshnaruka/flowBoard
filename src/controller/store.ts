@@ -40,6 +40,8 @@ export type UiState = {
   expandedNodeIds: string[]
   sidebarCollapsed: boolean
   network: NetworkConfig
+  /** Brief shake cue after optimistic rollback. */
+  shakeTaskId: string | null
 }
 
 export type FlowState = AppState & UiState
@@ -93,6 +95,7 @@ export type FlowStore = FlowState & {
   switchUser: (userId: string) => void
   setNetworkConfig: (patch: Partial<NetworkConfig>) => void
   setFailNext: (value?: boolean) => void
+  clearShakeTask: () => void
   createTask: (input: CreateTaskInput) => Promise<Result<Task>>
   placeTask: (input: PlaceTaskInput) => Promise<Result<Task>>
   updateTask: (
@@ -132,6 +135,7 @@ function initialUi(seed: AppState): UiState {
       .map((node) => node.id),
     sidebarCollapsed: false,
     network: defaultNetworkConfig(),
+    shakeTaskId: null,
   }
 }
 
@@ -187,6 +191,12 @@ export function createFlowStore(
       setFailNext: (value = true) => {
         set((state) => {
           state.network.failNext = value
+        })
+      },
+
+      clearShakeTask: () => {
+        set((state) => {
+          state.shakeTaskId = null
         })
       },
 
@@ -268,7 +278,8 @@ export function createFlowStore(
           return permission
         }
 
-        let domain = domainSnapshot(snapshot)
+        const rollback = domainSnapshot(snapshot)
+        let domain = rollback
 
         if (existing.statusId !== input.statusId) {
           const statusResult = changeStatusService(
@@ -295,17 +306,22 @@ export function createFlowStore(
           return reorderResult
         }
 
+        // Optimistic: apply before simulated network.
+        set((state) => {
+          applyDomain(state, reorderResult.data.state)
+        })
+
         const network = await simulateNetwork(get().network)
         set((state) => {
           state.network.failNext = false
         })
         if (isErr(network)) {
+          set((state) => {
+            applyDomain(state, rollback)
+            state.shakeTaskId = input.taskId
+          })
           return network
         }
-
-        set((state) => {
-          applyDomain(state, reorderResult.data.state)
-        })
 
         return ok(reorderResult.data.task)
       },
@@ -327,7 +343,8 @@ export function createFlowStore(
           return permission
         }
 
-        let domain = domainSnapshot(snapshot)
+        const rollback = domainSnapshot(snapshot)
+        let domain = rollback
 
         if (input.statusId && input.statusId !== existing.statusId) {
           const statusResult = changeStatusService(
@@ -363,17 +380,35 @@ export function createFlowStore(
           task = updateResult.data.task
         }
 
+        const optimistic =
+          Boolean(input.statusId && input.statusId !== existing.statusId) ||
+          hasFieldUpdates
+
+        if (optimistic) {
+          set((state) => {
+            applyDomain(state, domain)
+          })
+        }
+
         const network = await simulateNetwork(get().network)
         set((state) => {
           state.network.failNext = false
         })
         if (isErr(network)) {
+          if (optimistic) {
+            set((state) => {
+              applyDomain(state, rollback)
+              state.shakeTaskId = input.taskId
+            })
+          }
           return network
         }
 
-        set((state) => {
-          applyDomain(state, domain)
-        })
+        if (!optimistic) {
+          set((state) => {
+            applyDomain(state, domain)
+          })
+        }
 
         return ok(task)
       },

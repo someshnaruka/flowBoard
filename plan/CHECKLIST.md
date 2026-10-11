@@ -10,11 +10,11 @@ Master tracker for milestones and issues. Tick boxes here when an issue’s `iss
 |---|---|---|
 | M1 Foundation | Done | 4 / 4 |
 | M2 Domain logic | Done | 4 / 4 |
-| M3 Core UI | In progress | 2 / 6 |
-| M4 Flows and feedback | Todo | 0 / 2 |
+| M3 Core UI | Done | 6 / 6 |
+| M4 Flows and feedback | Done | 2 / 2 |
 | M5 Polish and delivery | Todo | 0 / 6 |
 
-**Overall:** 10 / 22 issues
+**Overall:** 16 / 22 issues
 
 ---
 
@@ -50,9 +50,9 @@ Milestone: [x] Done
 ## M4 — Flows and feedback
 
 - [x] **T14** CRUD flows and tree management
-- [ ] **T15** Feedback, Dev menu, optimistic rollback
+- [x] **T15** Feedback, Dev menu, optimistic rollback
 
-Milestone: [ ] Done
+Milestone: [x] Done
 
 ## M5 — Polish and delivery
 
