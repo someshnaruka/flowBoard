@@ -102,7 +102,7 @@ export function TaskDrawer() {
     return (
       <aside
         ref={panelRef}
-        className="flex h-full w-drawer shrink-0 flex-col border-l border-border bg-background shadow-drawer"
+        className="flex h-full w-drawer shrink-0 flex-col border-l border-border bg-background shadow-panel"
         aria-label="Task details"
       >
         <DrawerPanel taskId={taskId} onClose={close} />

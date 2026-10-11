@@ -71,8 +71,9 @@ export function SearchInput() {
         aria-label="Search tasks"
         autoComplete="off"
         className={cn(
-          'h-8 rounded-control border-border bg-background pl-8 pr-10 text-body',
-          'focus-visible:border-brand focus-visible:ring-brand/30',
+          'h-8 rounded-control border-border bg-muted/60 pl-8 pr-10 text-body shadow-none',
+          'placeholder:text-muted-foreground/80',
+          'focus-visible:border-brand focus-visible:bg-background focus-visible:ring-brand/30',
         )}
       />
       <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-badge border border-border bg-muted px-1 text-[10px] leading-4 text-muted-foreground">

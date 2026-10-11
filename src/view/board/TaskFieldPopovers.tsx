@@ -1,22 +1,24 @@
-import type { MouseEvent, SyntheticEvent } from 'react'
-import { Check } from 'lucide-react'
+import type { SyntheticEvent } from 'react'
 import { selectCanEditTask } from '@/controller/selectors'
 import { useFlowStore } from '@/controller/store'
 import type { Priority, User } from '@/model/types'
 import { notifyMutationError } from '@/view/feedback/toasts'
 import { AvatarStack } from '@/view/ui/avatar-stack'
-import { DueDate } from '@/view/ui/due-date'
-import { PriorityBadge } from '@/view/ui/priority-badge'
 import { Button } from '@/view/ui/button'
-import { Input } from '@/view/ui/input'
+import { DueDate } from '@/view/ui/due-date'
+import { DueDatePicker } from '@/view/ui/due-date-picker'
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/view/ui/popover'
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/view/ui/dropdown-menu'
+import { PriorityBadge } from '@/view/ui/priority-badge'
+import { PriorityMenu } from '@/view/ui/priority-menu'
+import { UserAvatar } from '@/view/ui/user-avatar'
 import { cn } from '@/view/ui/utils'
-
-const PRIORITIES: Priority[] = ['urgent', 'high', 'normal', 'low', 'none']
 
 type Assignee = { id: string; name: string; avatarUrl?: string | null }
 
@@ -28,12 +30,14 @@ type PriorityPopoverProps = {
   taskId: string
   priority: Priority
   className?: string
+  showChevron?: boolean
 }
 
 export function PriorityPopover({
   taskId,
   priority,
   className,
+  showChevron = true,
 }: PriorityPopoverProps) {
   const canEdit = useFlowStore((state) => selectCanEditTask(state, taskId))
   const updateTask = useFlowStore((state) => state.updateTask)
@@ -43,57 +47,20 @@ export function PriorityPopover({
   }
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'rounded-badge transition-colors duration-150',
-            'hover:ring-2 hover:ring-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40',
-            className,
-          )}
-          aria-label="Change priority"
-          onClick={stop}
-          onPointerDown={stop}
-        >
-          <PriorityBadge priority={priority} />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-44 rounded-card p-1 shadow-panel"
-        onClick={stop}
-      >
-        <p className="px-2 py-1.5 text-meta font-medium uppercase tracking-wide text-muted-foreground">
-          Priority
-        </p>
-        {PRIORITIES.map((item) => (
-          <Button
-            key={item}
-            type="button"
-            variant="ghost"
-            className={cn(
-              'h-8 w-full justify-between rounded-control px-2',
-              item === priority && 'bg-accent',
-            )}
-            onClick={(event: MouseEvent) => {
-              stop(event)
-              void (async () => {
-                const result = await updateTask({ taskId, priority: item })
-                if ('error' in result) {
-                  notifyMutationError(result.error)
-                }
-              })()
-            }}
-          >
-            <PriorityBadge priority={item} />
-            {item === priority ? (
-              <Check className="size-3.5 text-muted-foreground" aria-hidden />
-            ) : null}
-          </Button>
-        ))}
-      </PopoverContent>
-    </Popover>
+    <PriorityMenu
+      value={priority}
+      className={className}
+      stopPropagation
+      showChevron={showChevron}
+      onChange={(next) => {
+        void (async () => {
+          const result = await updateTask({ taskId, priority: next })
+          if ('error' in result) {
+            notifyMutationError(result.error)
+          }
+        })()
+      }}
+    />
   )
 }
 
@@ -116,66 +83,21 @@ export function DueDatePopover({
   }
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            'rounded-control transition-colors duration-150',
-            'hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40',
-            className,
-          )}
-          aria-label="Change due date"
-          onClick={stop}
-          onPointerDown={stop}
-        >
-          <DueDate dueDate={dueDate} />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        className="w-56 rounded-card p-3"
-        onClick={stop}
-      >
-        <label className="flex flex-col gap-1.5 text-meta text-muted-foreground">
-          Due date
-          <Input
-            type="date"
-            value={dueDate ?? ''}
-            className="h-8 rounded-control text-body"
-            onChange={(event) => {
-              void (async () => {
-                const result = await updateTask({
-                  taskId,
-                  dueDate: event.target.value ? event.target.value : null,
-                })
-                if ('error' in result) {
-                  notifyMutationError(result.error)
-                }
-              })()
-            }}
-          />
-        </label>
-        {dueDate ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="mt-2 h-7 w-full rounded-control text-meta"
-            onClick={() => {
-              void (async () => {
-                const result = await updateTask({ taskId, dueDate: null })
-                if ('error' in result) {
-                  notifyMutationError(result.error)
-                }
-              })()
-            }}
-          >
-            Clear date
-          </Button>
-        ) : null}
-      </PopoverContent>
-    </Popover>
+    <DueDatePicker
+      dueDate={dueDate}
+      className={className}
+      onTriggerClick={stop}
+      contentClassName="z-[60]"
+      onChange={(next) => {
+        void (async () => {
+          const result = await updateTask({ taskId, dueDate: next })
+          if ('error' in result) {
+            notifyMutationError(result.error)
+          }
+        })()
+      }}
+      trigger={<DueDate dueDate={dueDate} />}
+    />
   )
 }
 
@@ -205,17 +127,19 @@ export function AssigneePopover({
     )
   }
 
+  const assigneeIds = assignees.map((item) => item.id)
+
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
           type="button"
+          variant="ghost"
+          aria-label="Change assignees"
           className={cn(
-            'rounded-control transition-colors duration-150',
-            'hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40',
+            'h-auto rounded-control p-0.5 shadow-none hover:bg-accent/60',
             className,
           )}
-          aria-label="Change assignees"
           onClick={stop}
           onPointerDown={stop}
         >
@@ -224,18 +148,17 @@ export function AssigneePopover({
           ) : (
             <span className="text-meta text-muted-foreground">Unassigned</span>
           )}
-        </button>
-      </PopoverTrigger>
-      <PopoverContent
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
         align="start"
-        className="w-48 rounded-card p-1"
+        className="w-52 rounded-card border-border p-1 shadow-panel"
         onClick={stop}
+        onCloseAutoFocus={(event) => event.preventDefault()}
       >
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-8 w-full justify-start rounded-control px-2 text-body"
-          onClick={() => {
+        <DropdownMenuItem
+          className="rounded-control text-body"
+          onSelect={() => {
             void (async () => {
               const result = await updateTask({ taskId, assigneeIds: [] })
               if ('error' in result) {
@@ -244,41 +167,43 @@ export function AssigneePopover({
             })()
           }}
         >
-          Unassigned
-        </Button>
-        {users.map((user) => (
-          <Button
-            key={user.id}
-            type="button"
-            variant="ghost"
-            className="h-8 w-full justify-start gap-2 rounded-control px-2 text-body"
-            onClick={() => {
-              void (async () => {
-                const result = await updateTask({
-                  taskId,
-                  assigneeIds: [user.id],
-                })
-                if ('error' in result) {
-                  notifyMutationError(result.error)
-                }
-              })()
-            }}
-          >
-            <AvatarStack
-              users={[
-                {
-                  id: user.id,
-                  name: user.name,
-                  avatarUrl: user.avatarUrl,
-                },
-              ]}
-              max={1}
-              size="sm"
-            />
-            <span className="min-w-0 truncate">{user.name}</span>
-          </Button>
-        ))}
-      </PopoverContent>
-    </Popover>
+          Clear assignees
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        {users.map((user) => {
+          const checked = assigneeIds.includes(user.id)
+          return (
+            <DropdownMenuCheckboxItem
+              key={user.id}
+              checked={checked}
+              className="rounded-control gap-2 text-body"
+              onSelect={(event) => event.preventDefault()}
+              onCheckedChange={(next) => {
+                void (async () => {
+                  const nextIds = next
+                    ? [...assigneeIds, user.id]
+                    : assigneeIds.filter((id) => id !== user.id)
+                  const result = await updateTask({
+                    taskId,
+                    assigneeIds: nextIds,
+                  })
+                  if ('error' in result) {
+                    notifyMutationError(result.error)
+                  }
+                })()
+              }}
+            >
+              <UserAvatar
+                name={user.name}
+                avatarUrl={user.avatarUrl}
+                size="sm"
+                className="size-5 text-[10px]"
+              />
+              <span className="min-w-0 truncate">{user.name}</span>
+            </DropdownMenuCheckboxItem>
+          )
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

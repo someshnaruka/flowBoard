@@ -76,8 +76,8 @@ export function TopBar({ trailing }: TopBarProps) {
               <span
                 className={
                   index === crumbs.length - 1
-                    ? 'truncate text-meta font-medium text-foreground'
-                    : 'truncate text-meta text-muted-foreground'
+                    ? 'truncate text-body font-medium text-foreground'
+                    : 'truncate text-body text-slate-500 dark:text-slate-400'
                 }
               >
                 {node.name}

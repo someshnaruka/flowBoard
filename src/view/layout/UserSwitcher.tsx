@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { Check, ChevronsUpDown, Moon, Sun, Monitor } from 'lucide-react'
-import { toast } from 'sonner'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { User } from '@/model/types'
+import { toastInfo } from '@/view/feedback/toasts'
 import { useTheme } from '@/view/theme/ThemeProvider'
 import type { ThemePreference } from '@/view/theme/theme'
 import { Badge } from '@/view/ui/badge'
@@ -20,11 +20,7 @@ import {
 import { UserAvatar } from '@/view/ui/user-avatar'
 import { cn } from '@/view/ui/utils'
 
-type UserSwitcherProps = {
-  compact?: boolean
-}
-
-export function UserSwitcher({ compact = false }: UserSwitcherProps) {
+export function UserSwitcher() {
   const currentUserId = useFlowStore((state) => state.currentUserId)
   const switchUser = useFlowStore((state) => state.switchUser)
   const { preference, setPreference } = useTheme()
@@ -46,7 +42,7 @@ export function UserSwitcher({ compact = false }: UserSwitcherProps) {
       return
     }
     switchUser(user.id)
-    toast.message(`Viewing as ${user.name}`, {
+    toastInfo(`Viewing as ${user.name}`, {
       description: user.role === 'admin' ? 'Admin access' : 'Member access',
     })
   }
@@ -57,11 +53,8 @@ export function UserSwitcher({ compact = false }: UserSwitcherProps) {
         <Button
           type="button"
           variant="outline"
-          size={compact ? 'icon' : 'sm'}
-          className={cn(
-            'rounded-control transition-colors duration-150',
-            compact ? 'size-8' : 'h-8 gap-2 px-2',
-          )}
+          size="sm"
+          className="h-8 gap-2 rounded-control border-border bg-background px-2 transition-colors duration-150"
           aria-label={`Current user ${currentUser.name}`}
         >
           <UserAvatar
@@ -69,28 +62,24 @@ export function UserSwitcher({ compact = false }: UserSwitcherProps) {
             avatarUrl={currentUser.avatarUrl}
             size="sm"
           />
-          {!compact ? (
-            <>
-              <span className="min-w-0 max-w-[7rem] truncate text-body">
-                {currentUser.name}
-              </span>
-              <Badge
-                variant="secondary"
-                className={cn(
-                  'rounded-badge px-1.5 py-0 text-meta font-medium',
-                  currentUser.role === 'admin' &&
-                    'border-transparent bg-brand-50 text-brand dark:bg-brand/25 dark:text-brand-foreground',
-                )}
-              >
-                {currentUser.role}
-              </Badge>
-              <ChevronsUpDown className="size-3.5 opacity-60" />
-            </>
-          ) : null}
+          <span className="min-w-0 max-w-[9rem] truncate text-body">
+            {currentUser.name}
+          </span>
+          <Badge
+            variant="secondary"
+            className={cn(
+              'rounded-badge px-1.5 py-0 text-meta font-medium',
+              currentUser.role === 'admin' &&
+                'border-transparent bg-brand-50 text-brand dark:bg-brand/25 dark:text-brand-foreground',
+            )}
+          >
+            {currentUser.role}
+          </Badge>
+          <ChevronsUpDown className="size-3.5 opacity-60" />
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-56 rounded-card">
+      <DropdownMenuContent align="end" className="w-64 rounded-card">
         <DropdownMenuLabel className="text-meta font-normal text-muted-foreground">
           Switch user
         </DropdownMenuLabel>
@@ -105,10 +94,18 @@ export function UserSwitcher({ compact = false }: UserSwitcherProps) {
               avatarUrl={user.avatarUrl}
               size="sm"
             />
-            <span className="min-w-0 flex-1 truncate">{user.name}</span>
+            <span className="min-w-0 flex-1 truncate text-body">{user.name}</span>
             <Badge
-              variant={user.role === 'admin' ? 'default' : 'secondary'}
-              className="rounded-badge px-1.5 py-0 text-meta font-medium"
+              variant="secondary"
+              className={cn(
+                'shrink-0 rounded-badge px-1.5 py-0 text-meta font-medium',
+                user.role === 'admin' &&
+                  user.id === currentUser.id &&
+                  'border-transparent bg-brand text-brand-foreground',
+                user.role === 'admin' &&
+                  user.id !== currentUser.id &&
+                  'border-transparent bg-brand-50 text-brand dark:bg-brand/25 dark:text-brand-foreground',
+              )}
             >
               {user.role}
             </Badge>

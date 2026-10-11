@@ -50,7 +50,7 @@ export function Column({
   if (collapsed) {
     return (
       <section
-        className="flex h-full w-10 shrink-0 flex-col items-center gap-2 rounded-card border border-border bg-muted/40 py-2"
+        className="flex h-full w-10 shrink-0 flex-col items-center gap-2 rounded-card bg-muted/70 py-2 dark:bg-muted/40"
         aria-label={`${name} column (collapsed)`}
       >
         <Tooltip>
@@ -82,14 +82,12 @@ export function Column({
     <section
       ref={setNodeRef}
       className={cn(
-        'flex h-full w-column shrink-0 flex-col rounded-card border bg-muted/40 transition-colors duration-150 dark:bg-muted/25',
-        dropActive
-          ? 'border-brand border-dashed bg-brand/5 ring-2 ring-brand/25'
-          : 'border-border',
+        'flex h-full w-column shrink-0 flex-col rounded-card bg-muted/70 transition-colors duration-150 dark:bg-muted/40',
+        dropActive && 'bg-brand/5 ring-2 ring-brand/25 ring-offset-2 ring-offset-background',
       )}
       aria-label={`${name} column`}
     >
-      <header className="sticky top-0 z-10 flex h-9 shrink-0 items-center gap-2 px-3 pt-2">
+      <header className="sticky top-0 z-10 flex h-10 shrink-0 items-center gap-2 px-3">
         <span
           className={cn('size-2 shrink-0 rounded-full', STATUS_DOT[category])}
           aria-hidden
@@ -97,7 +95,7 @@ export function Column({
         <span className="min-w-0 truncate text-body font-medium text-foreground">
           {name}
         </span>
-        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-badge bg-muted px-1.5 text-meta tabular-nums text-muted-foreground">
+        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-badge bg-background px-1.5 text-meta tabular-nums text-slate-500 shadow-sm dark:bg-background/80 dark:text-slate-400">
           {count}
         </span>
         <div className="min-w-0 flex-1" />

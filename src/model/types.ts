@@ -49,6 +49,15 @@ export type Grant = {
   effect: GrantEffect
 }
 
+/** Append-only drawer activity line (Figma 02 / 09). */
+export type TaskActivityItem = {
+  id: string
+  actorId: string
+  /** Verb phrase after the actor name, e.g. "changed priority to Urgent". */
+  summary: string
+  createdAt: string
+}
+
 export type Task = {
   id: string
   listId: string
@@ -63,6 +72,10 @@ export type Task = {
   /** Optional parent for depth-1 subtasks. */
   parentTaskId: string | null
   archivedAt: string | null
+  /** User who created the task. */
+  createdById: string
+  /** Newest-first activity for the drawer feed. */
+  activity: TaskActivityItem[]
   createdAt: string
   updatedAt: string
 }

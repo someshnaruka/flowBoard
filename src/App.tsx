@@ -1,5 +1,5 @@
-import { useFlowStore } from '@/controller/store'
 import { BoardWorkspace } from '@/view/board/BoardWorkspace'
+import { PendingTaskConfirmDialog } from '@/view/feedback/PendingTaskConfirmDialog'
 import { AppShell } from '@/view/layout/AppShell'
 import { DevMenu } from '@/view/layout/DevMenu'
 import { UserSwitcher } from '@/view/layout/UserSwitcher'
@@ -11,7 +11,6 @@ import { TooltipProvider } from '@/view/ui/tooltip'
 
 function FlowboardApp() {
   const { resolved } = useTheme()
-  const sidebarCollapsed = useFlowStore((state) => state.sidebarCollapsed)
 
   return (
     <>
@@ -23,11 +22,11 @@ function FlowboardApp() {
             <UserSwitcher />
           </>
         }
-        sidebarFooter={<UserSwitcher compact={sidebarCollapsed} />}
       >
         <BoardWorkspace />
       </AppShell>
       <KeyboardShortcuts />
+      <PendingTaskConfirmDialog />
       <Toaster theme={resolved} />
     </>
   )

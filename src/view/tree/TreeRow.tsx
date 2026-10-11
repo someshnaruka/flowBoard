@@ -62,19 +62,20 @@ export function TreeRow({
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             aria-label={name}
             onClick={onSelect}
             className={cn(
-              'flex h-tree-row w-full items-center justify-center rounded-control transition-colors duration-150',
-              'hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:bg-accent/80',
+              'h-tree-row w-full rounded-control p-0 shadow-none',
+              'hover:bg-accent focus-visible:ring-brand active:bg-accent/80',
               isSelected && 'bg-brand-50 text-brand dark:bg-brand/20',
               isShell && 'opacity-70',
             )}
           >
             <Icon className="size-4 shrink-0" />
-          </button>
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="right">{name}</TooltipContent>
       </Tooltip>
@@ -84,13 +85,19 @@ export function TreeRow({
   return (
     <div
       className={cn(
-        'group flex h-tree-row items-center gap-1 rounded-control pr-1 text-body transition-colors duration-150',
+        'group relative flex h-tree-row items-center gap-1 rounded-control pr-1 text-body text-slate-700 transition-colors duration-150 dark:text-slate-200',
         'hover:bg-accent focus-within:bg-accent',
         isSelected &&
-          'bg-brand-50 text-brand hover:bg-brand-50 dark:bg-brand/20 dark:hover:bg-brand/25',
-        isShell && 'text-muted-foreground',
+          'bg-brand-50 text-foreground hover:bg-brand-50 dark:bg-accent dark:text-accent-foreground dark:hover:bg-accent',
+        isShell && 'text-slate-600 dark:text-slate-300',
       )}
     >
+      {isSelected ? (
+        <span
+          className="absolute inset-y-0.5 left-0 w-0.5 rounded-full bg-brand"
+          aria-hidden
+        />
+      ) : null}
       <div className={cn('flex min-w-0 flex-1 items-center gap-0.5', padClass)}>
         {hasChildren ? (
           <Button
@@ -114,10 +121,11 @@ export function TreeRow({
           <span className="inline-flex size-5 shrink-0" aria-hidden />
         )}
 
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={onSelect}
-          className="flex min-w-0 flex-1 items-center gap-1.5 rounded-control px-1 py-0.5 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="h-auto min-w-0 flex-1 justify-start gap-1.5 rounded-control px-1 py-0.5 text-left font-normal shadow-none focus-visible:ring-brand"
         >
           <Icon className="size-4 shrink-0 opacity-80" />
           <span className="min-w-0 truncate">{name}</span>
@@ -127,7 +135,7 @@ export function TreeRow({
               aria-label="Private"
             />
           ) : null}
-        </button>
+        </Button>
       </div>
 
       <TreeNodeMenu id={id} name={name} kind={kind} isShell={isShell} />

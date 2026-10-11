@@ -92,13 +92,14 @@ export function ArchivedSection({ collapsedRail = false }: ArchivedSectionProps)
     return (
       <Tooltip>
         <TooltipTrigger asChild>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             aria-label={`Archived (${total})`}
-            className="mt-2 flex h-tree-row w-full items-center justify-center rounded-control text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            className="mt-2 h-tree-row w-full rounded-control p-0 text-muted-foreground shadow-none hover:bg-accent hover:text-foreground focus-visible:ring-brand"
           >
             <Archive className="size-4" />
-          </button>
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="right">
           {total} archived — expand sidebar to restore
@@ -109,10 +110,11 @@ export function ArchivedSection({ collapsedRail = false }: ArchivedSectionProps)
 
   return (
     <section className="mt-3 border-t border-border pt-3" aria-label="Archived">
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={() => setOpen((value) => !value)}
-        className="mb-1 flex h-tree-row w-full items-center gap-1 rounded-control px-1 text-left text-meta font-medium uppercase tracking-wide text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        className="mb-1 h-tree-row w-full justify-start gap-1 rounded-control px-1 text-left text-meta font-medium uppercase tracking-wide text-muted-foreground shadow-none hover:bg-accent hover:text-foreground focus-visible:ring-brand"
       >
         {open ? (
           <ChevronDown className="size-3.5 shrink-0" aria-hidden />
@@ -122,7 +124,7 @@ export function ArchivedSection({ collapsedRail = false }: ArchivedSectionProps)
         <Archive className="size-3.5 shrink-0" aria-hidden />
         <span className="min-w-0 flex-1 truncate">Archived</span>
         <span className="tabular-nums">{total}</span>
-      </button>
+      </Button>
 
       {open ? (
         <ul className="flex flex-col gap-0.5">

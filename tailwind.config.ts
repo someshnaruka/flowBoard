@@ -48,6 +48,7 @@ const config: Config = {
           300: '#c4b5fd',
           400: '#a78bfa',
           500: '#8b7cf0',
+          // Figma 05 / 04 tokens
           600: '#6E56CF',
           700: '#5b45b0',
           800: '#4a3894',
@@ -90,14 +91,15 @@ const config: Config = {
             muted: '#EFF6FF',
           },
           low: {
-            DEFAULT: '#94A3B8',
+            // Distinct from None — deeper slate (board/list parity)
+            DEFAULT: '#64748B',
             foreground: '#ffffff',
-            muted: '#F1F5F9',
+            muted: '#E2E8F0',
           },
           none: {
             DEFAULT: '#94A3B8',
             foreground: '#0f172a',
-            muted: '#F8FAFC',
+            muted: '#FFFFFF',
           },
         },
       },

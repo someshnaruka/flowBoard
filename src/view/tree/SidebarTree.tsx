@@ -133,7 +133,7 @@ export function SidebarTree() {
   return (
     <nav aria-label="Workspace tree" className="flex flex-col gap-0.5">
       {!collapsedRail ? (
-        <p className="px-2 pb-1 pt-1 text-meta font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="px-2 pb-1 pt-1 text-meta font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Spaces
         </p>
       ) : null}

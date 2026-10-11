@@ -14,6 +14,18 @@ export function selectVisibleTree(state: AppState): VisibleTreeNode[] {
   return filterTree(state, state.currentUserId)
 }
 
+/** Lists the current user can edit (for move-task dropdown). */
+export function selectEditableLists(state: AppState): ContainerNode[] {
+  return Object.values(state.nodes)
+    .filter(
+      (node) =>
+        node.kind === 'list' &&
+        node.archivedAt == null &&
+        canEdit(state, state.currentUserId, node.id),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
+}
+
 export function selectTasksForList(
   state: AppState,
   listId: string,
@@ -68,9 +80,21 @@ export function selectStatusesForList(
 }
 
 export function selectSubtaskCount(state: AppState, taskId: string): number {
-  return Object.values(state.tasks).filter(
+  return selectSubtaskProgress(state, taskId).total
+}
+
+export function selectSubtaskProgress(
+  state: AppState,
+  taskId: string,
+): { done: number; total: number } {
+  const children = Object.values(state.tasks).filter(
     (task) => task.parentTaskId === taskId && task.archivedAt == null,
-  ).length
+  )
+  const done = children.filter((task) => {
+    const status = state.statuses[task.statusId]
+    return status?.category === 'done'
+  }).length
+  return { done, total: children.length }
 }
 
 export function selectTaskById(

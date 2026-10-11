@@ -41,7 +41,7 @@ export function BoardWorkspace() {
   }
 
   return (
-    <div className="flex h-full min-h-0">
+    <div className="flex h-full min-h-0 bg-muted/35 dark:bg-background">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {loadingListId === selectedListId ? (
           <BoardSkeleton />

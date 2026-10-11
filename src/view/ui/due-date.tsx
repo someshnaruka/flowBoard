@@ -19,19 +19,33 @@ function resolveTone(dueDate: string | null, today = '2026-10-10'): DueDateTone 
   return 'default'
 }
 
+/** Figma 05: "Oct 12" */
 function formatLabel(dueDate: string): string {
   const date = new Date(`${dueDate}T00:00:00`)
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
   })
 }
 
+function overdueDays(dueDate: string, today: string): number {
+  const due = new Date(`${dueDate}T00:00:00`).getTime()
+  const now = new Date(`${today}T00:00:00`).getTime()
+  return Math.max(1, Math.round((now - due) / 86_400_000))
+}
+
 type DueDateProps = {
   dueDate: string | null
-  /** Override “today” for tests; defaults to a stable seed-era date in app usage via prop from callers later. */
   today?: string
+  /**
+   * `compact` (cards): "Oct 8 · overdue"
+   * `detail` (drawer): "Oct 8 (2 days overdue)"
+   */
+  variant?: 'compact' | 'detail'
+  showIcon?: boolean
   className?: string
+  /** @deprecated use variant="detail" */
+  detail?: boolean
 }
 
 const TONE_CLASS: Record<DueDateTone, string> = {
@@ -44,8 +58,12 @@ const TONE_CLASS: Record<DueDateTone, string> = {
 export function DueDate({
   dueDate,
   today = new Date().toISOString().slice(0, 10),
+  variant,
+  detail = false,
+  showIcon = true,
   className,
 }: DueDateProps) {
+  const mode = variant ?? (detail ? 'detail' : 'compact')
   const tone = resolveTone(dueDate, today)
 
   if (!dueDate) {
@@ -56,11 +74,22 @@ export function DueDate({
           TONE_CLASS.none,
           className,
         )}
+        data-tone="none"
       >
-        <Calendar className="size-3.5 opacity-60" aria-hidden />
+        {showIcon ? (
+          <Calendar className="size-3.5 shrink-0 opacity-60" aria-hidden />
+        ) : null}
         No date
       </span>
     )
+  }
+
+  let label = formatLabel(dueDate)
+  if (tone === 'overdue') {
+    label =
+      mode === 'detail'
+        ? `${formatLabel(dueDate)} (${overdueDays(dueDate, today)} days overdue)`
+        : `${formatLabel(dueDate)} · overdue`
   }
 
   return (
@@ -72,10 +101,12 @@ export function DueDate({
       )}
       data-tone={tone}
     >
-      <Calendar className="size-3.5 opacity-70" aria-hidden />
-      {formatLabel(dueDate)}
+      {showIcon ? (
+        <Calendar className="size-3.5 shrink-0 opacity-70" aria-hidden />
+      ) : null}
+      {label}
     </span>
   )
 }
 
-export { resolveTone }
+export { resolveTone, formatLabel }

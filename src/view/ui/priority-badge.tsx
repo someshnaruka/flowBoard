@@ -4,17 +4,17 @@ import type { Priority } from '@/model/types'
 import { cn } from '@/view/ui/utils'
 
 const priorityBadgeVariants = cva(
-  'inline-flex max-w-full items-center rounded-badge border border-transparent px-1.5 py-0.5 text-meta font-medium transition-colors duration-150',
+  'inline-flex h-[18px] max-w-full items-center rounded-badge border border-transparent px-1.5 text-[11px] font-medium leading-none transition-colors duration-150',
   {
     variants: {
       priority: {
         urgent:
-          'border-priority-urgent/20 bg-priority-urgent-muted text-priority-urgent dark:bg-red-950/45',
-        high: 'border-priority-high/20 bg-priority-high-muted text-priority-high dark:bg-orange-950/45',
+          'border-priority-urgent/25 bg-priority-urgent-muted text-priority-urgent dark:border-red-400/30 dark:bg-red-950/45 dark:text-[#F87171]',
+        high: 'border-priority-high/25 bg-priority-high-muted text-priority-high dark:border-orange-400/30 dark:bg-orange-950/45 dark:text-orange-300',
         normal:
-          'border-priority-normal/20 bg-priority-normal-muted text-priority-normal dark:bg-blue-950/45',
-        low: 'border-priority-low/20 bg-priority-low-muted text-priority-low dark:bg-slate-800/80',
-        none: 'border-border bg-priority-none-muted text-priority-none dark:bg-slate-800/80 dark:text-slate-400',
+          'border-priority-normal/25 bg-priority-normal-muted text-priority-normal dark:border-blue-400/30 dark:bg-blue-950/45 dark:text-blue-300',
+        low: 'border-priority-low/30 bg-priority-low-muted text-priority-low dark:border-slate-500/40 dark:bg-slate-700/70 dark:text-slate-200',
+        none: 'border-border/80 bg-transparent text-priority-none dark:border-slate-600/50 dark:bg-transparent dark:text-slate-500',
       },
     },
     defaultVariants: {

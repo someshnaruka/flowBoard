@@ -12,16 +12,16 @@ export function DrawerDescription({
   onChange,
 }: DrawerDescriptionProps) {
   return (
-    <section className="space-y-2 border-t border-border px-4 py-3">
-      <h3 className="text-meta font-medium text-muted-foreground">
+    <section className="space-y-2 px-6 py-3">
+      <h3 className="text-meta font-medium text-slate-600 dark:text-slate-300">
         Description
       </h3>
       <Textarea
         value={value}
         disabled={disabled}
-        rows={5}
+        rows={4}
         placeholder="Add a description…"
-        className="min-h-[7.5rem] rounded-control text-body"
+        className="min-h-[5.5rem] rounded-control border-border bg-background p-3 text-body disabled:cursor-default disabled:opacity-100"
         onChange={(event) => onChange(event.target.value)}
       />
     </section>

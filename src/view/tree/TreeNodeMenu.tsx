@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowDown, ArrowUp, MoreHorizontal, Plus } from 'lucide-react'
+import { Archive, ArrowDown, ArrowUp, MoreHorizontal, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { selectSiblings } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
@@ -282,10 +282,12 @@ export function TreeNodeMenu({
         description={
           <>
             This archives the {CHILD_LABEL[kind].toLowerCase()} and all nested
-            spaces, folders, lists, and their tasks. You can undo from the toast.
+            spaces, folders, lists, and their tasks. You can restore it from
+            Archived.
           </>
         }
         confirmLabel="Archive"
+        confirmIcon={<Archive className="size-3.5" aria-hidden />}
         onConfirm={() => {
           void onArchive()
         }}

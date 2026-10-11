@@ -1,35 +1,65 @@
 import { format, formatDistanceToNow } from 'date-fns'
+import type { TaskActivityItem, User } from '@/model/types'
+import { UserAvatar } from '@/view/ui/user-avatar'
 
 type DrawerActivityProps = {
+  activity: TaskActivityItem[]
+  users: User[]
   createdAt: string
-  updatedAt: string
+  createdById: string
 }
 
-export function DrawerActivity({ createdAt, updatedAt }: DrawerActivityProps) {
-  const created = new Date(createdAt)
-  const updated = new Date(updatedAt)
-  const sameMoment = createdAt === updatedAt
+export function DrawerActivity({
+  activity,
+  users,
+  createdAt,
+  createdById,
+}: DrawerActivityProps) {
+  const entries =
+    activity.length > 0
+      ? activity
+      : [
+          {
+            id: 'fallback-created',
+            actorId: createdById,
+            summary: 'created this task',
+            createdAt,
+          },
+        ]
 
   return (
-    <section className="space-y-2 border-t border-border px-4 py-3">
-      <h3 className="text-meta font-medium text-muted-foreground">Activity</h3>
-      <ul className="space-y-2">
-        <li className="text-body text-foreground">
-          Created{' '}
-          <span className="text-muted-foreground">
-            {formatDistanceToNow(created, { addSuffix: true })} ·{' '}
-            {format(created, 'MMM d, yyyy')}
-          </span>
-        </li>
-        {!sameMoment ? (
-          <li className="text-body text-foreground">
-            Updated{' '}
-            <span className="text-muted-foreground">
-              {formatDistanceToNow(updated, { addSuffix: true })} ·{' '}
-              {format(updated, 'MMM d, yyyy')}
-            </span>
-          </li>
-        ) : null}
+    <section className="space-y-2 px-6 py-3">
+      <h3 className="text-meta font-medium text-slate-600 dark:text-slate-300">
+        Activity
+      </h3>
+      <ul className="space-y-2.5">
+        {entries.map((item) => {
+          const actor = users.find((user) => user.id === item.actorId)
+          const name = actor?.name.split(' ')[0] ?? 'Someone'
+          const when = new Date(item.createdAt)
+          return (
+            <li key={item.id} className="flex items-start gap-2">
+              {actor ? (
+                <UserAvatar
+                  name={actor.name}
+                  avatarUrl={actor.avatarUrl}
+                  size="sm"
+                  className="mt-0.5 size-5 text-[10px]"
+                />
+              ) : null}
+              <div className="min-w-0 flex-1">
+                <p className="text-body text-foreground">
+                  <span className="font-medium">{name}</span>{' '}
+                  <span className="text-muted-foreground">{item.summary}</span>
+                </p>
+                <p className="text-meta text-muted-foreground">
+                  {formatDistanceToNow(when, { addSuffix: true })} ·{' '}
+                  {format(when, 'MMM d · h:mm a')}
+                </p>
+              </div>
+            </li>
+          )
+        })}
       </ul>
     </section>
   )

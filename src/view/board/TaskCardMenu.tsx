@@ -1,10 +1,10 @@
 import { useState, type SyntheticEvent } from 'react'
-import { MoreHorizontal } from 'lucide-react'
-import { toast } from 'sonner'
+import { Archive, MoreHorizontal, Trash2 } from 'lucide-react'
 import { selectCanEditTask } from '@/controller/selectors'
 import { useFlowStore } from '@/controller/store'
 import {
   notifyMutationError,
+  toastInfo,
   toastSuccess,
 } from '@/view/feedback/toasts'
 import { ConfirmDialog } from '@/view/ui/confirm-dialog'
@@ -39,6 +39,7 @@ export function TaskCardMenu({
   const restoreTask = useFlowStore((state) => state.restoreTask)
   const deleteTask = useFlowStore((state) => state.deleteTask)
   const canEdit = useFlowStore((state) => selectCanEditTask(state, taskId))
+  const [archiveOpen, setArchiveOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
   const stop = (event: SyntheticEvent) => {
@@ -61,7 +62,8 @@ export function TaskCardMenu({
       notifyMutationError(result.error)
       return
     }
-    toast.message(`Archived “${taskTitle}”`, {
+    toastInfo(`Archived “${taskTitle}”`, {
+      description: 'You can restore from Archived.',
       action: {
         label: 'Undo',
         onClick: () => {
@@ -124,11 +126,7 @@ export function TaskCardMenu({
               >
                 Duplicate
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  void onArchive()
-                }}
-              >
+              <DropdownMenuItem onClick={() => setArchiveOpen(true)}>
                 Archive
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -136,6 +134,7 @@ export function TaskCardMenu({
                 className="text-destructive focus:text-destructive"
                 onClick={() => setDeleteOpen(true)}
               >
+                <Trash2 className="size-3.5" />
                 Delete
               </DropdownMenuItem>
             </>
@@ -144,11 +143,24 @@ export function TaskCardMenu({
       </DropdownMenu>
 
       <ConfirmDialog
+        open={archiveOpen}
+        onOpenChange={setArchiveOpen}
+        title={`Archive “${taskTitle}”?`}
+        description="This archives the task and any subtasks. You can restore from Archived."
+        confirmLabel="Archive"
+        confirmIcon={<Archive className="size-3.5" aria-hidden />}
+        onConfirm={() => {
+          void onArchive()
+        }}
+      />
+
+      <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title={`Delete “${taskTitle}”?`}
         description="This permanently deletes the task and any subtasks. This cannot be undone."
         confirmLabel="Delete"
+        confirmIcon={<Trash2 className="size-3.5" aria-hidden />}
         onConfirm={() => {
           void (async () => {
             const result = await deleteTask(taskId)

@@ -1,7 +1,14 @@
 import { fail, ok, type Result } from '../errors'
 import { newId } from '../id'
 import { after, before, between } from '../position'
-import type { AppState, Priority, Status, StatusCategory, Task } from '../types'
+import type {
+  AppState,
+  Priority,
+  Status,
+  StatusCategory,
+  Task,
+  TaskActivityItem,
+} from '../types'
 
 export type TaskMutation = {
   state: AppState
@@ -19,6 +26,35 @@ function cloneState(state: AppState): AppState {
 
 function nowIso(): string {
   return new Date().toISOString()
+}
+
+function activityItem(
+  actorId: string,
+  summary: string,
+  createdAt = nowIso(),
+): TaskActivityItem {
+  return {
+    id: newId(),
+    actorId,
+    summary,
+    createdAt,
+  }
+}
+
+function withActivity(task: Task, item: TaskActivityItem): Task {
+  return {
+    ...task,
+    activity: [item, ...task.activity].slice(0, 40),
+    updatedAt: item.createdAt,
+  }
+}
+
+const PRIORITY_LABEL: Record<Priority, string> = {
+  urgent: 'Urgent',
+  high: 'High',
+  normal: 'Normal',
+  low: 'Low',
+  none: 'None',
 }
 
 function getListTasks(state: AppState, listId: string): Task[] {
@@ -83,7 +119,7 @@ export type CreateTaskInput = {
 
 export function createTask(
   state: AppState,
-  _actorId: string,
+  actorId: string,
   input: CreateTaskInput,
 ): Result<TaskMutation> {
   const listCheck = assertListWritable(state, input.listId)
@@ -132,6 +168,15 @@ export function createTask(
       : after(null)
 
   const timestamp = nowIso()
+  const assignees = [...(input.assigneeIds ?? [])]
+  const created = activityItem(actorId, 'created this task', timestamp)
+  const activity: TaskActivityItem[] = [created]
+  for (const assigneeId of assignees) {
+    activity.push(
+      activityItem(assigneeId, 'was assigned', timestamp),
+    )
+  }
+
   const task: Task = {
     id: newId(),
     listId: input.listId,
@@ -139,11 +184,13 @@ export function createTask(
     description: input.description ?? '',
     statusId: input.statusId,
     priority: input.priority ?? 'none',
-    assigneeIds: [...(input.assigneeIds ?? [])],
+    assigneeIds: assignees,
     dueDate: input.dueDate ?? null,
     position,
     parentTaskId: input.parentTaskId ?? null,
     archivedAt: null,
+    createdById: actorId,
+    activity,
     createdAt: timestamp,
     updatedAt: timestamp,
   }
@@ -164,7 +211,7 @@ export type UpdateTaskInput = {
 
 export function updateTask(
   state: AppState,
-  _actorId: string,
+  actorId: string,
   input: UpdateTaskInput,
 ): Result<TaskMutation> {
   const existing = state.tasks[input.taskId]
@@ -194,17 +241,79 @@ export function updateTask(
     }
   }
 
-  const task: Task = {
+  const timestamp = nowIso()
+  const nextAssignees = input.assigneeIds
+    ? [...input.assigneeIds]
+    : existing.assigneeIds
+  const nextPriority = input.priority ?? existing.priority
+  const nextDue =
+    input.dueDate !== undefined ? input.dueDate : existing.dueDate
+
+  let task: Task = {
     ...existing,
     title,
     description:
       input.description !== undefined ? input.description : existing.description,
-    priority: input.priority ?? existing.priority,
-    assigneeIds: input.assigneeIds
-      ? [...input.assigneeIds]
-      : existing.assigneeIds,
-    dueDate: input.dueDate !== undefined ? input.dueDate : existing.dueDate,
-    updatedAt: nowIso(),
+    priority: nextPriority,
+    assigneeIds: nextAssignees,
+    dueDate: nextDue,
+    updatedAt: timestamp,
+  }
+
+  if (input.priority !== undefined && input.priority !== existing.priority) {
+    task = withActivity(
+      task,
+      activityItem(
+        actorId,
+        `changed priority to ${PRIORITY_LABEL[input.priority]}`,
+        timestamp,
+      ),
+    )
+  }
+
+  if (input.dueDate !== undefined && input.dueDate !== existing.dueDate) {
+    task = withActivity(
+      task,
+      activityItem(
+        actorId,
+        input.dueDate ? `set due date to ${input.dueDate}` : 'cleared due date',
+        timestamp,
+      ),
+    )
+  }
+
+  if (input.assigneeIds) {
+    const prev = new Set(existing.assigneeIds)
+    const nextIds = new Set(input.assigneeIds)
+    for (const id of input.assigneeIds) {
+      if (!prev.has(id)) {
+        task = withActivity(
+          task,
+          activityItem(id, 'was assigned', timestamp),
+        )
+      }
+    }
+    for (const id of existing.assigneeIds) {
+      if (!nextIds.has(id)) {
+        task = withActivity(
+          task,
+          activityItem(id, 'was unassigned', timestamp),
+        )
+      }
+    }
+  }
+
+  if (
+    input.title !== undefined &&
+    title !== existing.title &&
+    input.priority === undefined &&
+    input.dueDate === undefined &&
+    input.assigneeIds === undefined
+  ) {
+    task = withActivity(
+      task,
+      activityItem(actorId, 'updated the title', timestamp),
+    )
   }
 
   const next = cloneState(state)
@@ -341,7 +450,7 @@ export type ChangeStatusInput = {
 
 export function changeStatus(
   state: AppState,
-  _actorId: string,
+  actorId: string,
   input: ChangeStatusInput,
 ): Result<TaskMutation> {
   const existing = state.tasks[input.taskId]
@@ -363,11 +472,24 @@ export function changeStatus(
     return statusCheck
   }
 
-  const task: Task = {
-    ...existing,
-    statusId: input.statusId,
-    updatedAt: nowIso(),
+  if (existing.statusId === input.statusId) {
+    return ok({ state, task: existing })
   }
+
+  const status = state.statuses[input.statusId]
+  const timestamp = nowIso()
+  const task = withActivity(
+    {
+      ...existing,
+      statusId: input.statusId,
+      updatedAt: timestamp,
+    },
+    activityItem(
+      actorId,
+      `changed status to ${status?.name ?? 'updated'}`,
+      timestamp,
+    ),
+  )
   const next = cloneState(state)
   next.tasks[task.id] = task
   return ok({ state: next, task })
@@ -500,7 +622,7 @@ export type MoveTaskToListInput = {
 
 export function moveTaskToList(
   state: AppState,
-  _actorId: string,
+  actorId: string,
   input: MoveTaskToListInput,
 ): Result<TaskMutation> {
   const existing = state.tasks[input.taskId]
@@ -509,6 +631,10 @@ export function moveTaskToList(
   }
   if (existing.parentTaskId) {
     return fail('VALIDATION', 'Move subtasks with their parent task')
+  }
+
+  if (existing.listId === input.targetListId) {
+    return ok({ state, task: existing })
   }
 
   const sourceCheck = assertListWritable(state, existing.listId)
@@ -567,14 +693,18 @@ export function moveTaskToList(
   }
 
   const timestamp = nowIso()
+  const targetName = state.nodes[input.targetListId]?.name ?? 'another list'
   const next = cloneState(state)
-  const task: Task = {
-    ...existing,
-    listId: input.targetListId,
-    statusId,
-    position,
-    updatedAt: timestamp,
-  }
+  const task = withActivity(
+    {
+      ...existing,
+      listId: input.targetListId,
+      statusId,
+      position,
+      updatedAt: timestamp,
+    },
+    activityItem(actorId, `moved task to ${targetName}`, timestamp),
+  )
   next.tasks[task.id] = task
 
   for (const child of Object.values(state.tasks)) {

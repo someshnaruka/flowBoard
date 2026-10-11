@@ -20,10 +20,12 @@ import {
   changeStatus as changeStatusService,
   createTask as createTaskService,
   deleteTask as deleteTaskService,
+  moveTaskToList as moveTaskToListService,
   reorderTask as reorderTaskService,
   restoreTask as restoreTaskService,
   updateTask as updateTaskService,
   type CreateTaskInput,
+  type MoveTaskToListInput,
   type UpdateTaskInput,
 } from '@/model/services/task.service'
 import { selectStatusesForList } from './selectors'
@@ -35,6 +37,11 @@ import {
 } from './simulateNetwork'
 
 export type BoardView = 'board' | 'list'
+
+export type PendingTaskConfirm = {
+  kind: 'archive' | 'delete'
+  taskId: string
+}
 
 export type UiState = {
   selectedListId: string | null
@@ -50,6 +57,8 @@ export type UiState = {
   searchFocusNonce: number
   /** Debounced task search query for the selected list. */
   searchQuery: string
+  /** Keyboard-driven destructive confirm (⌘E / ⌘⌫). */
+  pendingTaskConfirm: PendingTaskConfirm | null
 }
 
 export type FlowState = AppState & UiState
@@ -107,9 +116,12 @@ export type FlowStore = FlowState & {
   setCheatsheetOpen: (open: boolean) => void
   requestSearchFocus: () => void
   setSearchQuery: (query: string) => void
+  requestTaskConfirm: (kind: 'archive' | 'delete', taskId: string) => void
+  clearPendingTaskConfirm: () => void
   createTask: (input: CreateTaskInput) => Promise<Result<Task>>
   createDefaultTask: () => Promise<Result<Task>>
   placeTask: (input: PlaceTaskInput) => Promise<Result<Task>>
+  moveTaskToList: (input: MoveTaskToListInput) => Promise<Result<Task>>
   updateTask: (
     input: UpdateTaskInput & { statusId?: string },
   ) => Promise<Result<Task>>
@@ -153,6 +165,7 @@ function initialUi(seed: AppState): UiState {
     cheatsheetOpen: false,
     searchFocusNonce: 0,
     searchQuery: '',
+    pendingTaskConfirm: null,
   }
 }
 
@@ -236,6 +249,18 @@ export function createFlowStore(
         })
       },
 
+      requestTaskConfirm: (kind, taskId) => {
+        set((state) => {
+          state.pendingTaskConfirm = { kind, taskId }
+        })
+      },
+
+      clearPendingTaskConfirm: () => {
+        set((state) => {
+          state.pendingTaskConfirm = null
+        })
+      },
+
       switchUser: (userId) => {
         const current = get()
         if (!current.users[userId]) {
@@ -316,6 +341,58 @@ export function createFlowStore(
           title: 'New task',
           statusId: status.id,
         })
+      },
+
+      moveTaskToList: async (input) => {
+        const snapshot = get()
+        const existing = snapshot.tasks[input.taskId]
+        if (!existing) {
+          return fail('NOT_FOUND', `Task ${input.taskId} not found`)
+        }
+
+        const sourcePermission = assertCan(
+          snapshot,
+          snapshot.currentUserId,
+          existing.listId,
+          'edit',
+        )
+        if (isErr(sourcePermission)) {
+          return sourcePermission
+        }
+
+        const targetPermission = assertCan(
+          snapshot,
+          snapshot.currentUserId,
+          input.targetListId,
+          'edit',
+        )
+        if (isErr(targetPermission)) {
+          return targetPermission
+        }
+
+        const serviceResult = moveTaskToListService(
+          domainSnapshot(snapshot),
+          snapshot.currentUserId,
+          input,
+        )
+        if (isErr(serviceResult)) {
+          return serviceResult
+        }
+
+        const network = await simulateNetwork(get().network)
+        set((state) => {
+          state.network.failNext = false
+        })
+        if (isErr(network)) {
+          return network
+        }
+
+        set((state) => {
+          applyDomain(state, serviceResult.data.state)
+          state.selectedListId = input.targetListId
+        })
+
+        return ok(serviceResult.data.task)
       },
 
       placeTask: async (input) => {

@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   selectBreadcrumb,
   selectCanEditTask,
+  selectEditableLists,
   selectStatusesForList,
   selectSubtasks,
   selectTaskById,
 } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Priority } from '@/model/types'
-import { notifyMutationError } from '@/view/feedback/toasts'
+import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { DrawerActivity } from './DrawerActivity'
 import { DrawerDescription } from './DrawerDescription'
 import { DrawerHeader } from './DrawerHeader'
@@ -26,23 +27,45 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
   const currentUserId = useFlowStore((state) => state.currentUserId)
   const updateTask = useFlowStore((state) => state.updateTask)
   const createTask = useFlowStore((state) => state.createTask)
+  const deleteTask = useFlowStore((state) => state.deleteTask)
+  const moveTaskToList = useFlowStore((state) => state.moveTaskToList)
   const openDrawer = useFlowStore((state) => state.openDrawer)
   const taskStamp = useFlowStore((state) => {
     const task = state.tasks[taskId]
     if (!task) {
       return ''
     }
-    return `${task.title}:${task.description}:${task.statusId}:${task.priority}:${task.dueDate ?? ''}:${task.assigneeIds.join(',')}:${task.updatedAt}`
+    return `${task.title}:${task.description}:${task.statusId}:${task.priority}:${task.dueDate ?? ''}:${task.assigneeIds.join(',')}:${task.activity.length}:${task.updatedAt}`
   })
+  const subtasksStamp = useFlowStore((state) =>
+    Object.values(state.tasks)
+      .filter((task) => task.parentTaskId === taskId)
+      .map(
+        (task) =>
+          `${task.id}:${task.title}:${task.statusId}:${task.archivedAt ?? ''}:${task.updatedAt}`,
+      )
+      .sort()
+      .join('\0'),
+  )
   const usersStamp = useFlowStore((state) =>
     Object.values(state.users)
       .map((user) => `${user.id}:${user.name}`)
       .join('\0'),
   )
 
-  const { task, statuses, subtasks, breadcrumb, canEdit, users } = useMemo(() => {
+  const {
+    task,
+    statuses,
+    subtasks,
+    breadcrumb,
+    listName,
+    lists,
+    canEdit,
+    users,
+  } = useMemo(() => {
     void currentUserId
     void taskStamp
+    void subtasksStamp
     void usersStamp
     const state = getDefaultFlowStore().getState()
     const found = selectTaskById(state, taskId)
@@ -52,6 +75,8 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
         statuses: [],
         subtasks: [],
         breadcrumb: '',
+        listName: '',
+        lists: [],
         canEdit: false,
         users: [],
       }
@@ -63,11 +88,13 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
       breadcrumb: selectBreadcrumb(state, found.listId)
         .filter((node) => node.kind !== 'workspace')
         .map((node) => node.name)
-        .join(' › '),
+        .join(' / '),
+      listName: state.nodes[found.listId]?.name ?? 'List',
+      lists: selectEditableLists(state),
       canEdit: selectCanEditTask(state, taskId),
       users: Object.values(state.users),
     }
-  }, [currentUserId, taskId, taskStamp, usersStamp])
+  }, [currentUserId, taskId, taskStamp, subtasksStamp, usersStamp])
 
   const [title, setTitle] = useState(task?.title ?? '')
   const [description, setDescription] = useState(task?.description ?? '')
@@ -182,6 +209,9 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
           statuses={statuses}
           priority={task.priority}
           dueDate={task.dueDate}
+          listId={task.listId}
+          listName={listName}
+          lists={lists}
           assignees={assignees}
           users={users}
           disabled={!canEdit}
@@ -197,31 +227,82 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
           onAssigneesChange={(assigneeIds) => {
             void persist({ taskId, assigneeIds })
           }}
+          onListChange={(targetListId) => {
+            void (async () => {
+              const result = await moveTaskToList({ taskId, targetListId })
+              if ('error' in result) {
+                notifyMutationError(result.error)
+                return
+              }
+              const name =
+                getDefaultFlowStore().getState().nodes[targetListId]?.name ??
+                'list'
+              toastSuccess(`Moved to ${name}`)
+            })()
+          }}
         />
         <DrawerDescription
           value={description}
           disabled={!canEdit}
           onChange={setDescription}
         />
-        <DrawerSubtasks
-          subtasks={subtasks}
-          disabled={!canEdit}
-          onOpen={openDrawer}
-          onAdd={async (subTitle) => {
-            const result = await createTask({
-              listId: task.listId,
-              title: subTitle,
-              statusId: task.statusId,
-              parentTaskId: task.id,
-            })
-            if ('error' in result) {
-              notifyMutationError(result.error)
-            }
-          }}
-        />
+        {task.parentTaskId == null ? (
+          <DrawerSubtasks
+            subtasks={subtasks}
+            statuses={statuses}
+            disabled={!canEdit}
+            onOpen={openDrawer}
+            onAdd={async (subTitle) => {
+              const todoStatus =
+                statuses.find((item) => item.category === 'todo') ?? statuses[0]
+              if (!todoStatus) {
+                notifyMutationError({
+                  code: 'INVALID_STATUS',
+                  message: 'This list has no statuses',
+                })
+                return
+              }
+              const result = await createTask({
+                listId: task.listId,
+                title: subTitle,
+                statusId: todoStatus.id,
+                parentTaskId: task.id,
+              })
+              if ('error' in result) {
+                notifyMutationError(result.error)
+              }
+            }}
+            onToggleDone={async (subtaskId, done) => {
+              const target = done
+                ? statuses.find((item) => item.category === 'done')
+                : (statuses.find((item) => item.category === 'todo') ??
+                  statuses[0])
+              if (!target) {
+                return
+              }
+              const result = await updateTask({
+                taskId: subtaskId,
+                statusId: target.id,
+              })
+              if ('error' in result) {
+                notifyMutationError(result.error)
+              }
+            }}
+            onDelete={async (subtaskId) => {
+              const result = await deleteTask(subtaskId)
+              if ('error' in result) {
+                notifyMutationError(result.error)
+                return
+              }
+              toastSuccess('Subtask deleted')
+            }}
+          />
+        ) : null}
         <DrawerActivity
+          activity={task.activity}
+          users={users}
           createdAt={task.createdAt}
-          updatedAt={task.updatedAt}
+          createdById={task.createdById}
         />
       </div>
     </div>

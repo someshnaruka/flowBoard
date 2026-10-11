@@ -13,6 +13,8 @@ function task(partial: Partial<Task> & Pick<Task, 'id' | 'priority'>): Task {
     position: 0,
     parentTaskId: null,
     archivedAt: null,
+    createdById: 'user-alice',
+    activity: [],
     createdAt: '2026-10-01T00:00:00.000Z',
     updatedAt: '2026-10-01T00:00:00.000Z',
     ...partial,

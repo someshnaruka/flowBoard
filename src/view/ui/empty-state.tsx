@@ -24,14 +24,16 @@ export function EmptyState({
       )}
     >
       {icon ? (
-        <div className="flex size-10 items-center justify-center rounded-card bg-muted text-muted-foreground">
+        <div className="flex size-9 items-center justify-center text-slate-400 dark:text-slate-500">
           {icon}
         </div>
       ) : null}
       <div className="min-w-0 space-y-1">
-        <h3 className="text-drawer-title text-foreground">{title}</h3>
+        <h3 className="text-body font-medium text-foreground">{title}</h3>
         {description ? (
-          <p className="max-w-sm text-body text-muted-foreground">{description}</p>
+          <p className="max-w-sm text-meta text-slate-500 dark:text-slate-400">
+            {description}
+          </p>
         ) : null}
       </div>
       {action}

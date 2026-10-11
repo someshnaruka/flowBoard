@@ -1,12 +1,8 @@
 import { useEffect } from 'react'
 import { getDefaultFlowStore } from '@/controller/store'
-import {
-  notifyMutationError,
-  toastSuccess,
-} from '@/view/feedback/toasts'
+import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { useTheme } from '@/view/theme/ThemeProvider'
 import type { ThemePreference } from '@/view/theme/theme'
-import { toast } from 'sonner'
 import {
   isTypingTarget,
   resolveFocusedTaskId,
@@ -27,6 +23,11 @@ export function useKeyboardShortcuts(): void {
       const typing = isTypingTarget(event.target)
 
       if (event.key === 'Escape') {
+        if (store.pendingTaskConfirm) {
+          store.clearPendingTaskConfirm()
+          event.preventDefault()
+          return
+        }
         if (store.cheatsheetOpen) {
           store.setCheatsheetOpen(false)
           event.preventDefault()
@@ -78,29 +79,7 @@ export function useKeyboardShortcuts(): void {
           return
         }
         event.preventDefault()
-        void (async () => {
-          const title = store.tasks[taskId]?.title ?? 'Task'
-          const result = await store.archiveTask(taskId)
-          if ('error' in result) {
-            notifyMutationError(result.error)
-            return
-          }
-          toast.message(`Archived “${title}”`, {
-            action: {
-              label: 'Undo',
-              onClick: () => {
-                void (async () => {
-                  const restored = await store.restoreTask(taskId)
-                  if ('error' in restored) {
-                    notifyMutationError(restored.error)
-                    return
-                  }
-                  toastSuccess(`Restored “${title}”`)
-                })()
-              },
-            },
-          })
-        })()
+        store.requestTaskConfirm('archive', taskId)
         return
       }
 
@@ -113,17 +92,7 @@ export function useKeyboardShortcuts(): void {
           return
         }
         event.preventDefault()
-        void (async () => {
-          const result = await store.deleteTask(taskId)
-          if ('error' in result) {
-            notifyMutationError(result.error)
-            return
-          }
-          toastSuccess('Task deleted')
-          if (store.drawerTaskId === taskId) {
-            store.openDrawer(null)
-          }
-        })()
+        store.requestTaskConfirm('delete', taskId)
         return
       }
 

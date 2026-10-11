@@ -3,11 +3,11 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/view/ui/utils'
 
 const saveIndicatorVariants = cva(
-  'inline-flex items-center gap-1.5 text-meta transition-colors duration-150',
+  'inline-flex items-center gap-1 text-[11px] font-normal leading-4 transition-colors duration-150',
   {
     variants: {
       status: {
-        idle: 'text-muted-foreground',
+        idle: 'text-status-done',
         saving: 'text-muted-foreground',
         saved: 'text-status-done',
         error: 'text-priority-urgent',
@@ -24,10 +24,10 @@ export type SaveStatus = NonNullable<
 >
 
 const LABELS: Record<SaveStatus, string> = {
-  idle: 'All changes saved',
+  idle: 'Saved',
   saving: 'Saving…',
   saved: 'Saved',
-  error: 'Save failed',
+  error: 'Failed to save',
 }
 
 type SaveIndicatorProps = {
@@ -43,13 +43,13 @@ export function SaveIndicator({ status, className }: SaveIndicatorProps) {
       aria-live="polite"
     >
       {status === 'saving' ? (
-        <Loader2 className="size-3.5 animate-spin" aria-hidden />
+        <Loader2 className="size-3 animate-spin" aria-hidden />
       ) : null}
-      {status === 'saved' ? (
-        <Check className="size-3.5" aria-hidden />
+      {status === 'saved' || status === 'idle' ? (
+        <Check className="size-3" aria-hidden />
       ) : null}
       {status === 'error' ? (
-        <AlertCircle className="size-3.5" aria-hidden />
+        <AlertCircle className="size-3" aria-hidden />
       ) : null}
       {LABELS[status]}
     </span>

@@ -1,4 +1,4 @@
-import { Filter, LayoutGrid, List, Plus } from 'lucide-react'
+import { LayoutGrid, List, Plus } from 'lucide-react'
 import { useFlowStore, type BoardView } from '@/controller/store'
 import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { Button } from '@/view/ui/button'
@@ -42,8 +42,8 @@ export function ViewBar({ listId }: ViewBarProps) {
   }
 
   return (
-    <div className="flex h-view-bar shrink-0 items-center gap-3 border-b border-border px-4">
-      <h1 className="min-w-0 truncate text-page-title text-foreground">
+    <div className="flex h-view-bar shrink-0 items-center gap-3 border-b border-border bg-background px-4">
+      <h1 className="min-w-0 truncate text-page-title tracking-tight text-foreground">
         {listName}
       </h1>
 
@@ -55,42 +55,29 @@ export function ViewBar({ listId }: ViewBarProps) {
             setView(value as BoardView)
           }
         }}
-        variant="outline"
         size="sm"
-        className="shrink-0 rounded-control"
+        className="h-7 shrink-0 gap-0 rounded-control bg-muted p-0.5"
         aria-label="Board or list view"
       >
         <ToggleGroupItem
           value="board"
           aria-label="Board view"
-          className="gap-1.5 rounded-control px-2.5 text-body data-[state=on]:bg-brand data-[state=on]:text-brand-foreground data-[state=on]:hover:bg-brand-600"
+          className="h-6 gap-1.5 rounded-badge px-2.5 text-body text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm data-[state=on]:hover:bg-background"
         >
-          <LayoutGrid className="size-4" />
+          <LayoutGrid className="size-3.5" />
           Board
         </ToggleGroupItem>
         <ToggleGroupItem
           value="list"
           aria-label="List view"
-          className="gap-1.5 rounded-control px-2.5 text-body data-[state=on]:bg-brand data-[state=on]:text-brand-foreground data-[state=on]:hover:bg-brand-600"
+          className="h-6 gap-1.5 rounded-badge px-2.5 text-body text-muted-foreground shadow-none hover:bg-transparent hover:text-foreground data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm data-[state=on]:hover:bg-background"
         >
-          <List className="size-4" />
+          <List className="size-3.5" />
           List
         </ToggleGroupItem>
       </ToggleGroup>
 
       <div className="min-w-0 flex-1" />
-
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="h-8 gap-1.5 rounded-control text-body"
-        disabled
-        aria-label="Filter (coming soon)"
-      >
-        <Filter className="size-3.5" />
-        Filter
-      </Button>
 
       <Tooltip>
         <TooltipTrigger asChild>

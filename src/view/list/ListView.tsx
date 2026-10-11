@@ -49,20 +49,20 @@ function SortHeader({
   const Icon = !active ? ArrowUpDown : dir === 'asc' ? ArrowUp : ArrowDown
 
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
       onClick={() => onSort(sortKey)}
       className={cn(
-        'inline-flex items-center gap-1 rounded-control text-meta font-medium text-muted-foreground',
-        'transition-colors duration-150 hover:text-foreground',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40',
+        'h-auto gap-1 rounded-control px-1 py-0.5 text-meta font-medium text-slate-500 shadow-none dark:text-slate-400',
+        'hover:bg-transparent hover:text-foreground focus-visible:ring-brand/40',
         active && 'text-foreground',
       )}
       aria-label={`Sort by ${label}${active ? `, ${dir}ending` : ''}`}
     >
       {label}
       <Icon className="size-3.5" aria-hidden />
-    </button>
+    </Button>
   )
 }
 
@@ -194,15 +194,18 @@ export function ListView({ listId }: ListViewProps) {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col" aria-label="List view">
-      <div className="sticky top-0 z-10 grid h-list-row shrink-0 grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem_2rem] items-center gap-3 border-b border-border bg-background px-4">
-        <span className="text-meta font-medium text-muted-foreground">
+    <div
+      className="flex h-full min-h-0 flex-col bg-background"
+      aria-label="List view"
+    >
+      <div className="sticky top-0 z-10 grid h-list-row shrink-0 grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem_2rem] items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur-sm">
+        <span className="text-meta font-medium text-slate-500 dark:text-slate-400">
           Status
         </span>
-        <span className="text-meta font-medium text-muted-foreground">
+        <span className="text-meta font-medium text-slate-500 dark:text-slate-400">
           Title
         </span>
-        <span className="text-meta font-medium text-muted-foreground">
+        <span className="text-meta font-medium text-slate-500 dark:text-slate-400">
           Assignees
         </span>
         <SortHeader

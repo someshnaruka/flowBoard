@@ -1,6 +1,6 @@
 import { useEffect, useMemo, type KeyboardEvent } from 'react'
 import { ListTree } from 'lucide-react'
-import { selectSubtaskCount } from '@/controller/selectors'
+import { selectSubtaskProgress } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Task, User } from '@/model/types'
 import { HighlightText } from '@/view/search/HighlightText'
@@ -33,6 +33,7 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
   const shakeTaskId = useFlowStore((state) => state.shakeTaskId)
   const clearShakeTask = useFlowStore((state) => state.clearShakeTask)
   const searchQuery = useFlowStore((state) => state.searchQuery)
+  const isOpen = useFlowStore((state) => state.drawerTaskId === taskId)
   const isShaking = shakeTaskId === taskId
 
   const taskStamp = useFlowStore((state) => {
@@ -42,27 +43,43 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
     }
     return `${task.title}:${task.priority}:${task.dueDate ?? ''}:${task.assigneeIds.join(',')}:${task.updatedAt}`
   })
+  const subtasksStamp = useFlowStore((state) =>
+    Object.values(state.tasks)
+      .filter((task) => task.parentTaskId === taskId)
+      .map(
+        (task) =>
+          `${task.id}:${task.statusId}:${task.archivedAt ?? ''}:${task.updatedAt}`,
+      )
+      .sort()
+      .join('\0'),
+  )
   const usersStamp = useFlowStore((state) =>
     Object.values(state.users)
       .map((user) => `${user.id}:${user.name}:${user.avatarUrl}`)
       .join('\0'),
   )
 
-  const { task, assignees, users, subtaskCount } = useMemo(() => {
+  const { task, assignees, users, subtaskProgress } = useMemo(() => {
     void taskStamp
+    void subtasksStamp
     void usersStamp
     const state = getDefaultFlowStore().getState()
     const found = state.tasks[taskId] ?? null
     if (!found) {
-      return { task: null, assignees: [], users: [], subtaskCount: 0 }
+      return {
+        task: null,
+        assignees: [],
+        users: [],
+        subtaskProgress: { done: 0, total: 0 },
+      }
     }
     return {
       task: found,
       assignees: assigneesForTask(found, state.users),
       users: Object.values(state.users),
-      subtaskCount: selectSubtaskCount(state, taskId),
+      subtaskProgress: selectSubtaskProgress(state, taskId),
     }
-  }, [taskId, taskStamp, usersStamp])
+  }, [taskId, taskStamp, subtasksStamp, usersStamp])
 
   useEffect(() => {
     if (!isShaking) {
@@ -95,15 +112,16 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
       onClick={onOpen}
       onKeyDown={onKeyDown}
       className={cn(
-        'group relative flex w-full flex-col gap-2 rounded-card border border-border bg-card p-3 text-left shadow-card',
-        'transition-colors duration-150 hover:border-brand/40 hover:bg-brand-50/40 dark:hover:bg-brand/10',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40',
-        'active:bg-brand-50/60 dark:active:bg-brand/15',
+        'group relative flex w-full flex-col gap-2 rounded-card border border-border/80 bg-card p-3 text-left shadow-card',
+        'transition-colors duration-150 hover:border-border hover:bg-accent/40',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
+        'active:bg-accent/60',
+        isOpen && 'border-brand/60 bg-brand-50/50 ring-2 ring-brand/20 dark:bg-brand/10',
         isShaking && 'animate-shake',
         className,
       )}
     >
-      <div className="absolute right-2 top-2 z-10">
+      <div className="absolute right-1.5 top-1.5 z-10">
         <TaskCardMenu
           taskId={taskId}
           taskTitle={task.title}
@@ -111,30 +129,33 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
         />
       </div>
 
-      <p className="line-clamp-2 min-w-0 pr-7 text-card-title text-foreground">
+      <p className="line-clamp-2 min-w-0 pr-6 text-card-title text-foreground">
         <HighlightText text={task.title} query={searchQuery} />
       </p>
 
-      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-        <PriorityPopover taskId={taskId} priority={task.priority} />
-        <DueDatePopover taskId={taskId} dueDate={task.dueDate} />
-      </div>
-
       <div className="flex min-w-0 items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+          <PriorityPopover
+            taskId={taskId}
+            priority={task.priority}
+            showChevron={false}
+          />
+          <DueDatePopover taskId={taskId} dueDate={task.dueDate} />
+          {subtaskProgress.total > 0 ? (
+            <span
+              className="inline-flex items-center gap-1 text-meta text-muted-foreground"
+              aria-label={`${subtaskProgress.done} of ${subtaskProgress.total} subtasks done`}
+            >
+              <ListTree className="size-3.5" aria-hidden />
+              {subtaskProgress.done}/{subtaskProgress.total}
+            </span>
+          ) : null}
+        </div>
         <AssigneePopover
           taskId={taskId}
           assignees={assignees}
           users={users}
         />
-        {subtaskCount > 0 ? (
-          <span
-            className="inline-flex items-center gap-1 text-meta text-muted-foreground"
-            aria-label={`${subtaskCount} subtasks`}
-          >
-            <ListTree className="size-3.5" aria-hidden />
-            {subtaskCount}
-          </span>
-        ) : null}
       </div>
     </div>
   )

@@ -10,7 +10,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { Search } from 'lucide-react'
+import { ClipboardList, Search } from 'lucide-react'
 import {
   selectStatusesForList,
   selectTasksForListQuery,
@@ -203,7 +203,8 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
                         ? 'Try another column or clear search.'
                         : 'Drop a task or add one.'
                     }
-                    className="pointer-events-none rounded-card border border-dashed border-border py-8"
+                    icon={<ClipboardList className="size-5" aria-hidden />}
+                    className="pointer-events-none rounded-card border border-dashed border-border/80 bg-background/50 py-7"
                   />
                 ) : (
                   columnTaskIds.map((taskId) => (

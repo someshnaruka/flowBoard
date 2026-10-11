@@ -1,19 +1,40 @@
-import type { Priority, Status, User } from '@/model/types'
-import { AvatarStack } from '@/view/ui/avatar-stack'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/view/ui/select'
-import { Input } from '@/view/ui/input'
+  Calendar as CalendarIcon,
+  ChevronDown,
+  Circle,
+  List,
+  SignalHigh,
+  Users,
+} from 'lucide-react'
+import type { ContainerNode, Priority, Status, User } from '@/model/types'
+import { AvatarStack } from '@/view/ui/avatar-stack'
+import { Button } from '@/view/ui/button'
+import { DueDate } from '@/view/ui/due-date'
+import { DueDatePicker } from '@/view/ui/due-date-picker'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/view/ui/dropdown-menu'
+import { PriorityMenu } from '@/view/ui/priority-menu'
+import { StatusMenu } from '@/view/ui/status-menu'
+import { UserAvatar } from '@/view/ui/user-avatar'
+import { cn } from '@/view/ui/utils'
 
 type DrawerPropertiesProps = {
   statusId: string
   statuses: Status[]
   priority: Priority
   dueDate: string | null
+  listId: string
+  listName: string
+  lists: ContainerNode[]
   assignees: Array<{ id: string; name: string; avatarUrl?: string | null }>
   users: User[]
   disabled?: boolean
@@ -21,15 +42,37 @@ type DrawerPropertiesProps = {
   onPriorityChange: (priority: Priority) => void
   onDueDateChange: (dueDate: string | null) => void
   onAssigneesChange: (assigneeIds: string[]) => void
+  onListChange: (listId: string) => void
 }
 
-const PRIORITIES: Priority[] = ['urgent', 'high', 'normal', 'low', 'none']
+function PropertyLabel({
+  icon: Icon,
+  children,
+}: {
+  icon: typeof Circle
+  children: string
+}) {
+  return (
+    <span className="flex items-center gap-1.5 self-center text-meta text-slate-600 dark:text-slate-300">
+      <Icon className="size-3.5 shrink-0 opacity-80" aria-hidden />
+      {children}
+    </span>
+  )
+}
+
+const triggerClass = cn(
+  'h-8 w-fit max-w-full justify-start gap-1 rounded-control px-1.5 text-body font-normal shadow-none',
+  'hover:bg-accent/60 focus-visible:ring-brand/40',
+)
 
 export function DrawerProperties({
   statusId,
   statuses,
   priority,
   dueDate,
+  listId,
+  listName,
+  lists,
   assignees,
   users,
   disabled,
@@ -37,90 +80,143 @@ export function DrawerProperties({
   onPriorityChange,
   onDueDateChange,
   onAssigneesChange,
+  onListChange,
 }: DrawerPropertiesProps) {
+  const assigneeIds = assignees.map((user) => user.id)
+
   return (
-    <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-x-3 gap-y-3 px-4 py-3">
-      <span className="self-center text-meta text-muted-foreground">Status</span>
-      <Select
-        value={statusId}
-        disabled={disabled}
-        onValueChange={onStatusChange}
-      >
-        <SelectTrigger className="h-8 rounded-control text-body">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {statuses.map((status) => (
-            <SelectItem key={status.id} value={status.id}>
-              {status.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <section className="space-y-1 border-b border-border/70 px-6 py-3">
+      <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-x-3 gap-y-1.5">
+        <PropertyLabel icon={Circle}>Status</PropertyLabel>
+        <StatusMenu
+          value={statusId}
+          statuses={statuses}
+          disabled={disabled}
+          onChange={onStatusChange}
+        />
 
-      <span className="self-center text-meta text-muted-foreground">
-        Priority
-      </span>
-      <Select
-        value={priority}
-        disabled={disabled}
-        onValueChange={(value) => onPriorityChange(value as Priority)}
-      >
-        <SelectTrigger className="h-8 rounded-control text-body">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {PRIORITIES.map((item) => (
-            <SelectItem key={item} value={item} className="capitalize">
-              {item}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <PropertyLabel icon={Users}>Assignees</PropertyLabel>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={disabled}
+              className={triggerClass}
+            >
+              {assignees.length > 0 ? (
+                <AvatarStack users={assignees} max={3} size="sm" />
+              ) : null}
+              {!disabled ? (
+                <span className="text-meta text-muted-foreground">+ Add</span>
+              ) : assignees.length === 0 ? (
+                <span className="text-meta text-muted-foreground">
+                  Unassigned
+                </span>
+              ) : null}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="w-52 rounded-card border-border p-1 shadow-panel"
+            onCloseAutoFocus={(event) => event.preventDefault()}
+          >
+            <DropdownMenuLabel className="text-meta font-medium text-muted-foreground">
+              Assignees
+            </DropdownMenuLabel>
+            <DropdownMenuItem
+              className="rounded-control text-body"
+              onSelect={() => onAssigneesChange([])}
+            >
+              Clear assignees
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            {users.map((user) => {
+              const checked = assigneeIds.includes(user.id)
+              return (
+                <DropdownMenuCheckboxItem
+                  key={user.id}
+                  checked={checked}
+                  className="rounded-control gap-2 text-body"
+                  onCheckedChange={(next) => {
+                    if (next) {
+                      onAssigneesChange([...assigneeIds, user.id])
+                      return
+                    }
+                    onAssigneesChange(
+                      assigneeIds.filter((id) => id !== user.id),
+                    )
+                  }}
+                  onSelect={(event) => event.preventDefault()}
+                >
+                  <UserAvatar
+                    name={user.name}
+                    avatarUrl={user.avatarUrl}
+                    size="sm"
+                    className="size-5 text-[10px]"
+                  />
+                  <span className="min-w-0 truncate">{user.name}</span>
+                </DropdownMenuCheckboxItem>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-      <span className="self-center text-meta text-muted-foreground">Due</span>
-      <Input
-        type="date"
-        value={dueDate ?? ''}
-        disabled={disabled}
-        className="h-8 rounded-control text-body"
-        onChange={(event) =>
-          onDueDateChange(event.target.value ? event.target.value : null)
-        }
-      />
-
-      <span className="self-center text-meta text-muted-foreground">
-        Assignees
-      </span>
-      <Select
-        disabled={disabled}
-        value={assignees[0]?.id ?? 'none'}
-        onValueChange={(value) => {
-          if (value === 'none') {
-            onAssigneesChange([])
-            return
+        <PropertyLabel icon={CalendarIcon}>Due date</PropertyLabel>
+        <DueDatePicker
+          dueDate={dueDate}
+          disabled={disabled}
+          onChange={onDueDateChange}
+          trigger={
+            <DueDate dueDate={dueDate} variant="detail" showIcon={false} />
           }
-          onAssigneesChange([value])
-        }}
-      >
-        <SelectTrigger className="h-8 rounded-control text-body">
-          <SelectValue placeholder="Unassigned">
-            {assignees.length > 0 ? (
-              <AvatarStack users={assignees} max={3} size="sm" />
-            ) : (
-              'Unassigned'
-            )}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="none">Unassigned</SelectItem>
-          {users.map((user) => (
-            <SelectItem key={user.id} value={user.id}>
-              {user.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+        />
+
+        <PropertyLabel icon={SignalHigh}>Priority</PropertyLabel>
+        <PriorityMenu
+          value={priority}
+          disabled={disabled}
+          className={triggerClass}
+          onChange={onPriorityChange}
+        />
+
+        <PropertyLabel icon={List}>List</PropertyLabel>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={disabled}
+              className={triggerClass}
+            >
+              <span className="text-body text-foreground">{listName}</span>
+              <ChevronDown
+                className="size-3.5 text-muted-foreground"
+                aria-hidden
+              />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="w-48 rounded-card border-border p-1 shadow-panel"
+          >
+            <DropdownMenuRadioGroup
+              value={listId}
+              onValueChange={onListChange}
+            >
+              {lists.map((list) => (
+                <DropdownMenuRadioItem
+                  key={list.id}
+                  value={list.id}
+                  className="rounded-control text-body"
+                >
+                  {list.name}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </section>
   )
 }

@@ -75,7 +75,25 @@ function task(partial: {
   position: number
   description?: string
   parentTaskId?: string | null
+  createdById?: string
 }): Task {
+  const createdById = partial.createdById ?? 'user-alice'
+  const assigneeIds = partial.assigneeIds ?? []
+  const activity = [
+    {
+      id: `${partial.id}-act-created`,
+      actorId: createdById,
+      summary: 'created this task',
+      createdAt: NOW,
+    },
+    ...assigneeIds.map((assigneeId, index) => ({
+      id: `${partial.id}-act-assign-${index}`,
+      actorId: assigneeId,
+      summary: 'was assigned',
+      createdAt: NOW,
+    })),
+  ]
+
   return {
     id: partial.id,
     listId: partial.listId,
@@ -83,11 +101,13 @@ function task(partial: {
     description: partial.description ?? '',
     statusId: partial.statusId,
     priority: partial.priority,
-    assigneeIds: partial.assigneeIds ?? [],
+    assigneeIds,
     dueDate: partial.dueDate ?? null,
     position: partial.position,
     parentTaskId: partial.parentTaskId ?? null,
     archivedAt: null,
+    createdById,
+    activity,
     createdAt: NOW,
     updatedAt: NOW,
   }
