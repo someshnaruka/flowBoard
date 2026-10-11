@@ -1,7 +1,7 @@
 # T19: Component and E2E tests
 
 **Milestone:** M5 Polish and delivery
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Cover user flows, not just units.
@@ -11,11 +11,14 @@ Cover user flows, not just units.
 - Playwright: Alice -> Bob hides Leadership -> open list -> change status -> toast
 
 ## Acceptance criteria
-- [ ] All tests pass from a fresh state
+- [x] All tests pass from a fresh state
 
 ## Commit plan
-- [ ] `test(view): component tests (T19)`
-- [ ] `test(e2e): permission flow (T19)`
+- [x] `test(view): component tests (T19)`
+- [x] `test(e2e): permission flow (T19)`
 
 ## AI notes
+- Vitest: TaskCard, EmptyState, Drawer Escape (+ matchMedia mock in setup).
+- Playwright chromium E2E: Alice→Bob hides Leadership, open Backlog task, status change toast.
+- Status change toast added on drawer status updates for the E2E toast assertion / Figma feedback.
 _What Cursor got right, what I corrected or rejected._

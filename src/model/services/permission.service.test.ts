@@ -106,6 +106,26 @@ describe('permission service', () => {
       expect(canView(state, 'user-member', 'list-backlog')).toBe(true)
     })
 
+    it('view grant is read-only', () => {
+      const state = miniState({
+        grants: {
+          'g-view': {
+            id: 'g-view',
+            userId: 'user-member',
+            nodeId: 'list-backlog',
+            effect: 'view',
+          },
+        },
+      })
+      expect(canView(state, 'user-member', 'list-backlog')).toBe(true)
+      expect(canEdit(state, 'user-member', 'list-backlog')).toBe(false)
+      const forbidden = assertCan(state, 'user-member', 'list-backlog', 'edit')
+      expect(isErr(forbidden)).toBe(true)
+      if (isErr(forbidden)) {
+        expect(forbidden.error.message).toMatch(/403/)
+      }
+    })
+
     it('nearest grant wins over farther ancestors', () => {
       const state = miniState({
         grants: {
@@ -194,10 +214,12 @@ describe('permission service', () => {
       expect(canView(state, 'user-bob', 'space-leadership')).toBe(false)
       expect(canView(state, 'user-bob', 'list-okrs')).toBe(false)
 
-      // Carol
+      // Carol — Backlog is view (read-only), Leadership allow
       expect(canView(state, 'user-carol', 'space-engineering')).toBe(true)
-      expect(canView(state, 'user-carol', 'list-backlog')).toBe(false)
+      expect(canView(state, 'user-carol', 'list-backlog')).toBe(true)
+      expect(canEdit(state, 'user-carol', 'list-backlog')).toBe(false)
       expect(canView(state, 'user-carol', 'list-sprint')).toBe(true)
+      expect(canEdit(state, 'user-carol', 'list-sprint')).toBe(true)
       expect(canView(state, 'user-carol', 'space-leadership')).toBe(true)
       expect(canView(state, 'user-carol', 'list-okrs')).toBe(true)
 
@@ -210,7 +232,7 @@ describe('permission service', () => {
         (n) => n.id,
       )
       expect(carolTree).toContain('list-sprint')
-      expect(carolTree).not.toContain('list-backlog')
+      expect(carolTree).toContain('list-backlog')
       expect(carolTree).toContain('list-okrs')
       expect(
         collectIds(filterTree(state, 'user-carol')).find(

@@ -40,7 +40,7 @@ export function BoardSkeleton() {
         ].map((lineCounts, column) => (
           <div
             key={column}
-            className="flex h-full w-column shrink-0 flex-col gap-2 rounded-card bg-muted/70 p-2 dark:bg-muted/40"
+            className="flex h-full w-column shrink-0 flex-col gap-2 rounded-card bg-board-column p-2 dark:bg-board-column-dark"
           >
             <div className="flex items-center gap-2 px-1 py-1">
               <Skeleton className="size-2 rounded-full" />

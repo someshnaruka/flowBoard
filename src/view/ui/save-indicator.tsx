@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/view/ui/utils'
 
 const saveIndicatorVariants = cva(
-  'inline-flex items-center gap-1 text-[11px] font-normal leading-4 transition-colors duration-150',
+  'inline-flex items-center gap-1 text-badge font-normal transition-colors duration-150',
   {
     variants: {
       status: {

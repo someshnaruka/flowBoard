@@ -102,6 +102,11 @@ const config: Config = {
             muted: '#FFFFFF',
           },
         },
+        board: {
+          // Column well (light slate @ ~45% / dark slate @ ~35%)
+          column: 'rgb(226 232 240 / 0.45)',
+          'column-dark': 'rgb(30 41 59 / 0.35)',
+        },
       },
       fontFamily: {
         sans: [
@@ -114,11 +119,16 @@ const config: Config = {
         ],
       },
       fontSize: {
+        tiny: ['10px', { lineHeight: '16px', fontWeight: '400' }],
+        badge: ['11px', { lineHeight: '1', fontWeight: '500' }],
         meta: ['12px', { lineHeight: '16px', fontWeight: '400' }],
         body: ['13px', { lineHeight: '20px', fontWeight: '400' }],
         'card-title': ['14px', { lineHeight: '20px', fontWeight: '500' }],
         'drawer-title': ['16px', { lineHeight: '24px', fontWeight: '500' }],
         'page-title': ['20px', { lineHeight: '28px', fontWeight: '600' }],
+      },
+      height: {
+        badge: '18px',
       },
       borderRadius: {
         lg: 'var(--radius)',

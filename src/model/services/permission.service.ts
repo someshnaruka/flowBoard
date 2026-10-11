@@ -1,4 +1,5 @@
 import { fail, ok, type Result } from '../errors'
+import { newId } from '../id'
 import type { AppState, ContainerNode, Grant, GrantEffect } from '../types'
 
 export type PermissionAction = 'view' | 'edit'
@@ -68,10 +69,42 @@ function hasPrivateAncestor(state: AppState, nodeId: string): boolean {
 
 /**
  * Admin bypasses everything.
- * Members: nearest grant wins; otherwise any private ancestor hides the node;
- * otherwise visible.
+ * Members: nearest grant wins (`allow`/`view` show, `deny` hides);
+ * otherwise any private ancestor hides the node; otherwise visible.
  */
 export function canView(
+  state: AppState,
+  userId: string,
+  nodeId: string,
+): boolean {
+  const user = getUser(state, userId)
+  const node = getNode(state, nodeId)
+  if (!user || !node) {
+    return false
+  }
+  if (user.role === 'admin') {
+    return true
+  }
+
+  const nearest = findNearestGrant(state, userId, nodeId)
+  if (nearest === 'allow' || nearest === 'view') {
+    return true
+  }
+  if (nearest === 'deny') {
+    return false
+  }
+  if (hasPrivateAncestor(state, nodeId)) {
+    return false
+  }
+  return true
+}
+
+/**
+ * Admin always edits. Members need nearest grant `allow`
+ * (or public visibility with no deny/view override).
+ * `view` grants are read-only.
+ */
+export function canEdit(
   state: AppState,
   userId: string,
   nodeId: string,
@@ -89,25 +122,13 @@ export function canView(
   if (nearest === 'allow') {
     return true
   }
-  if (nearest === 'deny') {
+  if (nearest === 'view' || nearest === 'deny') {
     return false
   }
   if (hasPrivateAncestor(state, nodeId)) {
     return false
   }
   return true
-}
-
-/**
- * Edit follows view for members (no separate edit grants).
- * Admin can always edit existing nodes.
- */
-export function canEdit(
-  state: AppState,
-  userId: string,
-  nodeId: string,
-): boolean {
-  return canView(state, userId, nodeId)
 }
 
 export function assertCan(
@@ -133,11 +154,94 @@ export function assertCan(
   if (!allowed) {
     return fail(
       'FORBIDDEN',
-      `User ${userId} cannot ${action} node ${nodeId}`,
+      `403 Forbidden — cannot ${action} “${node.name}”`,
     )
   }
 
   return ok(true)
+}
+
+export type UpsertGrantInput = {
+  userId: string
+  nodeId: string
+  /** `null` removes any grant on this user+node. */
+  effect: GrantEffect | null
+}
+
+/** Admin-only grant upsert/remove. Pure; does not mutate `state`. */
+export function upsertGrant(
+  state: AppState,
+  actorId: string,
+  input: UpsertGrantInput,
+): Result<{ state: AppState; grant: Grant | null }> {
+  const actor = getUser(state, actorId)
+  if (!actor || actor.role !== 'admin') {
+    return fail('FORBIDDEN', '403 Forbidden — only admins can manage grants')
+  }
+  const target = getUser(state, input.userId)
+  if (!target) {
+    return fail('NOT_FOUND', `User ${input.userId} not found`)
+  }
+  if (target.role === 'admin') {
+    return fail('VALIDATION', 'Admins bypass grants; no grant needed')
+  }
+  const node = getNode(state, input.nodeId)
+  if (!node) {
+    return fail('NOT_FOUND', `Node ${input.nodeId} not found`)
+  }
+
+  const existing = Object.values(state.grants).find(
+    (grant) =>
+      grant.userId === input.userId && grant.nodeId === input.nodeId,
+  )
+
+  const grants = { ...state.grants }
+  if (existing) {
+    delete grants[existing.id]
+  }
+
+  if (input.effect == null) {
+    return ok({ state: { ...state, grants }, grant: null })
+  }
+
+  const grant: Grant = {
+    id: existing?.id ?? newId(),
+    userId: input.userId,
+    nodeId: input.nodeId,
+    effect: input.effect,
+  }
+  grants[grant.id] = grant
+  return ok({ state: { ...state, grants }, grant })
+}
+
+/** Admin-only toggle for container privacy. */
+export function setNodePrivate(
+  state: AppState,
+  actorId: string,
+  nodeId: string,
+  isPrivate: boolean,
+): Result<{ state: AppState; node: ContainerNode }> {
+  const actor = getUser(state, actorId)
+  if (!actor || actor.role !== 'admin') {
+    return fail('FORBIDDEN', '403 Forbidden — only admins can edit privacy')
+  }
+  const node = getNode(state, nodeId)
+  if (!node) {
+    return fail('NOT_FOUND', `Node ${nodeId} not found`)
+  }
+
+  const next: ContainerNode = {
+    ...node,
+    isPrivate,
+    updatedAt: new Date().toISOString(),
+  }
+  return ok({
+    state: {
+      ...state,
+      nodes: { ...state.nodes, [nodeId]: next },
+    },
+    node: next,
+  })
 }
 
 export type VisibleTreeNode = {

@@ -23,8 +23,32 @@ describe('flow store', () => {
     expect(isErr(result)).toBe(true)
     if (isErr(result)) {
       expect(result.error.code).toBe('FORBIDDEN')
+      expect(result.error.message).toMatch(/403/)
     }
     expect(store.getState().tasks['task-should-not-exist']).toBeUndefined()
+  })
+
+  it('lets admin upsert grants and rejects members', async () => {
+    const store = createFlowStore(createSeed())
+
+    const asBob = await store.getState().upsertGrant({
+      userId: 'user-bob',
+      nodeId: 'list-sprint',
+      effect: 'allow',
+    })
+    // still Alice (admin) — should succeed
+    expect(isOk(asBob)).toBe(true)
+
+    store.getState().switchUser('user-bob')
+    const forbidden = await store.getState().upsertGrant({
+      userId: 'user-carol',
+      nodeId: 'list-sprint',
+      effect: 'deny',
+    })
+    expect(isErr(forbidden)).toBe(true)
+    if (isErr(forbidden)) {
+      expect(forbidden.error.code).toBe('FORBIDDEN')
+    }
   })
 
   it('changes visible tree when switching users', () => {

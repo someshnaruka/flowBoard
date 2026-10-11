@@ -136,8 +136,7 @@ export function DrawerHeader({
           <span>
             <span className="font-medium">Read-only</span>
             {' — '}
-            You don’t have edit rights on this task. You can view details but
-            can’t change fields.
+            You can view this task, but you don’t have permission to edit it.
           </span>
         </div>
       ) : null}

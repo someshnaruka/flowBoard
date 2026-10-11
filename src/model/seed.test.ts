@@ -74,7 +74,7 @@ describe('createSeed', () => {
         (grant) =>
           grant.userId === 'user-carol' &&
           grant.nodeId === 'list-backlog' &&
-          grant.effect === 'deny',
+          grant.effect === 'view',
       ),
     ).toBe(true)
   })

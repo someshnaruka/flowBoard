@@ -23,7 +23,7 @@ export function ShortcutsButton() {
         >
           <Keyboard className="size-3.5" />
           <span className="hidden sm:inline">Shortcuts</span>
-          <kbd className="rounded-badge border border-border bg-muted px-1 text-[10px] leading-4 text-muted-foreground">
+          <kbd className="rounded-badge border border-border bg-muted px-1 text-tiny text-muted-foreground">
             ?
           </kbd>
         </Button>

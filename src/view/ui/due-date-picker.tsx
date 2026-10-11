@@ -61,8 +61,8 @@ export function DueDatePicker({
           variant="ghost"
           disabled={disabled}
           className={cn(
-            'h-8 w-fit justify-start rounded-control px-1.5 font-normal shadow-none',
-            'hover:bg-accent/60 focus-visible:ring-brand/40',
+            'h-auto w-fit justify-start rounded-control px-1 py-0.5 text-body font-medium leading-none shadow-none',
+            'hover:bg-accent/60 focus-visible:ring-brand/40 [&_svg]:size-3.5',
             className,
           )}
           onClick={onTriggerClick}

@@ -92,7 +92,7 @@ export function ViewBar({ listId }: ViewBarProps) {
           >
             <Plus className="size-4" />
             Task
-            <kbd className="ml-0.5 rounded-badge bg-brand-foreground/15 px-1 text-[10px] leading-4 text-brand-foreground">
+            <kbd className="ml-0.5 rounded-badge bg-brand-foreground/15 px-1 text-tiny text-brand-foreground">
               C
             </kbd>
           </Button>

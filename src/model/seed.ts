@@ -14,13 +14,13 @@ const NOW = '2026-10-10T12:00:00.000Z'
 /**
  * Grants matrix (nearest grant wins; Alice is admin and bypasses all):
  *
- * | Node / List              | Alice | Bob              | Carol            |
- * |--------------------------|-------|------------------|------------------|
- * | space-engineering        | ✅    | ✅ (public)      | ✅ (public)      |
- * | list-backlog             | ✅    | ✅               | ❌ DENY          |
- * | list-sprint              | ✅    | ❌ DENY          | ✅               |
- * | space-leadership (priv.) | ✅    | ❌ DENY          | ✅ ALLOW         |
- * | list-okrs                | ✅    | ❌ (via space)   | ✅ (via allow)   |
+ * | Node / List              | Alice | Bob              | Carol              |
+ * |--------------------------|-------|------------------|--------------------|
+ * | space-engineering        | ✅    | ✅ (public)      | ✅ (public)        |
+ * | list-backlog             | ✅    | ✅               | 👁 VIEW (read-only)|
+ * | list-sprint              | ✅    | ❌ DENY          | ✅                 |
+ * | space-leadership (priv.) | ✅    | ❌ DENY          | ✅ ALLOW           |
+ * | list-okrs                | ✅    | ❌ (via space)   | ✅ (via allow)     |
  */
 function buildGrants(): Record<string, Grant> {
   return {
@@ -42,11 +42,11 @@ function buildGrants(): Record<string, Grant> {
       nodeId: 'space-leadership',
       effect: 'allow',
     },
-    'grant-carol-deny-backlog': {
-      id: 'grant-carol-deny-backlog',
+    'grant-carol-view-backlog': {
+      id: 'grant-carol-view-backlog',
       userId: 'user-carol',
       nodeId: 'list-backlog',
-      effect: 'deny',
+      effect: 'view',
     },
   }
 }

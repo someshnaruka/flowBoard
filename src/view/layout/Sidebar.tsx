@@ -23,7 +23,7 @@ export function Sidebar({ tree, footer }: SidebarProps) {
           collapsed && 'justify-center px-0',
         )}
       >
-        <div className="flex size-6 items-center justify-center rounded-control bg-brand text-[11px] font-semibold text-brand-foreground">
+        <div className="flex size-6 items-center justify-center rounded-control bg-brand text-badge font-semibold text-brand-foreground">
           F
         </div>
         {!collapsed ? (

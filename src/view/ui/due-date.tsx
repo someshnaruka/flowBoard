@@ -50,7 +50,7 @@ type DueDateProps = {
 
 const TONE_CLASS: Record<DueDateTone, string> = {
   none: 'text-muted-foreground',
-  default: 'text-foreground',
+  default: 'text-muted-foreground',
   soon: 'text-priority-high',
   overdue: 'text-priority-urgent',
 }
@@ -70,14 +70,14 @@ export function DueDate({
     return (
       <span
         className={cn(
-          'inline-flex items-center gap-1 text-meta',
+          'inline-flex items-center gap-1 text-body font-medium leading-none',
           TONE_CLASS.none,
           className,
         )}
         data-tone="none"
       >
         {showIcon ? (
-          <Calendar className="size-3.5 shrink-0 opacity-60" aria-hidden />
+          <Calendar className="size-3.5 shrink-0 opacity-70" aria-hidden />
         ) : null}
         No date
       </span>
@@ -92,7 +92,7 @@ export function DueDate({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 text-meta font-medium',
+        'inline-flex items-center gap-1 text-body font-medium leading-none',
         TONE_CLASS[tone],
         className,
       )}

@@ -4,7 +4,7 @@ import type { Priority } from '@/model/types'
 import { cn } from '@/view/ui/utils'
 
 const priorityBadgeVariants = cva(
-  'inline-flex h-[18px] max-w-full items-center rounded-badge border border-transparent px-1.5 text-[11px] font-medium leading-none transition-colors duration-150',
+  'inline-flex h-badge max-w-full items-center rounded-badge border border-transparent px-1.5 text-badge transition-colors duration-150',
   {
     variants: {
       priority: {

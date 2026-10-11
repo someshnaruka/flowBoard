@@ -6,7 +6,11 @@ export type Priority = 'urgent' | 'high' | 'normal' | 'low' | 'none'
 
 export type UserRole = 'admin' | 'member'
 
-export type GrantEffect = 'allow' | 'deny'
+/**
+ * `allow` = view + edit, `view` = read-only, `deny` = hidden.
+ * Nearest grant on the node or ancestors wins.
+ */
+export type GrantEffect = 'allow' | 'view' | 'deny'
 
 export type ContainerNode = {
   id: string

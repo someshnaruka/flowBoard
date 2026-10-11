@@ -153,7 +153,7 @@ export function DrawerProperties({
                     name={user.name}
                     avatarUrl={user.avatarUrl}
                     size="sm"
-                    className="size-5 text-[10px]"
+                    className="size-5 text-tiny"
                   />
                   <span className="min-w-0 truncate">{user.name}</span>
                 </DropdownMenuCheckboxItem>

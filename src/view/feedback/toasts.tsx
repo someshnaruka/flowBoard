@@ -94,7 +94,7 @@ export function notifyMutationError(
   options?: RetryOptions,
 ): void {
   if (error.code === 'FORBIDDEN') {
-    toastForbidden(error.message)
+    toastForbidden('403 Forbidden', error.message)
     return
   }
 

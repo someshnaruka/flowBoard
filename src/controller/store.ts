@@ -13,7 +13,13 @@ import {
   type RenameNodeInput,
   type ReorderNodeInput,
 } from '@/model/services/hierarchy.service'
-import { assertCan, canView } from '@/model/services/permission.service'
+import {
+  assertCan,
+  canView,
+  setNodePrivate as setNodePrivateService,
+  upsertGrant as upsertGrantService,
+  type UpsertGrantInput,
+} from '@/model/services/permission.service'
 import { addStatus as addStatusService } from '@/model/services/status.service'
 import {
   archiveTask as archiveTaskService,
@@ -29,7 +35,7 @@ import {
   type UpdateTaskInput,
 } from '@/model/services/task.service'
 import { selectStatusesForList } from './selectors'
-import type { AppState, ContainerNode, Task } from '@/model/types'
+import type { AppState, ContainerNode, Grant, Task } from '@/model/types'
 import {
   defaultNetworkConfig,
   simulateNetwork,
@@ -143,6 +149,13 @@ export type FlowStore = FlowState & {
   ) => Promise<Result<{ restoredIds: string[] }>>
   reorderContainer: (
     input: ReorderNodeInput,
+  ) => Promise<Result<ContainerNode>>
+  upsertGrant: (
+    input: UpsertGrantInput,
+  ) => Promise<Result<{ grant: Grant | null }>>
+  setNodePrivate: (
+    nodeId: string,
+    isPrivate: boolean,
   ) => Promise<Result<ContainerNode>>
 }
 
@@ -492,7 +505,8 @@ export function createFlowStore(
           domain = statusResult.data.state
         }
 
-        const { statusId: _statusId, ...fields } = input
+        const fields = { ...input }
+        delete fields.statusId
         const hasFieldUpdates =
           fields.title !== undefined ||
           fields.description !== undefined ||
@@ -947,6 +961,66 @@ export function createFlowStore(
         })
 
         return ok(reordered.data.node)
+      },
+
+      upsertGrant: async (input) => {
+        const snapshot = get()
+        const result = upsertGrantService(
+          domainSnapshot(snapshot),
+          snapshot.currentUserId,
+          input,
+        )
+        if (isErr(result)) {
+          return result
+        }
+
+        set((state) => {
+          applyDomain(state, result.data.state)
+          const userId = state.currentUserId
+          if (
+            state.selectedListId &&
+            !canView(state, userId, state.selectedListId)
+          ) {
+            state.selectedListId = firstVisibleListId(state, userId)
+            state.searchQuery = ''
+          }
+          if (
+            state.drawerTaskId &&
+            state.tasks[state.drawerTaskId] &&
+            !canView(state, userId, state.tasks[state.drawerTaskId]!.listId)
+          ) {
+            state.drawerTaskId = null
+          }
+        })
+
+        return ok({ grant: result.data.grant })
+      },
+
+      setNodePrivate: async (nodeId, isPrivate) => {
+        const snapshot = get()
+        const result = setNodePrivateService(
+          domainSnapshot(snapshot),
+          snapshot.currentUserId,
+          nodeId,
+          isPrivate,
+        )
+        if (isErr(result)) {
+          return result
+        }
+
+        set((state) => {
+          applyDomain(state, result.data.state)
+          const userId = state.currentUserId
+          if (
+            state.selectedListId &&
+            !canView(state, userId, state.selectedListId)
+          ) {
+            state.selectedListId = firstVisibleListId(state, userId)
+            state.searchQuery = ''
+          }
+        })
+
+        return ok(result.data.node)
       },
     })),
   )

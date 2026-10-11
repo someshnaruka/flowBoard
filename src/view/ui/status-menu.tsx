@@ -35,6 +35,7 @@ export function StatusMenu({
           type="button"
           variant="ghost"
           disabled={disabled}
+          aria-label="Change status"
           className={cn(
             'h-8 w-fit max-w-full justify-start rounded-control px-0.5 font-normal shadow-none',
             'hover:bg-accent/60 focus-visible:ring-brand/40',

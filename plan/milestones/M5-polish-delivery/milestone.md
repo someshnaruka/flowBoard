@@ -3,10 +3,10 @@
 Card interactions, search, consistency pass, tests, docs, demo video.
 
 ## Tasks
-- [ ] T16 Card interactions
-- [ ] T17 Client-side search
-- [ ] T18 Spacing and density audit
-- [ ] T19 Component and E2E tests
+- [x] T16 Card interactions
+- [x] T17 Client-side search
+- [x] T18 Spacing and density audit
+- [x] T19 Component and E2E tests
 - [ ] T20 README and AI usage
 - [ ] T21 Demo video and submission
 

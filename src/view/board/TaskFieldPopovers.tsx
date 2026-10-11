@@ -121,7 +121,12 @@ export function AssigneePopover({
     return assignees.length > 0 ? (
       <AvatarStack users={assignees} max={3} size="sm" className={className} />
     ) : (
-      <span className={cn('text-meta text-muted-foreground', className)}>
+      <span
+        className={cn(
+          'text-badge text-muted-foreground',
+          className,
+        )}
+      >
         Unassigned
       </span>
     )
@@ -137,7 +142,7 @@ export function AssigneePopover({
           variant="ghost"
           aria-label="Change assignees"
           className={cn(
-            'h-auto rounded-control p-0.5 shadow-none hover:bg-accent/60',
+            'h-auto rounded-control p-0.5 text-badge shadow-none hover:bg-accent/60',
             className,
           )}
           onClick={stop}
@@ -146,7 +151,7 @@ export function AssigneePopover({
           {assignees.length > 0 ? (
             <AvatarStack users={assignees} max={3} size="sm" />
           ) : (
-            <span className="text-meta text-muted-foreground">Unassigned</span>
+            <span className="text-badge text-muted-foreground">Unassigned</span>
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -197,7 +202,7 @@ export function AssigneePopover({
                 name={user.name}
                 avatarUrl={user.avatarUrl}
                 size="sm"
-                className="size-5 text-[10px]"
+                className="size-5 text-tiny"
               />
               <span className="min-w-0 truncate">{user.name}</span>
             </DropdownMenuCheckboxItem>

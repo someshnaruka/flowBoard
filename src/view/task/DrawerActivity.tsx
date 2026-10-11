@@ -44,7 +44,7 @@ export function DrawerActivity({
                   name={actor.name}
                   avatarUrl={actor.avatarUrl}
                   size="sm"
-                  className="mt-0.5 size-5 text-[10px]"
+                  className="mt-0.5 size-5 text-tiny"
                 />
               ) : null}
               <div className="min-w-0 flex-1">

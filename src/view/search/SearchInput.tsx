@@ -76,7 +76,7 @@ export function SearchInput() {
           'focus-visible:border-brand focus-visible:bg-background focus-visible:ring-brand/30',
         )}
       />
-      <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-badge border border-border bg-muted px-1 text-[10px] leading-4 text-muted-foreground">
+      <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-badge border border-border bg-muted px-1 text-tiny text-muted-foreground">
         {hint}
       </kbd>
     </div>

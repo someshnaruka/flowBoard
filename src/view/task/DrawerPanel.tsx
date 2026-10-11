@@ -216,7 +216,20 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
           users={users}
           disabled={!canEdit}
           onStatusChange={(statusId) => {
-            void persist({ taskId, statusId })
+            void (async () => {
+              const previous = task.statusId
+              await persist({ taskId, statusId })
+              if (statusId === previous) {
+                return
+              }
+              const next = getDefaultFlowStore().getState().tasks[taskId]
+              if (!next || next.statusId !== statusId) {
+                return
+              }
+              const name =
+                statuses.find((item) => item.id === statusId)?.name ?? 'status'
+              toastSuccess(`Moved to ${name}`)
+            })()
           }}
           onPriorityChange={(priority: Priority) => {
             void persist({ taskId, priority })

@@ -4,7 +4,7 @@ import type { StatusCategory } from '@/model/types'
 import { cn } from '@/view/ui/utils'
 
 const statusBadgeVariants = cva(
-  'inline-flex h-[18px] max-w-full items-center gap-1 rounded-badge border border-transparent py-0 pl-1 pr-1.5 text-[11px] font-medium leading-none transition-colors duration-150',
+  'inline-flex h-badge max-w-full items-center gap-1 rounded-badge border border-transparent py-0 pl-1 pr-1.5 text-badge transition-colors duration-150',
   {
     variants: {
       status: {
