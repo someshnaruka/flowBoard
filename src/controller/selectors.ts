@@ -123,3 +123,32 @@ export function selectSiblings(
     )
     .sort((a, b) => a.position - b.position)
 }
+
+/**
+ * Archived containers the current user can see, limited to archive roots
+ * (parent missing or not archived) so cascade children are restored via the root.
+ */
+export function selectArchivedRoots(state: AppState): ContainerNode[] {
+  return Object.values(state.nodes)
+    .filter((node) => {
+      if (!node.archivedAt || node.kind === 'workspace') {
+        return false
+      }
+      if (!canView(state, state.currentUserId, node.id)) {
+        return false
+      }
+      if (!node.parentId) {
+        return true
+      }
+      const parent = state.nodes[node.parentId]
+      return !parent || parent.archivedAt == null
+    })
+    .sort((a, b) => {
+      const aTime = a.archivedAt ?? ''
+      const bTime = b.archivedAt ?? ''
+      if (aTime !== bTime) {
+        return bTime.localeCompare(aTime)
+      }
+      return a.name.localeCompare(b.name)
+    })
+}

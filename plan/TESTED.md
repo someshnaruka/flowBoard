@@ -113,6 +113,7 @@ npm run build   # also runs on husky pre-push
 - [x] `typecheck` / `test` / `build`
 - [x] `store.test.ts` — create list statuses; archive/restore; duplicate/delete
 - [x] Manual: tree Add/Rename/Archive/Move; archive ConfirmDialog + Undo; drawer Duplicate/Delete
+- [x] Manual: sidebar Archived section Restore
 
 ### T15
 _Not done yet — fill when completing each issue._

@@ -3,6 +3,7 @@ import { selectVisibleTree } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { VisibleTreeNode } from '@/model/services/permission.service'
 import { Skeleton } from '@/view/ui/skeleton'
+import { ArchivedSection } from './ArchivedSection'
 import { TreeRow } from './TreeRow'
 
 function TreeNodes({
@@ -120,9 +121,12 @@ export function SidebarTree() {
 
   if (tree.length === 0) {
     return (
-      <p className="px-2 py-3 text-meta text-muted-foreground">
-        No spaces visible for this user.
-      </p>
+      <div className="flex flex-col">
+        <p className="px-2 py-3 text-meta text-muted-foreground">
+          No spaces visible for this user.
+        </p>
+        <ArchivedSection collapsedRail={collapsedRail} />
+      </div>
     )
   }
 
@@ -135,6 +139,7 @@ export function SidebarTree() {
         expandedIds={expandedIds}
         selectedListId={selectedListId}
       />
+      <ArchivedSection collapsedRail={collapsedRail} />
     </nav>
   )
 }
