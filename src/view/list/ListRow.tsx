@@ -44,7 +44,10 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
   )
   const statusesStamp = useFlowStore((state) =>
     Object.values(state.statuses)
-      .map((status) => `${status.id}:${status.name}:${status.category}`)
+      .map(
+        (status) =>
+          `${status.id}:${status.name}:${status.category}:${status.color}`,
+      )
       .join('\0'),
   )
 
@@ -102,7 +105,11 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
     >
       <div className="min-w-0">
         {status ? (
-          <StatusBadge status={status.category} label={status.name} />
+          <StatusBadge
+            status={status.category}
+            color={status.color}
+            label={status.name}
+          />
         ) : (
           <span className="text-meta text-muted-foreground">—</span>
         )}

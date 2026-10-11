@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   selectBreadcrumb,
   selectCanEditTask,
@@ -96,16 +96,27 @@ export function DrawerPanel({ taskId, onClose }: DrawerPanelProps) {
     }
   }, [currentUserId, taskId, taskStamp, subtasksStamp, usersStamp])
 
-  const [title, setTitle] = useState(task?.title ?? '')
-  const [description, setDescription] = useState(task?.description ?? '')
+  const syncKey = `${task?.id ?? ''}:${task?.updatedAt ?? ''}`
+  const [draft, setDraft] = useState({
+    syncKey,
+    title: task?.title ?? '',
+    description: task?.description ?? '',
+  })
 
-  useEffect(() => {
-    if (!task) {
-      return
-    }
-    setTitle(task.title)
-    setDescription(task.description)
-  }, [task?.id, task?.updatedAt, task?.title, task?.description])
+  if (task && draft.syncKey !== syncKey) {
+    setDraft({
+      syncKey,
+      title: task.title,
+      description: task.description,
+    })
+  }
+
+  const title = draft.title
+  const description = draft.description
+  const setTitle = (next: string) =>
+    setDraft((prev) => ({ ...prev, title: next }))
+  const setDescription = (next: string) =>
+    setDraft((prev) => ({ ...prev, description: next }))
 
   const saveTitle = useDebouncedAutosave({
     value: title,

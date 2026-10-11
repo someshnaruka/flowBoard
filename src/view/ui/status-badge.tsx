@@ -1,23 +1,9 @@
 import type { HTMLAttributes } from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
 import type { StatusCategory } from '@/model/types'
 import { BADGE_CHROME } from '@/view/ui/badge-chrome'
 import { DropdownCaret } from '@/view/ui/dropdown-caret'
+import { statusBadgeClass } from '@/view/ui/status-color'
 import { cn } from '@/view/ui/utils'
-
-const statusBadgeVariants = cva(BADGE_CHROME, {
-  variants: {
-    status: {
-      todo: 'bg-status-todo-muted text-status-todo dark:bg-slate-800/80 dark:text-slate-300',
-      active:
-        'bg-status-active-muted text-status-active dark:bg-blue-950/50 dark:text-blue-300',
-      done: 'bg-status-done-muted text-status-done dark:bg-emerald-950/40 dark:text-status-done',
-    },
-  },
-  defaultVariants: {
-    status: 'todo',
-  },
-})
 
 const STATUS_LABEL: Record<StatusCategory, string> = {
   todo: 'TODO',
@@ -25,16 +11,18 @@ const STATUS_LABEL: Record<StatusCategory, string> = {
   done: 'Done',
 }
 
-export type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> &
-  VariantProps<typeof statusBadgeVariants> & {
-    status: StatusCategory
-    label?: string
-    showIcon?: boolean
-    showChevron?: boolean
-  }
+export type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> & {
+  status: StatusCategory
+  /** Status.color hex — drives badge chrome when mapped. */
+  color?: string
+  label?: string
+  showIcon?: boolean
+  showChevron?: boolean
+}
 
 export function StatusBadge({
   status,
+  color,
   label,
   showIcon = false,
   showChevron = false,
@@ -43,7 +31,7 @@ export function StatusBadge({
 }: StatusBadgeProps) {
   return (
     <span
-      className={cn(statusBadgeVariants({ status }), className)}
+      className={cn(BADGE_CHROME, statusBadgeClass(color, status), className)}
       {...props}
     >
       {showIcon ? (
@@ -57,5 +45,3 @@ export function StatusBadge({
     </span>
   )
 }
-
-export { statusBadgeVariants }

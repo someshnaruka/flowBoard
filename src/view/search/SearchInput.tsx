@@ -14,10 +14,18 @@ export function SearchInput() {
   const searchRef = useRef<HTMLInputElement>(null)
   const [draft, setDraft] = useState(searchQuery)
   const [focused, setFocused] = useState(false)
+  const [synced, setSynced] = useState({
+    searchQuery,
+    selectedListId,
+  })
 
-  useEffect(() => {
+  if (
+    searchQuery !== synced.searchQuery ||
+    selectedListId !== synced.selectedListId
+  ) {
+    setSynced({ searchQuery, selectedListId })
     setDraft(searchQuery)
-  }, [searchQuery, selectedListId])
+  }
 
   useEffect(() => {
     if (searchFocusNonce > 0) {

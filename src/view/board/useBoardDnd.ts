@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   KeyboardSensor,
   PointerSensor,
@@ -87,21 +87,16 @@ export function useBoardDnd(
   tasksByStatus: Map<string, Task[]>,
 ) {
   const placeTask = useFlowStore((state) => state.placeTask)
-  const [columns, setColumns] = useState<ColumnItems>(() =>
-    buildColumnItems(statuses, tasksByStatus),
+  const storeColumns = useMemo(
+    () => buildColumnItems(statuses, tasksByStatus),
+    [statuses, tasksByStatus],
   )
-  const columnsRef = useRef(columns)
+  const [dragColumns, setDragColumns] = useState<ColumnItems | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (activeId) {
-      return
-    }
-    const next = buildColumnItems(statuses, tasksByStatus)
-    columnsRef.current = next
-    setColumns(next)
-  }, [activeId, statuses, tasksByStatus])
+  const columns = activeId && dragColumns ? dragColumns : storeColumns
+  const columnsRef = useRef(storeColumns)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -114,14 +109,17 @@ export function useBoardDnd(
 
   const syncColumns = (next: ColumnItems) => {
     columnsRef.current = next
-    setColumns(next)
+    setDragColumns(next)
   }
 
   const resetColumnsFromStore = () => {
-    syncColumns(buildColumnItems(statuses, tasksByStatus))
+    setDragColumns(null)
+    columnsRef.current = storeColumns
   }
 
   const onDragStart = (event: DragStartEvent) => {
+    columnsRef.current = storeColumns
+    setDragColumns(storeColumns)
     setActiveId(String(event.active.id))
     setOverId(String(event.active.id))
   }

@@ -84,7 +84,7 @@ function VirtualRow({
   }
 
   return (
-    // VIRTUALIZE-STYLE-EXCEPTION — react-window absolute positioning
+    // VIRTUALIZE-STYLE-EXCEPTION — react-window requires absolute row geometry via style
     <div style={style}>
       <ListRow taskId={task.id} onOpen={() => onOpen(task.id)} />
     </div>
@@ -125,27 +125,56 @@ export function ListView({ listId }: ListViewProps) {
 
   const [sortKey, setSortKey] = useState<ListSortKey | null>(null)
   const [sortDir, setSortDir] = useState<ListSortDir>('asc')
-  const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE)
+  const queryKey = `${listId}\0${searchQuery}\0${sortKey ?? ''}\0${sortDir}`
+  const [pageState, setPageState] = useState({
+    queryKey,
+    count: LIST_PAGE_SIZE,
+    trackedTotal: 0,
+  })
 
   const sorted = useMemo(
     () => sortTasks(tasks, sortKey, sortDir),
     [tasks, sortKey, sortDir],
   )
 
-  // Reset offset window when the list query changes.
-  useEffect(() => {
-    setVisibleCount(LIST_PAGE_SIZE)
-  }, [listId, searchQuery, sortKey, sortDir])
+  let visibleCount =
+    pageState.queryKey === queryKey ? pageState.count : LIST_PAGE_SIZE
+  let nextPageState = pageState
 
-  const prevTotalRef = useRef(sorted.length)
-  // If the user was already at the end, include newly created tasks.
-  useEffect(() => {
-    const previousTotal = prevTotalRef.current
-    if (sorted.length > previousTotal && visibleCount >= previousTotal) {
-      setVisibleCount(sorted.length)
+  if (pageState.queryKey !== queryKey) {
+    nextPageState = {
+      queryKey,
+      count: LIST_PAGE_SIZE,
+      trackedTotal: sorted.length,
     }
-    prevTotalRef.current = sorted.length
-  }, [sorted.length, visibleCount])
+    visibleCount = LIST_PAGE_SIZE
+  } else if (
+    sorted.length > pageState.trackedTotal &&
+    visibleCount >= pageState.trackedTotal
+  ) {
+    // User was already at the end — include newly created tasks.
+    nextPageState = {
+      queryKey,
+      count: sorted.length,
+      trackedTotal: sorted.length,
+    }
+    visibleCount = sorted.length
+  } else if (sorted.length !== pageState.trackedTotal) {
+    nextPageState = { ...pageState, trackedTotal: sorted.length }
+  }
+
+  if (nextPageState !== pageState) {
+    setPageState(nextPageState)
+  }
+
+  const setVisibleCount = (count: number | ((prev: number) => number)) => {
+    setPageState((prev) => {
+      const current =
+        prev.queryKey === queryKey ? prev.count : LIST_PAGE_SIZE
+      const next = typeof count === 'function' ? count(current) : count
+      return { queryKey, count: next, trackedTotal: sorted.length }
+    })
+  }
 
   const page = useMemo(
     () => pageSlice(sorted, visibleCount),
@@ -257,7 +286,6 @@ export function ListView({ listId }: ListViewProps) {
         <List
           listRef={listRef}
           className="h-full outline-none"
-          style={{ height: '100%' }}
           rowCount={page.length}
           rowHeight={ROW_HEIGHT}
           rowComponent={VirtualRow}

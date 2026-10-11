@@ -46,6 +46,7 @@ export function StatusMenu({
           {current ? (
             <StatusBadge
               status={current.category}
+              color={current.color}
               label={current.name}
               showChevron={showChevron && !disabled}
             />
@@ -70,7 +71,11 @@ export function StatusMenu({
               )}
               onSelect={() => onChange(status.id)}
             >
-              <StatusBadge status={status.category} label={status.name} />
+              <StatusBadge
+                status={status.category}
+                color={status.color}
+                label={status.name}
+              />
               {selected ? (
                 <Check
                   className="ml-auto size-3.5 shrink-0 text-foreground"

@@ -1,7 +1,7 @@
 # T20: README and AI usage
 
 **Milestone:** M5 Polish and delivery
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Documentation that matches the implementation.
@@ -11,12 +11,13 @@ Documentation that matches the implementation.
 - AI_USAGE.md from notes
 
 ## Acceptance criteria
-- [ ] Fresh clone works; build, typecheck and tests pass
+- [x] Fresh clone works; build, typecheck and tests pass
 
 ## Commit plan
-- [ ] `docs: readme architecture and data model (T20)`
-- [ ] `docs: permissions, trade-offs and next steps (T20)`
-- [ ] `docs: ai usage log (T20)`
+- [x] `docs: readme architecture and data model (T20)`
+- [x] `docs: permissions, trade-offs and next steps (T20)`
+- [x] `docs: ai usage log (T20)`
 
 ## AI notes
-_What Cursor got right, what I corrected or rejected._
+- README covers Mermaid MVC diagram, data model + brief deviations, permissions + extension, persistence/archive, style exceptions, stretch goals, trade-offs (rollback race, bundle size), extra libs.
+- AI_USAGE.md records corrections (badges, dialogs, pagination, lint refactors, Status.color).

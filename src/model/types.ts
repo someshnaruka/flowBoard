@@ -32,7 +32,16 @@ export type Status = {
   listId: string
   name: string
   category: StatusCategory
+  /** Hex accent used for column dots and badges (e.g. `#2563EB`). */
+  color: string
   position: number
+}
+
+/** Default hex colors aligned with Tailwind `status.*` tokens. */
+export const DEFAULT_STATUS_COLOR: Record<StatusCategory, string> = {
+  todo: '#64748B',
+  active: '#2563EB',
+  done: '#16A34A',
 }
 
 export type User = {

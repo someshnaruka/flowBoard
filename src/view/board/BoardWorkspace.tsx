@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useFlowStore } from '@/controller/store'
+import { useFlowStore, type BoardView } from '@/controller/store'
 import { ListView } from '@/view/list/ListView'
 import { TaskDrawer } from '@/view/task/TaskDrawer'
 import { EmptyState } from '@/view/ui/empty-state'
@@ -10,25 +10,6 @@ import { ViewBar } from './ViewBar'
 export function BoardWorkspace() {
   const selectedListId = useFlowStore((state) => state.selectedListId)
   const view = useFlowStore((state) => state.view)
-  const [loadingListId, setLoadingListId] = useState<string | null>(
-    selectedListId,
-  )
-
-  useEffect(() => {
-    if (!selectedListId) {
-      setLoadingListId(null)
-      return
-    }
-
-    setLoadingListId(selectedListId)
-    const timer = window.setTimeout(() => {
-      setLoadingListId((current) =>
-        current === selectedListId ? null : current,
-      )
-    }, 280)
-
-    return () => window.clearTimeout(timer)
-  }, [selectedListId])
 
   if (!selectedListId) {
     return (
@@ -41,18 +22,43 @@ export function BoardWorkspace() {
   }
 
   return (
+    <BoardWorkspaceBody
+      key={selectedListId}
+      listId={selectedListId}
+      view={view}
+    />
+  )
+}
+
+function BoardWorkspaceBody({
+  listId,
+  view,
+}: {
+  listId: string
+  view: BoardView
+}) {
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setReady(true)
+    }, 280)
+    return () => window.clearTimeout(timer)
+  }, [listId])
+
+  return (
     <div className="flex h-full min-h-0 bg-muted/35 dark:bg-background">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        {loadingListId === selectedListId ? (
+        {!ready ? (
           <BoardSkeleton />
         ) : (
           <>
-            <ViewBar listId={selectedListId} />
+            <ViewBar listId={listId} />
             <div className="min-h-0 flex-1 overflow-hidden">
               {view === 'list' ? (
-                <ListView listId={selectedListId} />
+                <ListView listId={listId} />
               ) : (
-                <KanbanBoard listId={selectedListId} />
+                <KanbanBoard listId={listId} />
               )}
             </div>
           </>

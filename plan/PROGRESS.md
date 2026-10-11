@@ -8,14 +8,14 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-11 (T18 done)
+**As of:** 2026-10-11 (T20 done)
 
-- **Done:** M1–M4 + **T16–T18** on `feat/Flowboard`
-- **Next:** **T19** component and E2E tests
-- **Tests:** Vitest green (`npm run test`)
+- **Done:** M1–M4 + **T16–T20** (T21 = demo video link + tag)
+- **Next:** Paste demo URL in README; tag v1.0 (**T21**)
+- **Tests:** Vitest 69 green; Playwright permission E2E
 - **Repo:** https://github.com/someshnaruka/flowBoard
-- **Branch:** `feat/Flowboard`
-- **T18:** Figma-aligned shell (breadcrumbs/search/Dev), toast accents, column dots, selection/empty-state polish
+- **Docs:** README architecture/data model/permissions; `AI_USAGE.md`
+- **Recent:** Status.`color`, lint clean (0 errors), list/DnD/docs polish
 
 ---
 

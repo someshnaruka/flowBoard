@@ -224,6 +224,7 @@ function statusesForList(
       listId,
       name: 'TODO',
       category: 'todo',
+      color: '#64748B',
       position: POSITION_GAP,
     },
     [`status-${prefix}-active`]: {
@@ -231,6 +232,7 @@ function statusesForList(
       listId,
       name: 'In Progress',
       category: 'active',
+      color: '#2563EB',
       position: POSITION_GAP * 2,
     },
     [`status-${prefix}-done`]: {
@@ -238,6 +240,7 @@ function statusesForList(
       listId,
       name: 'Done',
       category: 'done',
+      color: '#16A34A',
       position: POSITION_GAP * 3,
     },
   }

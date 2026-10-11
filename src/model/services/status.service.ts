@@ -1,7 +1,12 @@
 import { fail, ok, type Result } from '../errors'
 import { newId } from '../id'
 import { after, before, between } from '../position'
-import type { AppState, Status, StatusCategory } from '../types'
+import {
+  DEFAULT_STATUS_COLOR,
+  type AppState,
+  type Status,
+  type StatusCategory,
+} from '../types'
 
 export type StatusMutation = {
   state: AppState
@@ -36,6 +41,8 @@ export type AddStatusInput = {
   listId: string
   name: string
   category: StatusCategory
+  /** Optional hex; defaults from category tokens. */
+  color?: string
 }
 
 export function addStatus(
@@ -59,6 +66,7 @@ export function addStatus(
     listId: input.listId,
     name,
     category: input.category,
+    color: input.color ?? DEFAULT_STATUS_COLOR[input.category],
     position:
       siblings.length > 0
         ? after(siblings[siblings.length - 1]?.position)

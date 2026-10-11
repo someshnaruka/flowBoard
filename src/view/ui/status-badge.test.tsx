@@ -22,6 +22,13 @@ describe('StatusBadge', () => {
     expect(screen.getByText('Done').parentElement?.className).toContain(
       'bg-status-done-muted',
     )
+
+    rerender(
+      <StatusBadge status="todo" color="#2563EB" label="Custom blue" />,
+    )
+    expect(screen.getByText('Custom blue').parentElement?.className).toContain(
+      'bg-status-active-muted',
+    )
   })
 })
 

@@ -3,6 +3,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { ChevronDown, ChevronRight, Plus } from 'lucide-react'
 import type { StatusCategory } from '@/model/types'
 import { Button } from '@/view/ui/button'
+import { statusDotClass } from '@/view/ui/status-color'
 import {
   Tooltip,
   TooltipContent,
@@ -10,16 +11,11 @@ import {
 } from '@/view/ui/tooltip'
 import { cn } from '@/view/ui/utils'
 
-const STATUS_DOT: Record<StatusCategory, string> = {
-  todo: 'bg-status-todo',
-  active: 'bg-status-active',
-  done: 'bg-status-done',
-}
-
 type ColumnProps = {
   statusId: string
   name: string
   category: StatusCategory
+  color: string
   count: number
   collapsed: boolean
   highlighted?: boolean
@@ -32,6 +28,7 @@ export function Column({
   statusId,
   name,
   category,
+  color,
   count,
   collapsed,
   highlighted = false,
@@ -89,7 +86,10 @@ export function Column({
     >
       <header className="sticky top-0 z-10 flex h-10 shrink-0 items-center gap-2 px-3">
         <span
-          className={cn('size-2 shrink-0 rounded-full', STATUS_DOT[category])}
+          className={cn(
+            'size-2 shrink-0 rounded-full',
+            statusDotClass(color, category),
+          )}
           aria-hidden
         />
         <span className="min-w-0 truncate text-body font-medium text-foreground">

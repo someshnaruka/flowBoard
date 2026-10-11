@@ -175,6 +175,7 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
               statusId={status.id}
               name={status.name}
               category={status.category}
+              color={status.color}
               count={columnTaskIds.length}
               collapsed={collapsed}
               highlighted={
