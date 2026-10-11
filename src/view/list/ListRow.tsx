@@ -122,14 +122,14 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
           users={users}
         />
       </div>
-      <div className="min-w-0 overflow-visible">
+      <div className="flex min-w-0 items-center justify-start overflow-visible">
         <PriorityPopover
           taskId={taskId}
           priority={task.priority}
           showChevron={false}
         />
       </div>
-      <div className="min-w-0">
+      <div className="flex min-w-0 items-center justify-start">
         <DueDatePopover
           taskId={taskId}
           dueDate={task.dueDate}

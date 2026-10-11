@@ -14,6 +14,12 @@ import { Button } from '@/view/ui/button'
 import { cn } from '@/view/ui/utils'
 import { ListRow } from './ListRow'
 import {
+  LIST_PAGE_SIZE,
+  hasMore,
+  nextVisibleCount,
+  pageSlice,
+} from './list-pagination'
+import {
   sortTasks,
   type ListSortDir,
   type ListSortKey,
@@ -54,7 +60,7 @@ function SortHeader({
       variant="ghost"
       onClick={() => onSort(sortKey)}
       className={cn(
-        'h-auto gap-1 rounded-control px-1 py-0.5 text-meta font-medium text-slate-500 shadow-none dark:text-slate-400',
+        'h-auto w-fit justify-start gap-1 rounded-control px-0 py-0.5 text-meta font-medium text-slate-500 shadow-none dark:text-slate-400',
         'hover:bg-transparent hover:text-foreground focus-visible:ring-brand/40',
         active && 'text-foreground',
       )}
@@ -119,24 +125,46 @@ export function ListView({ listId }: ListViewProps) {
 
   const [sortKey, setSortKey] = useState<ListSortKey | null>(null)
   const [sortDir, setSortDir] = useState<ListSortDir>('asc')
+  const [visibleCount, setVisibleCount] = useState(LIST_PAGE_SIZE)
 
   const sorted = useMemo(
     () => sortTasks(tasks, sortKey, sortDir),
     [tasks, sortKey, sortDir],
   )
 
+  // Reset offset window when the list query changes.
+  useEffect(() => {
+    setVisibleCount(LIST_PAGE_SIZE)
+  }, [listId, searchQuery, sortKey, sortDir])
+
+  const prevTotalRef = useRef(sorted.length)
+  // If the user was already at the end, include newly created tasks.
+  useEffect(() => {
+    const previousTotal = prevTotalRef.current
+    if (sorted.length > previousTotal && visibleCount >= previousTotal) {
+      setVisibleCount(sorted.length)
+    }
+    prevTotalRef.current = sorted.length
+  }, [sorted.length, visibleCount])
+
+  const page = useMemo(
+    () => pageSlice(sorted, visibleCount),
+    [sorted, visibleCount],
+  )
+  const canLoadMore = hasMore(visibleCount, sorted.length)
+
   const listRef = useListRef(null)
-  const prevLengthRef = useRef(sorted.length)
+  const prevLengthRef = useRef(page.length)
 
   useEffect(() => {
-    if (sorted.length > prevLengthRef.current) {
+    if (page.length > prevLengthRef.current) {
       listRef.current?.scrollToRow({
-        index: sorted.length - 1,
+        index: page.length - 1,
         align: 'smart',
       })
     }
-    prevLengthRef.current = sorted.length
-  }, [listRef, sorted.length])
+    prevLengthRef.current = page.length
+  }, [listRef, page.length])
 
   const onSort = (key: ListSortKey) => {
     if (sortKey === key) {
@@ -149,10 +177,10 @@ export function ListView({ listId }: ListViewProps) {
 
   const rowProps = useMemo<RowProps>(
     () => ({
-      tasks: sorted,
+      tasks: page,
       onOpen: openDrawer,
     }),
-    [sorted, openDrawer],
+    [page, openDrawer],
   )
 
   const rowKey = useCallback(
@@ -161,7 +189,7 @@ export function ListView({ listId }: ListViewProps) {
   )
 
   const searching = searchQuery.trim().length > 0
-  if (sorted.length === 0) {
+  if (page.length === 0 && sorted.length === 0) {
     return (
       <EmptyState
         icon={searching ? <Search className="size-5" aria-hidden /> : undefined}
@@ -230,7 +258,7 @@ export function ListView({ listId }: ListViewProps) {
           listRef={listRef}
           className="h-full outline-none"
           style={{ height: '100%' }}
-          rowCount={sorted.length}
+          rowCount={page.length}
           rowHeight={ROW_HEIGHT}
           rowComponent={VirtualRow}
           rowProps={rowProps}
@@ -238,10 +266,26 @@ export function ListView({ listId }: ListViewProps) {
         />
       </div>
 
-      <footer className="flex h-10 shrink-0 items-center border-t border-border px-4">
+      <footer className="flex h-10 shrink-0 items-center justify-between gap-3 border-t border-border px-4">
         <p className="text-meta text-muted-foreground">
-          {sorted.length} task{sorted.length === 1 ? '' : 's'}
+          Showing {page.length} of {sorted.length} task
+          {sorted.length === 1 ? '' : 's'}
         </p>
+        {canLoadMore ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-7 rounded-control text-meta"
+            onClick={() =>
+              setVisibleCount((current) =>
+                nextVisibleCount(current, sorted.length),
+              )
+            }
+          >
+            Load more
+          </Button>
+        ) : null}
       </footer>
     </div>
   )

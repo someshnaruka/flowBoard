@@ -68,7 +68,7 @@ export function UserSwitcher() {
           <Badge
             variant="secondary"
             className={cn(
-              'rounded-badge px-1.5 py-0 text-meta font-medium',
+              'rounded-badge px-1.5 py-0 text-meta font-medium capitalize',
               currentUser.role === 'admin' &&
                 'border-transparent bg-brand-50 text-brand dark:border-brand/40 dark:bg-brand/20 dark:text-brand',
             )}
@@ -98,7 +98,7 @@ export function UserSwitcher() {
             <Badge
               variant="secondary"
               className={cn(
-                'shrink-0 rounded-badge px-1.5 py-0 text-meta font-medium',
+                'shrink-0 rounded-badge px-1.5 py-0 text-meta font-medium capitalize',
                 user.role === 'admin' &&
                   user.id === currentUser.id &&
                   'border-transparent bg-brand text-white',

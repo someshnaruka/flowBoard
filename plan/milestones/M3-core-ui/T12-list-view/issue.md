@@ -10,11 +10,12 @@ Dense table with sorting and virtualization.
 - Sticky header, 36px rows: status, title, assignees, priority, due date
 - Status and priority rendered as `StatusBadge` / `PriorityBadge`
 - Sort by due date and priority
-- Virtualized rows with `react-window` (no Load more)
+- Virtualized rows with `react-window`
+- Simulated offset pagination over in-memory data (page size 10 + Load more)
 - Row click opens drawer; new tasks appear and scroll into view
 
 ## Acceptance criteria
-- [x] Sort works both directions; virtualized list shows all tasks including newly created ones
+- [x] Sort works both directions; virtualized list + Load more pages in-memory tasks
 
 ## Commit plan
 - [x] `feat(list): table layout (T12)`
@@ -25,7 +26,8 @@ Dense table with sorting and virtualization.
 ## Tested
 - [x] `npm run typecheck` / `test` / `build`
 - [x] `list-sort.test.ts` — priority desc, due asc + nulls last, both directions
+- [x] `list-pagination.test.ts` — offset slice / load-more window
 - [x] Manual: Board|List toggle; sort headers; + Task appears in list; status/priority badges
 
 ## AI notes
-Replaced Load more with react-window after review feedback. Fixed list not showing new tasks (was capped by page size).
+Virtualized window + simulated offset pagination (Load more) over in-memory tasks.

@@ -28,7 +28,7 @@ describe('TaskCard', () => {
       screen.getByText('Audit tree permission edges'),
     ).toBeInTheDocument()
     expect(screen.getByText('High')).toBeInTheDocument()
-    expect(screen.getByLabelText('Alice Admin')).toBeInTheDocument()
+    expect(screen.getByLabelText('Alice')).toBeInTheDocument()
   })
 
   it('calls onOpen when activated', async () => {

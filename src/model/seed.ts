@@ -117,7 +117,7 @@ function buildUsers(): Record<string, User> {
   return {
     'user-alice': {
       id: 'user-alice',
-      name: 'Alice Admin',
+      name: 'Alice',
       email: 'alice@flowboard.dev',
       role: 'admin',
       color: '#7c3aed',
@@ -126,7 +126,7 @@ function buildUsers(): Record<string, User> {
     },
     'user-bob': {
       id: 'user-bob',
-      name: 'Bob Member',
+      name: 'Bob',
       email: 'bob@flowboard.dev',
       role: 'member',
       color: '#2563eb',
@@ -135,7 +135,7 @@ function buildUsers(): Record<string, User> {
     },
     'user-carol': {
       id: 'user-carol',
-      name: 'Carol Member',
+      name: 'Carol',
       email: 'carol@flowboard.dev',
       role: 'member',
       color: '#16a34a',

@@ -1,15 +1,13 @@
 import type { ReactNode } from 'react'
+import { Button } from '@/view/ui/button'
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/view/ui/alert-dialog'
-import { buttonVariants } from '@/view/ui/button'
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/view/ui/dialog'
 import { cn } from '@/view/ui/utils'
 
 type ConfirmDialogProps = {
@@ -38,34 +36,57 @@ export function ConfirmDialog({
   onConfirm,
 }: ConfirmDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-md gap-4 rounded-drawer p-6 shadow-panel">
-        <AlertDialogHeader className="gap-2 space-y-0 text-left">
-          <AlertDialogTitle className="text-drawer-title font-semibold text-foreground">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className={cn(
+          'z-[100] max-w-md gap-4 rounded-drawer border-border p-6 shadow-panel',
+          // Hide the default Dialog X — Cancel / Esc / overlay cover dismiss.
+          '[&>button.absolute]:hidden',
+        )}
+        onOpenAutoFocus={(event) => {
+          // Prefer Cancel so destructive confirm isn't accidentally activated.
+          event.preventDefault()
+          const root = event.currentTarget
+          if (!(root instanceof HTMLElement)) {
+            return
+          }
+          root
+            .querySelector<HTMLButtonElement>('[data-confirm-cancel]')
+            ?.focus()
+        }}
+      >
+        <DialogHeader className="gap-2 space-y-0 text-left">
+          <DialogTitle className="text-drawer-title font-semibold text-foreground">
             {title}
-          </AlertDialogTitle>
-          <AlertDialogDescription asChild>
+          </DialogTitle>
+          <DialogDescription asChild>
             <div className="text-body text-muted-foreground">{description}</div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="gap-2 sm:space-x-2">
-          <AlertDialogCancel className="rounded-control border-transparent bg-transparent text-muted-foreground shadow-none hover:bg-muted hover:text-foreground">
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="gap-2 sm:space-x-2">
+          <Button
+            type="button"
+            variant="ghost"
+            data-confirm-cancel
+            className="rounded-control border-transparent bg-transparent text-muted-foreground shadow-none hover:bg-muted hover:text-foreground"
+            onClick={() => onOpenChange(false)}
+          >
             {cancelLabel}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            className={cn(
-              'gap-1.5 rounded-control',
-              buttonVariants({
-                variant: variant === 'destructive' ? 'destructive' : 'default',
-              }),
-            )}
-            onClick={onConfirm}
+          </Button>
+          <Button
+            type="button"
+            variant={variant === 'destructive' ? 'destructive' : 'default'}
+            className="gap-1.5 rounded-control"
+            onClick={() => {
+              onConfirm()
+              onOpenChange(false)
+            }}
           >
             {confirmIcon}
             {confirmLabel}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

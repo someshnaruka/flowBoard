@@ -1,10 +1,33 @@
 import { useEffect, useMemo, useState } from 'react'
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  defaultDropAnimationSideEffects,
+  type DropAnimation,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import { selectVisibleTree } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { VisibleTreeNode } from '@/model/services/permission.service'
 import { Skeleton } from '@/view/ui/skeleton'
 import { ArchivedSection } from './ArchivedSection'
+import { SortableTreeRow } from './SortableTreeRow'
 import { TreeRow } from './TreeRow'
+import { useTreeDnd } from './useTreeDnd'
+
+const dropAnimation: DropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: '0.4',
+      },
+    },
+  }),
+}
 
 function TreeNodes({
   nodes,
@@ -21,16 +44,17 @@ function TreeNodes({
 }) {
   const toggleExpanded = useFlowStore((state) => state.toggleExpanded)
   const setSelectedListId = useFlowStore((state) => state.setSelectedListId)
+  const sortableIds = nodes.map((item) => item.id)
 
   return (
-    <>
+    <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
       {nodes.map((item) => {
         const isExpanded = expandedIds.has(item.id)
         const showChildren = isExpanded && item.children.length > 0
 
         return (
           <div key={item.id}>
-            <TreeRow
+            <SortableTreeRow
               id={item.id}
               name={item.node.name}
               kind={item.node.kind}
@@ -64,8 +88,24 @@ function TreeNodes({
           </div>
         )
       })}
-    </>
+    </SortableContext>
   )
+}
+
+function findTreeNode(
+  nodes: VisibleTreeNode[],
+  id: string,
+): VisibleTreeNode | null {
+  for (const node of nodes) {
+    if (node.id === id) {
+      return node
+    }
+    const nested = findTreeNode(node.children, id)
+    if (nested) {
+      return nested
+    }
+  }
+  return null
 }
 
 export function SidebarTree() {
@@ -95,6 +135,10 @@ export function SidebarTree() {
     () => new Set(expandedKey.length > 0 ? expandedKey.split('\0') : []),
     [expandedKey],
   )
+
+  const { sensors, activeId, onDragStart, onDragEnd, onDragCancel } =
+    useTreeDnd()
+  const activeNode = activeId ? findTreeNode(tree, activeId) : null
 
   const [ready, setReady] = useState(false)
 
@@ -137,13 +181,40 @@ export function SidebarTree() {
           Spaces
         </p>
       ) : null}
-      <TreeNodes
-        nodes={tree}
-        depth={0}
-        collapsedRail={collapsedRail}
-        expandedIds={expandedIds}
-        selectedListId={selectedListId}
-      />
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        onDragCancel={onDragCancel}
+      >
+        <TreeNodes
+          nodes={tree}
+          depth={0}
+          collapsedRail={collapsedRail}
+          expandedIds={expandedIds}
+          selectedListId={selectedListId}
+        />
+        <DragOverlay dropAnimation={dropAnimation}>
+          {activeNode ? (
+            <div className="rounded-control bg-background shadow-panel">
+              <TreeRow
+                id={activeNode.id}
+                name={activeNode.node.name}
+                kind={activeNode.node.kind}
+                depth={0}
+                isPrivate={activeNode.node.isPrivate}
+                isShell={activeNode.isShell}
+                isExpanded={false}
+                isSelected={false}
+                hasChildren={activeNode.children.length > 0}
+                onToggle={() => undefined}
+                onSelect={() => undefined}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
       <ArchivedSection collapsedRail={collapsedRail} />
     </nav>
   )

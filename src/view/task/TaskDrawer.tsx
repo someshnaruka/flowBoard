@@ -20,6 +20,7 @@ function isInsidePortaledUi(target: EventTarget | null): boolean {
         '[data-radix-popper-content-wrapper]',
         '[data-radix-select-content]',
         '[data-radix-menu-content]',
+        '[data-flowboard-modal-overlay]',
         '[role="dialog"]',
         '[role="alertdialog"]',
         '[data-sonner-toaster]',

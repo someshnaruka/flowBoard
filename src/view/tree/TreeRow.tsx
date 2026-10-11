@@ -26,7 +26,7 @@ const KIND_ICON: Record<NodeKind, typeof Folder> = {
 
 const DEPTH_PAD = ['pl-0', 'pl-3', 'pl-6', 'pl-9', 'pl-12'] as const
 
-type TreeRowProps = {
+export type TreeRowProps = {
   id: string
   name: string
   kind: NodeKind

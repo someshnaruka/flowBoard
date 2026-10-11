@@ -8,7 +8,7 @@ Complete create/rename/archive/delete experience.
 
 ## Requirements
 - Create/rename/archive/restore spaces, folders, lists via menu
-- Sibling reorder in tree
+- Sibling reorder in tree (drag-and-drop + Move up/down menu)
 - Task create (quick-add, + Task), duplicate, delete with ConfirmDialog
 - Undo toast for archive
 - Sidebar **Archived** section to restore later
