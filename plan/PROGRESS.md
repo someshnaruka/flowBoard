@@ -8,14 +8,14 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-11 (T15 done)
+**As of:** 2026-10-11 (T16 done)
 
-- **Done:** M1–M4 on `feat/Flowboard` (through **T15**)
-- **Next:** **T16** card interactions
+- **Done:** M1–M4 + **T16** on `feat/Flowboard`
+- **Next:** **T17** client-side search
 - **Tests:** Vitest green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 - **Branch:** `feat/Flowboard`
-- **T15:** toast taxonomy, Dev menu (latency / failure / fail-next), optimistic place/status + rollback shake + Retry
+- **T16:** card hover menu, inline field popovers, global shortcuts + cheatsheet, task soft-archive
 
 ---
 
@@ -158,6 +158,13 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 ---
 
 ## Changelog (append-only)
+
+### 2026-10-11 — T16 card interactions
+
+- Card/list hover menu: open, duplicate, archive (undo), delete.
+- Inline priority / assignee / due popovers (edit-gated).
+- Global shortcuts + `?` cheatsheet; `/` focuses search; `C` creates task.
+- Soft `archiveTask` / `restoreTask` in model + store.
 
 ### 2026-10-11 — T15 feedback / Dev menu / optimistic rollback
 

@@ -16,14 +16,17 @@ import {
 import { assertCan, canView } from '@/model/services/permission.service'
 import { addStatus as addStatusService } from '@/model/services/status.service'
 import {
+  archiveTask as archiveTaskService,
   changeStatus as changeStatusService,
   createTask as createTaskService,
   deleteTask as deleteTaskService,
   reorderTask as reorderTaskService,
+  restoreTask as restoreTaskService,
   updateTask as updateTaskService,
   type CreateTaskInput,
   type UpdateTaskInput,
 } from '@/model/services/task.service'
+import { selectStatusesForList } from './selectors'
 import type { AppState, ContainerNode, Task } from '@/model/types'
 import {
   defaultNetworkConfig,
@@ -42,6 +45,9 @@ export type UiState = {
   network: NetworkConfig
   /** Brief shake cue after optimistic rollback. */
   shakeTaskId: string | null
+  cheatsheetOpen: boolean
+  /** Increment to focus the view-bar search input. */
+  searchFocusNonce: number
 }
 
 export type FlowState = AppState & UiState
@@ -96,12 +102,17 @@ export type FlowStore = FlowState & {
   setNetworkConfig: (patch: Partial<NetworkConfig>) => void
   setFailNext: (value?: boolean) => void
   clearShakeTask: () => void
+  setCheatsheetOpen: (open: boolean) => void
+  requestSearchFocus: () => void
   createTask: (input: CreateTaskInput) => Promise<Result<Task>>
+  createDefaultTask: () => Promise<Result<Task>>
   placeTask: (input: PlaceTaskInput) => Promise<Result<Task>>
   updateTask: (
     input: UpdateTaskInput & { statusId?: string },
   ) => Promise<Result<Task>>
   duplicateTask: (taskId: string) => Promise<Result<Task>>
+  archiveTask: (taskId: string) => Promise<Result<{ archivedIds: string[] }>>
+  restoreTask: (taskId: string) => Promise<Result<{ restoredIds: string[] }>>
   deleteTask: (taskId: string) => Promise<Result<{ deletedIds: string[] }>>
   createContainer: (
     input: CreateNodeInput,
@@ -136,6 +147,8 @@ function initialUi(seed: AppState): UiState {
     sidebarCollapsed: false,
     network: defaultNetworkConfig(),
     shakeTaskId: null,
+    cheatsheetOpen: false,
+    searchFocusNonce: 0,
   }
 }
 
@@ -200,6 +213,18 @@ export function createFlowStore(
         })
       },
 
+      setCheatsheetOpen: (open) => {
+        set((state) => {
+          state.cheatsheetOpen = open
+        })
+      },
+
+      requestSearchFocus: () => {
+        set((state) => {
+          state.searchFocusNonce += 1
+        })
+      },
+
       switchUser: (userId) => {
         const current = get()
         if (!current.users[userId]) {
@@ -259,6 +284,27 @@ export function createFlowStore(
         })
 
         return ok(serviceResult.data.task)
+      },
+
+      createDefaultTask: async () => {
+        const snapshot = get()
+        const listId = snapshot.selectedListId
+        if (!listId) {
+          return fail('VALIDATION', 'Select a list first')
+        }
+
+        const statuses = selectStatusesForList(snapshot, listId)
+        const status =
+          statuses.find((item) => item.category === 'todo') ?? statuses[0]
+        if (!status) {
+          return fail('INVALID_STATUS', 'This list has no statuses')
+        }
+
+        return get().createTask({
+          listId,
+          title: 'New task',
+          statusId: status.id,
+        })
       },
 
       placeTask: async (input) => {
@@ -432,6 +478,94 @@ export function createFlowStore(
           assigneeIds: [...existing.assigneeIds],
           dueDate: existing.dueDate,
         })
+      },
+
+      archiveTask: async (taskId) => {
+        const snapshot = get()
+        const existing = snapshot.tasks[taskId]
+        if (!existing) {
+          return fail('NOT_FOUND', `Task ${taskId} not found`)
+        }
+
+        const permission = assertCan(
+          snapshot,
+          snapshot.currentUserId,
+          existing.listId,
+          'edit',
+        )
+        if (isErr(permission)) {
+          return permission
+        }
+
+        const serviceResult = archiveTaskService(
+          domainSnapshot(snapshot),
+          snapshot.currentUserId,
+          { taskId },
+        )
+        if (isErr(serviceResult)) {
+          return serviceResult
+        }
+
+        const network = await simulateNetwork(get().network)
+        set((state) => {
+          state.network.failNext = false
+        })
+        if (isErr(network)) {
+          return network
+        }
+
+        set((state) => {
+          applyDomain(state, serviceResult.data.state)
+          if (
+            state.drawerTaskId &&
+            serviceResult.data.archivedIds.includes(state.drawerTaskId)
+          ) {
+            state.drawerTaskId = null
+          }
+        })
+
+        return ok({ archivedIds: serviceResult.data.archivedIds })
+      },
+
+      restoreTask: async (taskId) => {
+        const snapshot = get()
+        const existing = snapshot.tasks[taskId]
+        if (!existing) {
+          return fail('NOT_FOUND', `Task ${taskId} not found`)
+        }
+
+        const permission = assertCan(
+          snapshot,
+          snapshot.currentUserId,
+          existing.listId,
+          'edit',
+        )
+        if (isErr(permission)) {
+          return permission
+        }
+
+        const serviceResult = restoreTaskService(
+          domainSnapshot(snapshot),
+          snapshot.currentUserId,
+          { taskId },
+        )
+        if (isErr(serviceResult)) {
+          return serviceResult
+        }
+
+        const network = await simulateNetwork(get().network)
+        set((state) => {
+          state.network.failNext = false
+        })
+        if (isErr(network)) {
+          return network
+        }
+
+        set((state) => {
+          applyDomain(state, serviceResult.data.state)
+        })
+
+        return ok({ restoredIds: serviceResult.data.restoredIds })
       },
 
       deleteTask: async (taskId) => {

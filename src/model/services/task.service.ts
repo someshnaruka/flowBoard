@@ -246,6 +246,94 @@ export function deleteTask(
   return ok({ state: next, deletedIds })
 }
 
+export type ArchiveTaskInput = {
+  taskId: string
+}
+
+function taskCascadeIds(state: AppState, taskId: string): string[] {
+  return [
+    taskId,
+    ...Object.values(state.tasks)
+      .filter((task) => task.parentTaskId === taskId)
+      .map((task) => task.id),
+  ]
+}
+
+export function archiveTask(
+  state: AppState,
+  _actorId: string,
+  input: ArchiveTaskInput,
+): Result<{ state: AppState; archivedIds: string[] }> {
+  const existing = state.tasks[input.taskId]
+  if (!existing) {
+    return fail('NOT_FOUND', `Task ${input.taskId} not found`)
+  }
+  if (existing.archivedAt) {
+    return fail('CONFLICT', 'Task is already archived')
+  }
+
+  const listCheck = assertListWritable(state, existing.listId)
+  if ('error' in listCheck) {
+    return listCheck
+  }
+
+  const timestamp = nowIso()
+  const archivedIds = taskCascadeIds(state, input.taskId)
+  const next = cloneState(state)
+  for (const id of archivedIds) {
+    const task = next.tasks[id]
+    if (!task || task.archivedAt) {
+      continue
+    }
+    next.tasks[id] = {
+      ...task,
+      archivedAt: timestamp,
+      updatedAt: timestamp,
+    }
+  }
+
+  return ok({ state: next, archivedIds })
+}
+
+export function restoreTask(
+  state: AppState,
+  _actorId: string,
+  input: ArchiveTaskInput,
+): Result<{ state: AppState; restoredIds: string[] }> {
+  const existing = state.tasks[input.taskId]
+  if (!existing) {
+    return fail('NOT_FOUND', `Task ${input.taskId} not found`)
+  }
+  if (!existing.archivedAt) {
+    return fail('CONFLICT', 'Task is not archived')
+  }
+
+  const listCheck = assertListWritable(state, existing.listId)
+  if ('error' in listCheck) {
+    return listCheck
+  }
+
+  const stamp = existing.archivedAt
+  const restoredIds = taskCascadeIds(state, input.taskId).filter(
+    (id) => state.tasks[id]?.archivedAt === stamp,
+  )
+  const timestamp = nowIso()
+  const next = cloneState(state)
+  for (const id of restoredIds) {
+    const task = next.tasks[id]
+    if (!task) {
+      continue
+    }
+    next.tasks[id] = {
+      ...task,
+      archivedAt: null,
+      updatedAt: timestamp,
+    }
+  }
+
+  return ok({ state: next, restoredIds })
+}
+
 export type ChangeStatusInput = {
   taskId: string
   statusId: string

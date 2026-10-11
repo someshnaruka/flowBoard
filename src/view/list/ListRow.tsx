@@ -1,9 +1,12 @@
-import { useMemo } from 'react'
+import { useMemo, type KeyboardEvent } from 'react'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Status, Task, User } from '@/model/types'
-import { AvatarStack } from '@/view/ui/avatar-stack'
-import { DueDate } from '@/view/ui/due-date'
-import { PriorityBadge } from '@/view/ui/priority-badge'
+import { TaskCardMenu } from '@/view/board/TaskCardMenu'
+import {
+  AssigneePopover,
+  DueDatePopover,
+  PriorityPopover,
+} from '@/view/board/TaskFieldPopovers'
 import { StatusBadge } from '@/view/ui/status-badge'
 import { cn } from '@/view/ui/utils'
 
@@ -42,19 +45,25 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
       .join('\0'),
   )
 
-  const { task, status, assignees } = useMemo(() => {
+  const { task, status, assignees, users } = useMemo(() => {
     void taskStamp
     void usersStamp
     void statusesStamp
     const state = getDefaultFlowStore().getState()
     const found = state.tasks[taskId] ?? null
     if (!found) {
-      return { task: null, status: null as Status | null, assignees: [] }
+      return {
+        task: null,
+        status: null as Status | null,
+        assignees: [],
+        users: [] as User[],
+      }
     }
     return {
       task: found,
       status: state.statuses[found.statusId] ?? null,
       assignees: assigneesForTask(found, state.users),
+      users: Object.values(state.users),
     }
   }, [taskId, taskStamp, usersStamp, statusesStamp])
 
@@ -62,13 +71,22 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
     return null
   }
 
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onOpen?.()
+    }
+  }
+
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       data-task-id={taskId}
       onClick={onOpen}
+      onKeyDown={onKeyDown}
       className={cn(
-        'grid h-list-row w-full grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem] items-center gap-3 border-b border-border px-4 text-left',
+        'group grid h-list-row w-full grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem_2rem] items-center gap-3 border-b border-border px-4 text-left',
         'transition-colors duration-150 hover:bg-accent/50',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40',
         'active:bg-accent/70',
@@ -87,14 +105,29 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
       </div>
       <p className="min-w-0 truncate text-body text-foreground">{task.title}</p>
       <div className="min-w-0">
-        <AvatarStack users={assignees} max={3} size="sm" />
+        <AssigneePopover
+          taskId={taskId}
+          assignees={assignees}
+          users={users}
+        />
       </div>
       <div className="min-w-0">
-        <PriorityBadge priority={task.priority} className="max-w-full truncate" />
+        <PriorityPopover
+          taskId={taskId}
+          priority={task.priority}
+          className="max-w-full"
+        />
       </div>
       <div className="min-w-0">
-        <DueDate dueDate={task.dueDate} />
+        <DueDatePopover taskId={taskId} dueDate={task.dueDate} />
       </div>
-    </button>
+      <div className="flex justify-end">
+        <TaskCardMenu
+          taskId={taskId}
+          taskTitle={task.title}
+          onOpen={onOpen}
+        />
+      </div>
+    </div>
   )
 }

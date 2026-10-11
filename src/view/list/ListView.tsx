@@ -164,7 +164,7 @@ export function ListView({ listId }: ListViewProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col" aria-label="List view">
-      <div className="sticky top-0 z-10 grid h-list-row shrink-0 grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem] items-center gap-3 border-b border-border bg-background px-4">
+      <div className="sticky top-0 z-10 grid h-list-row shrink-0 grid-cols-[7.5rem_minmax(0,1fr)_6.5rem_6rem_5.5rem_2rem] items-center gap-3 border-b border-border bg-background px-4">
         <span className="text-meta font-medium text-muted-foreground">
           Status
         </span>
@@ -188,6 +188,7 @@ export function ListView({ listId }: ListViewProps) {
           dir={sortDir}
           onSort={onSort}
         />
+        <span className="sr-only">Actions</span>
       </div>
 
       <div className="min-h-0 flex-1">

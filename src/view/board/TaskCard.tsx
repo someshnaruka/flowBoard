@@ -1,12 +1,15 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, type KeyboardEvent } from 'react'
 import { ListTree } from 'lucide-react'
 import { selectSubtaskCount } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Task, User } from '@/model/types'
-import { AvatarStack } from '@/view/ui/avatar-stack'
-import { DueDate } from '@/view/ui/due-date'
-import { PriorityBadge } from '@/view/ui/priority-badge'
 import { cn } from '@/view/ui/utils'
+import { TaskCardMenu } from './TaskCardMenu'
+import {
+  AssigneePopover,
+  DueDatePopover,
+  PriorityPopover,
+} from './TaskFieldPopovers'
 
 type TaskCardProps = {
   taskId: string
@@ -43,17 +46,18 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
       .join('\0'),
   )
 
-  const { task, assignees, subtaskCount } = useMemo(() => {
+  const { task, assignees, users, subtaskCount } = useMemo(() => {
     void taskStamp
     void usersStamp
     const state = getDefaultFlowStore().getState()
     const found = state.tasks[taskId] ?? null
     if (!found) {
-      return { task: null, assignees: [], subtaskCount: 0 }
+      return { task: null, assignees: [], users: [], subtaskCount: 0 }
     }
     return {
       task: found,
       assignees: assigneesForTask(found, state.users),
+      users: Object.values(state.users),
       subtaskCount: selectSubtaskCount(state, taskId),
     }
   }, [taskId, taskStamp, usersStamp])
@@ -74,13 +78,22 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
     return null
   }
 
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onOpen?.()
+    }
+  }
+
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       data-task-id={taskId}
       onClick={onOpen}
+      onKeyDown={onKeyDown}
       className={cn(
-        'flex w-full flex-col gap-2 rounded-card border border-border bg-card p-3 text-left shadow-card',
+        'group relative flex w-full flex-col gap-2 rounded-card border border-border bg-card p-3 text-left shadow-card',
         'transition-colors duration-150 hover:border-brand/40 hover:bg-accent/40',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40',
         'active:bg-accent/60',
@@ -88,17 +101,29 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
         className,
       )}
     >
-      <p className="line-clamp-2 min-w-0 text-card-title text-foreground">
+      <div className="absolute right-2 top-2 z-10">
+        <TaskCardMenu
+          taskId={taskId}
+          taskTitle={task.title}
+          onOpen={onOpen}
+        />
+      </div>
+
+      <p className="line-clamp-2 min-w-0 pr-7 text-card-title text-foreground">
         {task.title}
       </p>
 
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-        <PriorityBadge priority={task.priority} />
-        <DueDate dueDate={task.dueDate} />
+        <PriorityPopover taskId={taskId} priority={task.priority} />
+        <DueDatePopover taskId={taskId} dueDate={task.dueDate} />
       </div>
 
       <div className="flex min-w-0 items-center justify-between gap-2">
-        <AvatarStack users={assignees} max={3} size="sm" />
+        <AssigneePopover
+          taskId={taskId}
+          assignees={assignees}
+          users={users}
+        />
         {subtaskCount > 0 ? (
           <span
             className="inline-flex items-center gap-1 text-meta text-muted-foreground"
@@ -109,6 +134,6 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
           </span>
         ) : null}
       </div>
-    </button>
+    </div>
   )
 }

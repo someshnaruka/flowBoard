@@ -1,14 +1,9 @@
-import { LayoutGrid, List, Plus } from 'lucide-react'
-import {
-  selectStatusesForList,
-} from '@/controller/selectors'
-import {
-  getDefaultFlowStore,
-  useFlowStore,
-  type BoardView,
-} from '@/controller/store'
-import { notifyMutationError, toastError, toastSuccess } from '@/view/feedback/toasts'
+import { useEffect, useRef } from 'react'
+import { LayoutGrid, List, Plus, Search } from 'lucide-react'
+import { useFlowStore, type BoardView } from '@/controller/store'
+import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { Button } from '@/view/ui/button'
+import { Input } from '@/view/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/view/ui/toggle-group'
 import {
   Tooltip,
@@ -23,29 +18,23 @@ type ViewBarProps = {
 export function ViewBar({ listId }: ViewBarProps) {
   const view = useFlowStore((state) => state.view)
   const setView = useFlowStore((state) => state.setView)
-  const createTask = useFlowStore((state) => state.createTask)
+  const createDefaultTask = useFlowStore((state) => state.createDefaultTask)
+  const openDrawer = useFlowStore((state) => state.openDrawer)
+  const searchFocusNonce = useFlowStore((state) => state.searchFocusNonce)
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (searchFocusNonce > 0) {
+      searchRef.current?.focus()
+    }
+  }, [searchFocusNonce])
 
   const onAddTask = async () => {
     if (!listId) {
       return
     }
 
-    const state = getDefaultFlowStore().getState()
-    const statuses = selectStatusesForList(state, listId)
-    const status =
-      statuses.find((item) => item.category === 'todo') ?? statuses[0]
-
-    if (!status) {
-      toastError('This list has no statuses')
-      return
-    }
-
-    const result = await createTask({
-      listId,
-      title: 'New task',
-      statusId: status.id,
-    })
-
+    const result = await createDefaultTask()
     if ('error' in result) {
       notifyMutationError(result.error, {
         onRetry: () => {
@@ -56,6 +45,7 @@ export function ViewBar({ listId }: ViewBarProps) {
     }
 
     toastSuccess('Task created')
+    openDrawer(result.data.id)
   }
 
   return (
@@ -90,6 +80,20 @@ export function ViewBar({ listId }: ViewBarProps) {
           List
         </ToggleGroupItem>
       </ToggleGroup>
+
+      <div className="relative min-w-0 max-w-xs flex-1">
+        <Search
+          className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
+        <Input
+          ref={searchRef}
+          type="search"
+          placeholder="Search tasks…"
+          aria-label="Search tasks"
+          className="h-8 rounded-control pl-8 text-body"
+        />
+      </div>
 
       <div className="min-w-0 flex-1" />
 

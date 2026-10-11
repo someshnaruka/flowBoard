@@ -1,7 +1,7 @@
 # T16: Card interactions
 
 **Milestone:** M5 Polish and delivery
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Quick edits without opening the drawer.
@@ -14,13 +14,15 @@ Quick edits without opening the drawer.
 - Shortcuts overlay lists all bindings; ignore shortcuts when focus is in an input/textarea
 
 ## Acceptance criteria
-- [ ] Permissions respected in every popover
-- [ ] `?` opens cheatsheet; `/` and `C` work from board and list when not typing
+- [x] Permissions respected in every popover
+- [x] `?` opens cheatsheet; `/` and `C` work from board and list when not typing
 
 ## Commit plan
-- [ ] `feat(board): card hover menu (T16)`
-- [ ] `feat(board): inline priority, assignee and date popovers (T16)`
-- [ ] `feat(shortcuts): global bindings and cheatsheet (T16)`
+- [x] `feat(board): card hover menu (T16)`
+- [x] `feat(board): inline priority, assignee and date popovers (T16)`
+- [x] `feat(shortcuts): global bindings and cheatsheet (T16)`
 
 ## AI notes
+- Added `archiveTask`/`restoreTask` (soft archive + undo) since T16 requires Archive / ⌘E.
+- `/` focuses view-bar search input; filtering lands in T17.
 _What Cursor got right, what I corrected or rejected._

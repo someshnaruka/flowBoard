@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Copy, Lock, MoreHorizontal, Trash2, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { useFlowStore } from '@/controller/store'
 import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { ConfirmDialog } from '@/view/ui/confirm-dialog'
@@ -36,6 +37,8 @@ export function DrawerHeader({
   onClose,
 }: DrawerHeaderProps) {
   const duplicateTask = useFlowStore((state) => state.duplicateTask)
+  const archiveTask = useFlowStore((state) => state.archiveTask)
+  const restoreTask = useFlowStore((state) => state.restoreTask)
   const deleteTask = useFlowStore((state) => state.deleteTask)
   const openDrawer = useFlowStore((state) => state.openDrawer)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -86,6 +89,35 @@ export function DrawerHeader({
                   }}
                 >
                   Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    void (async () => {
+                      const result = await archiveTask(taskId)
+                      if ('error' in result) {
+                        notifyMutationError(result.error)
+                        return
+                      }
+                      toast.message(`Archived “${taskTitle}”`, {
+                        action: {
+                          label: 'Undo',
+                          onClick: () => {
+                            void (async () => {
+                              const restored = await restoreTask(taskId)
+                              if ('error' in restored) {
+                                notifyMutationError(restored.error)
+                                return
+                              }
+                              toastSuccess(`Restored “${taskTitle}”`)
+                            })()
+                          },
+                        },
+                      })
+                      onClose()
+                    })()
+                  }}
+                >
+                  Archive
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

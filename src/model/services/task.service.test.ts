@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { isErr, isOk } from '../errors'
 import { createSeed } from '../seed'
 import {
+  archiveTask,
   changeStatus,
   createTask,
   deleteTask,
   moveTaskToList,
   reorderTask,
+  restoreTask,
   updateTask,
 } from './task.service'
 import { addStatus, deleteStatus, renameStatus } from './status.service'
@@ -143,6 +145,56 @@ describe('status service', () => {
       name: 'Waiting',
     })
     expect(isOk(renamed)).toBe(true)
+  })
+
+  it('archives and restores a task with subtasks', () => {
+    const state = createSeed()
+    const parent = createTask(state, 'user-alice', {
+      listId: 'list-backlog',
+      title: 'Parent',
+      statusId: 'status-backlog-todo',
+    })
+    expect(isOk(parent)).toBe(true)
+    if (!isOk(parent)) {
+      return
+    }
+
+    const child = createTask(parent.data.state, 'user-alice', {
+      listId: 'list-backlog',
+      title: 'Child',
+      statusId: 'status-backlog-todo',
+      parentTaskId: parent.data.task.id,
+    })
+    expect(isOk(child)).toBe(true)
+    if (!isOk(child)) {
+      return
+    }
+
+    const archived = archiveTask(child.data.state, 'user-alice', {
+      taskId: parent.data.task.id,
+    })
+    expect(isOk(archived)).toBe(true)
+    if (!isOk(archived)) {
+      return
+    }
+    expect(
+      archived.data.state.tasks[parent.data.task.id]?.archivedAt,
+    ).not.toBeNull()
+    expect(
+      archived.data.state.tasks[child.data.task.id]?.archivedAt,
+    ).not.toBeNull()
+
+    const restored = restoreTask(archived.data.state, 'user-alice', {
+      taskId: parent.data.task.id,
+    })
+    expect(isOk(restored)).toBe(true)
+    if (!isOk(restored)) {
+      return
+    }
+    expect(
+      restored.data.state.tasks[parent.data.task.id]?.archivedAt,
+    ).toBeNull()
+    expect(restored.data.state.tasks[child.data.task.id]?.archivedAt).toBeNull()
   })
 
   it('blocks deleting a status that is in use', () => {

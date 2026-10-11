@@ -3,6 +3,7 @@ import { BoardWorkspace } from '@/view/board/BoardWorkspace'
 import { AppShell } from '@/view/layout/AppShell'
 import { DevMenu } from '@/view/layout/DevMenu'
 import { UserSwitcher } from '@/view/layout/UserSwitcher'
+import { KeyboardShortcuts } from '@/view/shortcuts/KeyboardShortcuts'
 import { ThemeProvider, useTheme } from '@/view/theme/ThemeProvider'
 import { SidebarTree } from '@/view/tree/SidebarTree'
 import { Toaster } from '@/view/ui/sonner'
@@ -26,6 +27,7 @@ function FlowboardApp() {
       >
         <BoardWorkspace />
       </AppShell>
+      <KeyboardShortcuts />
       <Toaster theme={resolved} />
     </>
   )

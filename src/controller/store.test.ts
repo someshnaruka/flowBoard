@@ -230,4 +230,29 @@ describe('flow store', () => {
     expect(store.getState().tasks[duplicated.data.id]).toBeUndefined()
     expect(store.getState().drawerTaskId).toBeNull()
   })
+
+  it('archives and restores a task', async () => {
+    const store = createFlowStore(createSeed())
+    store.getState().openDrawer('task-backlog-1')
+
+    const archived = await store.getState().archiveTask('task-backlog-1')
+    expect(isOk(archived)).toBe(true)
+    expect(store.getState().tasks['task-backlog-1']?.archivedAt).not.toBeNull()
+    expect(store.getState().drawerTaskId).toBeNull()
+
+    const restored = await store.getState().restoreTask('task-backlog-1')
+    expect(isOk(restored)).toBe(true)
+    expect(store.getState().tasks['task-backlog-1']?.archivedAt).toBeNull()
+  })
+
+  it('createDefaultTask uses the selected list', async () => {
+    const store = createFlowStore(createSeed())
+    store.getState().setSelectedListId('list-backlog')
+    const result = await store.getState().createDefaultTask()
+    expect(isOk(result)).toBe(true)
+    if (isOk(result)) {
+      expect(result.data.listId).toBe('list-backlog')
+      expect(result.data.title).toBe('New task')
+    }
+  })
 })
