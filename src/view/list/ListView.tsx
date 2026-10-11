@@ -5,10 +5,11 @@ import {
   useListRef,
   type RowComponentProps,
 } from 'react-window'
-import { selectTasksForList } from '@/controller/selectors'
+import { selectTasksForListQuery } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Task } from '@/model/types'
 import { EmptyState } from '@/view/ui/empty-state'
+import { Button } from '@/view/ui/button'
 import { cn } from '@/view/ui/utils'
 import { ListRow } from './ListRow'
 import {
@@ -86,6 +87,8 @@ function VirtualRow({
 export function ListView({ listId }: ListViewProps) {
   const currentUserId = useFlowStore((state) => state.currentUserId)
   const openDrawer = useFlowStore((state) => state.openDrawer)
+  const searchQuery = useFlowStore((state) => state.searchQuery)
+  const setSearchQuery = useFlowStore((state) => state.setSearchQuery)
   const taskCount = useFlowStore(
     (state) =>
       Object.values(state.tasks).filter((task) => task.listId === listId)
@@ -96,7 +99,7 @@ export function ListView({ listId }: ListViewProps) {
       .filter((task) => task.listId === listId)
       .map(
         (task) =>
-          `${task.id}:${task.statusId}:${task.position}:${task.title}:${task.dueDate ?? ''}:${task.priority}:${task.updatedAt}`,
+          `${task.id}:${task.statusId}:${task.position}:${task.title}:${task.description}:${task.dueDate ?? ''}:${task.priority}:${task.updatedAt}`,
       )
       .sort()
       .join('\0'),
@@ -106,8 +109,12 @@ export function ListView({ listId }: ListViewProps) {
     void currentUserId
     void taskCount
     void tasksStamp
-    return selectTasksForList(getDefaultFlowStore().getState(), listId)
-  }, [currentUserId, listId, taskCount, tasksStamp])
+    return selectTasksForListQuery(
+      getDefaultFlowStore().getState(),
+      listId,
+      searchQuery,
+    )
+  }, [currentUserId, listId, searchQuery, taskCount, tasksStamp])
 
   const [sortKey, setSortKey] = useState<ListSortKey | null>(null)
   const [sortDir, setSortDir] = useState<ListSortDir>('asc')
@@ -152,12 +159,30 @@ export function ListView({ listId }: ListViewProps) {
     [],
   )
 
+  const searching = searchQuery.trim().length > 0
   if (sorted.length === 0) {
     return (
       <EmptyState
-        title="No tasks"
-        description="Create a task to populate this list."
+        title={searching ? 'No matching tasks' : 'No tasks'}
+        description={
+          searching
+            ? `Nothing matches “${searchQuery.trim()}” in this list.`
+            : 'Create a task to populate this list.'
+        }
         className="h-full"
+        action={
+          searching ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-control"
+              onClick={() => setSearchQuery('')}
+            >
+              Clear search
+            </Button>
+          ) : undefined
+        }
       />
     )
   }

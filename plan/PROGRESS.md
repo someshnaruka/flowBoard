@@ -8,14 +8,14 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-11 (T16 done)
+**As of:** 2026-10-11 (T17 done)
 
-- **Done:** M1–M4 + **T16** on `feat/Flowboard`
-- **Next:** **T17** client-side search
+- **Done:** M1–M4 + **T16–T17** on `feat/Flowboard`
+- **Next:** **T18** spacing / density audit
 - **Tests:** Vitest green (`npm run test`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 - **Branch:** `feat/Flowboard`
-- **T16:** card hover menu, inline field popovers, global shortcuts + cheatsheet, task soft-archive
+- **T17:** debounced list search, title highlight, empty-match state on board + list
 
 ---
 
@@ -158,6 +158,12 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 ---
 
 ## Changelog (append-only)
+
+### 2026-10-11 — T17 client-side search
+
+- Debounced (200ms) title/description filter via `searchQuery` + `selectTasksForListQuery`.
+- Title highlight on cards/rows; empty-match state with Clear search on board and list.
+- Search clears when switching lists; `/` focuses the view-bar input.
 
 ### 2026-10-11 — T16 card interactions
 

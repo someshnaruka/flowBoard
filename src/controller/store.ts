@@ -48,6 +48,8 @@ export type UiState = {
   cheatsheetOpen: boolean
   /** Increment to focus the view-bar search input. */
   searchFocusNonce: number
+  /** Debounced task search query for the selected list. */
+  searchQuery: string
 }
 
 export type FlowState = AppState & UiState
@@ -104,6 +106,7 @@ export type FlowStore = FlowState & {
   clearShakeTask: () => void
   setCheatsheetOpen: (open: boolean) => void
   requestSearchFocus: () => void
+  setSearchQuery: (query: string) => void
   createTask: (input: CreateTaskInput) => Promise<Result<Task>>
   createDefaultTask: () => Promise<Result<Task>>
   placeTask: (input: PlaceTaskInput) => Promise<Result<Task>>
@@ -149,6 +152,7 @@ function initialUi(seed: AppState): UiState {
     shakeTaskId: null,
     cheatsheetOpen: false,
     searchFocusNonce: 0,
+    searchQuery: '',
   }
 }
 
@@ -163,6 +167,7 @@ export function createFlowStore(
       setSelectedListId: (listId) => {
         set((state) => {
           state.selectedListId = listId
+          state.searchQuery = ''
         })
       },
 
@@ -222,6 +227,12 @@ export function createFlowStore(
       requestSearchFocus: () => {
         set((state) => {
           state.searchFocusNonce += 1
+        })
+      },
+
+      setSearchQuery: (query) => {
+        set((state) => {
+          state.searchQuery = query
         })
       },
 

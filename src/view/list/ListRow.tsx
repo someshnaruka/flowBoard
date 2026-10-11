@@ -7,6 +7,7 @@ import {
   DueDatePopover,
   PriorityPopover,
 } from '@/view/board/TaskFieldPopovers'
+import { HighlightText } from '@/view/search/HighlightText'
 import { StatusBadge } from '@/view/ui/status-badge'
 import { cn } from '@/view/ui/utils'
 
@@ -27,6 +28,7 @@ function assigneesForTask(task: Task, users: Record<string, User>) {
 }
 
 export function ListRow({ taskId, onOpen }: ListRowProps) {
+  const searchQuery = useFlowStore((state) => state.searchQuery)
   const taskStamp = useFlowStore((state) => {
     const task = state.tasks[taskId]
     if (!task) {
@@ -103,7 +105,9 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
           <span className="text-meta text-muted-foreground">—</span>
         )}
       </div>
-      <p className="min-w-0 truncate text-body text-foreground">{task.title}</p>
+      <p className="min-w-0 truncate text-body text-foreground">
+        <HighlightText text={task.title} query={searchQuery} />
+      </p>
       <div className="min-w-0">
         <AssigneePopover
           taskId={taskId}

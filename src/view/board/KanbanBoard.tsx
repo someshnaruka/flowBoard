@@ -12,10 +12,11 @@ import {
 } from '@dnd-kit/sortable'
 import {
   selectStatusesForList,
-  selectTasksForList,
+  selectTasksForListQuery,
 } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import { EmptyState } from '@/view/ui/empty-state'
+import { Button } from '@/view/ui/button'
 import { Column } from './Column'
 import { SortableTaskCard } from './SortableTaskCard'
 import { TaskDragOverlay } from './TaskDragOverlay'
@@ -38,12 +39,14 @@ const dropAnimation: DropAnimation = {
 export function KanbanBoard({ listId }: KanbanBoardProps) {
   const currentUserId = useFlowStore((state) => state.currentUserId)
   const openDrawer = useFlowStore((state) => state.openDrawer)
+  const searchQuery = useFlowStore((state) => state.searchQuery)
+  const setSearchQuery = useFlowStore((state) => state.setSearchQuery)
   const tasksStamp = useFlowStore((state) =>
     Object.values(state.tasks)
       .filter((task) => task.listId === listId)
       .map(
         (task) =>
-          `${task.id}:${task.statusId}:${task.position}:${task.title}:${task.updatedAt}:${task.assigneeIds.join(',')}:${task.dueDate ?? ''}:${task.priority}`,
+          `${task.id}:${task.statusId}:${task.position}:${task.title}:${task.description}:${task.updatedAt}:${task.assigneeIds.join(',')}:${task.dueDate ?? ''}:${task.priority}`,
       )
       .join('\0'),
   )
@@ -54,13 +57,13 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
       .join('\0'),
   )
 
-  const { statuses, tasksByStatus } = useMemo(() => {
+  const { statuses, tasksByStatus, matchCount } = useMemo(() => {
     void currentUserId
     void tasksStamp
     void statusesStamp
     const state = getDefaultFlowStore().getState()
     const listStatuses = selectStatusesForList(state, listId)
-    const listTasks = selectTasksForList(state, listId)
+    const listTasks = selectTasksForListQuery(state, listId, searchQuery)
     const grouped = new Map<string, typeof listTasks>()
 
     for (const status of listStatuses) {
@@ -73,8 +76,12 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
       }
     }
 
-    return { statuses: listStatuses, tasksByStatus: grouped }
-  }, [currentUserId, listId, statusesStamp, tasksStamp])
+    return {
+      statuses: listStatuses,
+      tasksByStatus: grouped,
+      matchCount: listTasks.length,
+    }
+  }, [currentUserId, listId, searchQuery, statusesStamp, tasksStamp])
 
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => new Set())
   const dnd = useBoardDnd(statuses, tasksByStatus)
@@ -97,6 +104,28 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
         title="No statuses"
         description="This list has no columns yet."
         className="h-full"
+      />
+    )
+  }
+
+  const searching = searchQuery.trim().length > 0
+  if (searching && matchCount === 0) {
+    return (
+      <EmptyState
+        title="No matching tasks"
+        description={`Nothing matches “${searchQuery.trim()}” in this list.`}
+        className="h-full"
+        action={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="rounded-control"
+            onClick={() => setSearchQuery('')}
+          >
+            Clear search
+          </Button>
+        }
       />
     )
   }
@@ -140,8 +169,12 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
               >
                 {columnTaskIds.length === 0 ? (
                   <EmptyState
-                    title="No tasks"
-                    description="Drop or create a task here."
+                    title={searching ? 'No matches' : 'No tasks'}
+                    description={
+                      searching
+                        ? 'Try another column or clear search.'
+                        : 'Drop or create a task here.'
+                    }
                     className="pointer-events-none rounded-card border border-dashed border-border py-8"
                   />
                 ) : (

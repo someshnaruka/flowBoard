@@ -3,6 +3,7 @@ import { ListTree } from 'lucide-react'
 import { selectSubtaskCount } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Task, User } from '@/model/types'
+import { HighlightText } from '@/view/search/HighlightText'
 import { cn } from '@/view/ui/utils'
 import { TaskCardMenu } from './TaskCardMenu'
 import {
@@ -31,6 +32,7 @@ function assigneesForTask(task: Task, users: Record<string, User>) {
 export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
   const shakeTaskId = useFlowStore((state) => state.shakeTaskId)
   const clearShakeTask = useFlowStore((state) => state.clearShakeTask)
+  const searchQuery = useFlowStore((state) => state.searchQuery)
   const isShaking = shakeTaskId === taskId
 
   const taskStamp = useFlowStore((state) => {
@@ -110,7 +112,7 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
       </div>
 
       <p className="line-clamp-2 min-w-0 pr-7 text-card-title text-foreground">
-        {task.title}
+        <HighlightText text={task.title} query={searchQuery} />
       </p>
 
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">

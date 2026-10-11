@@ -32,6 +32,28 @@ export function selectTasksForList(
     .sort((a, b) => a.position - b.position)
 }
 
+/** Case-insensitive title/description match for list search. */
+export function taskMatchesQuery(task: Task, query: string): boolean {
+  const normalized = query.trim().toLowerCase()
+  if (!normalized) {
+    return true
+  }
+  return (
+    task.title.toLowerCase().includes(normalized) ||
+    task.description.toLowerCase().includes(normalized)
+  )
+}
+
+export function selectTasksForListQuery(
+  state: AppState,
+  listId: string,
+  query: string,
+): Task[] {
+  return selectTasksForList(state, listId).filter((task) =>
+    taskMatchesQuery(task, query),
+  )
+}
+
 export function selectStatusesForList(
   state: AppState,
   listId: string,

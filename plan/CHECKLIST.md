@@ -12,9 +12,9 @@ Master tracker for milestones and issues. Tick boxes here when an issue’s `iss
 | M2 Domain logic | Done | 4 / 4 |
 | M3 Core UI | Done | 6 / 6 |
 | M4 Flows and feedback | Done | 2 / 2 |
-| M5 Polish and delivery | In progress | 1 / 6 |
+| M5 Polish and delivery | In progress | 2 / 6 |
 
-**Overall:** 17 / 22 issues
+**Overall:** 18 / 22 issues
 
 ---
 
@@ -57,7 +57,7 @@ Milestone: [x] Done
 ## M5 — Polish and delivery
 
 - [x] **T16** Card interactions
-- [ ] **T17** Client-side search
+- [x] **T17** Client-side search
 - [ ] **T18** Spacing and density audit
 - [ ] **T19** Component and E2E tests
 - [ ] **T20** README and AI usage
