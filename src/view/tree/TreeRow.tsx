@@ -69,7 +69,7 @@ export function TreeRow({
             className={cn(
               'flex h-tree-row w-full items-center justify-center rounded-control transition-colors duration-150',
               'hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:bg-accent/80',
-              isSelected && 'bg-brand-50 text-brand',
+              isSelected && 'bg-brand-50 text-brand dark:bg-brand/20',
               isShell && 'opacity-70',
             )}
           >
@@ -86,7 +86,8 @@ export function TreeRow({
       className={cn(
         'group flex h-tree-row items-center gap-1 rounded-control pr-1 text-body transition-colors duration-150',
         'hover:bg-accent focus-within:bg-accent',
-        isSelected && 'bg-brand-50 text-brand hover:bg-brand-50',
+        isSelected &&
+          'bg-brand-50 text-brand hover:bg-brand-50 dark:bg-brand/20 dark:hover:bg-brand/25',
         isShell && 'text-muted-foreground',
       )}
     >

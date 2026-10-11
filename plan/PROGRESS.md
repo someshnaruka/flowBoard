@@ -162,8 +162,8 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 ### 2026-10-11 — T18 consistency audit
 
 - TopBar: workspace breadcrumbs + search + Dev/User (Figma 01).
-- ViewBar: list title + Board/List + Task; softer active toggle.
-- Toasts: left accent border + icons; Dev pill; Flowboard HQ mark; tree `brand-50` selection; column status dots.
+- ViewBar: list title + Board/List + Filter + Task; solid active toggle.
+- Pass 2: Figma brand/status/priority colors; dark mode lift + badge surfaces; board skeleton; column Add task; search empty + `/`/`esc` hints; list selected/done.
 
 ### 2026-10-11 — T17 client-side search
 

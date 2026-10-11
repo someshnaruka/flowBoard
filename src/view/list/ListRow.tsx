@@ -29,6 +29,7 @@ function assigneesForTask(task: Task, users: Record<string, User>) {
 
 export function ListRow({ taskId, onOpen }: ListRowProps) {
   const searchQuery = useFlowStore((state) => state.searchQuery)
+  const isSelected = useFlowStore((state) => state.drawerTaskId === taskId)
   const taskStamp = useFlowStore((state) => {
     const task = state.tasks[taskId]
     if (!task) {
@@ -73,6 +74,8 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
     return null
   }
 
+  const isDone = status?.category === 'done'
+
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
@@ -92,6 +95,8 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
         'transition-colors duration-150 hover:bg-accent/50',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/40',
         'active:bg-accent/70',
+        isSelected && 'bg-brand-50 hover:bg-brand-50 dark:bg-brand/20 dark:hover:bg-brand/25',
+        isDone && 'opacity-80',
       )}
     >
       <div className="min-w-0">
@@ -105,7 +110,12 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
           <span className="text-meta text-muted-foreground">—</span>
         )}
       </div>
-      <p className="min-w-0 truncate text-body text-foreground">
+      <p
+        className={cn(
+          'min-w-0 truncate text-body text-foreground',
+          isDone && 'text-muted-foreground line-through',
+        )}
+      >
         <HighlightText text={task.title} query={searchQuery} />
       </p>
       <div className="min-w-0">

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useFlowStore } from '@/controller/store'
-import { Button } from '@/view/ui/button'
 import { Input } from '@/view/ui/input'
+import { cn } from '@/view/ui/utils'
 
 const SEARCH_DEBOUNCE_MS = 200
 
@@ -13,6 +13,7 @@ export function SearchInput() {
   const selectedListId = useFlowStore((state) => state.selectedListId)
   const searchRef = useRef<HTMLInputElement>(null)
   const [draft, setDraft] = useState(searchQuery)
+  const [focused, setFocused] = useState(false)
 
   useEffect(() => {
     setDraft(searchQuery)
@@ -41,6 +42,8 @@ export function SearchInput() {
     searchRef.current?.focus()
   }
 
+  const hint = draft || focused ? 'esc' : '/'
+
   return (
     <div className="relative min-w-0 w-[13.75rem]">
       <Search
@@ -52,23 +55,29 @@ export function SearchInput() {
         type="text"
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault()
+            if (draft) {
+              clearSearch()
+            } else {
+              searchRef.current?.blur()
+            }
+          }
+        }}
         placeholder="Search tasks"
         aria-label="Search tasks"
         autoComplete="off"
-        className="h-8 rounded-control border-border bg-background pl-8 pr-8 text-body"
+        className={cn(
+          'h-8 rounded-control border-border bg-background pl-8 pr-10 text-body',
+          'focus-visible:border-brand focus-visible:ring-brand/30',
+        )}
       />
-      {draft ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="absolute right-0.5 top-1/2 size-7 -translate-y-1/2 rounded-control"
-          aria-label="Clear search"
-          onClick={clearSearch}
-        >
-          <X className="size-3.5" />
-        </Button>
-      ) : null}
+      <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded-badge border border-border bg-muted px-1 text-[10px] leading-4 text-muted-foreground">
+        {hint}
+      </kbd>
     </div>
   )
 }

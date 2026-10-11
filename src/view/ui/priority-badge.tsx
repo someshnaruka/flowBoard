@@ -9,12 +9,12 @@ const priorityBadgeVariants = cva(
     variants: {
       priority: {
         urgent:
-          'border-priority-urgent/20 bg-priority-urgent-muted text-priority-urgent',
-        high: 'border-priority-high/20 bg-priority-high-muted text-priority-high',
+          'border-priority-urgent/20 bg-priority-urgent-muted text-priority-urgent dark:bg-red-950/45',
+        high: 'border-priority-high/20 bg-priority-high-muted text-priority-high dark:bg-orange-950/45',
         normal:
-          'border-priority-normal/20 bg-priority-normal-muted text-priority-normal',
-        low: 'border-priority-low/20 bg-priority-low-muted text-priority-low',
-        none: 'border-border bg-priority-none-muted text-priority-none',
+          'border-priority-normal/20 bg-priority-normal-muted text-priority-normal dark:bg-blue-950/45',
+        low: 'border-priority-low/20 bg-priority-low-muted text-priority-low dark:bg-slate-800/80',
+        none: 'border-border bg-priority-none-muted text-priority-none dark:bg-slate-800/80 dark:text-slate-400',
       },
     },
     defaultVariants: {

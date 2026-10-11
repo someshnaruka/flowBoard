@@ -18,6 +18,6 @@ One product feel.
 - [x] `style: focus, hover and truncation fixes (T18)`
 
 ## AI notes
-- Figma MCP: Full seat works; used page metadata + 4 screenshots (board, components, drawer, states) then code fixes.
-- Shell aligned to Figma: TopBar breadcrumbs + search + Dev/User; ViewBar title + Board/List + Task; toast left borders; column status dots; sidebar “Flowboard HQ”.
+- Figma MCP: Full seat; screens 01/04/05/08 then follow-up 03/10/11/21 (list, search empty, cards, dark).
+- Pass 2: Figma brand `#6E56CF` + status/priority hexes; dark CSS lift; skeleton card lines; column count pill + Add task; search `/`/`esc` hints; list selected/done; empty search icon copy.
 _What Cursor got right, what I corrected or rejected._

@@ -8,10 +8,10 @@ const statusBadgeVariants = cva(
   {
     variants: {
       status: {
-        todo: 'border-status-todo/20 bg-status-todo-muted text-status-todo',
+        todo: 'border-status-todo/20 bg-status-todo-muted text-status-todo dark:bg-slate-800/80',
         active:
-          'border-status-active/20 bg-status-active-muted text-status-active',
-        done: 'border-status-done/20 bg-status-done-muted text-status-done',
+          'border-status-active/20 bg-status-active-muted text-status-active dark:bg-blue-950/50',
+        done: 'border-status-done/20 bg-status-done-muted text-status-done dark:bg-green-950/50',
       },
     },
     defaultVariants: {

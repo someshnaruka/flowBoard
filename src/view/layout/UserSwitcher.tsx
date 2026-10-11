@@ -79,7 +79,7 @@ export function UserSwitcher({ compact = false }: UserSwitcherProps) {
                 className={cn(
                   'rounded-badge px-1.5 py-0 text-meta font-medium',
                   currentUser.role === 'admin' &&
-                    'border-transparent bg-brand-50 text-brand',
+                    'border-transparent bg-brand-50 text-brand dark:bg-brand/25 dark:text-brand-foreground',
                 )}
               >
                 {currentUser.role}

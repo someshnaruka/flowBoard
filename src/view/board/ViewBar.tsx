@@ -1,4 +1,4 @@
-import { LayoutGrid, List, Plus } from 'lucide-react'
+import { Filter, LayoutGrid, List, Plus } from 'lucide-react'
 import { useFlowStore, type BoardView } from '@/controller/store'
 import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { Button } from '@/view/ui/button'
@@ -63,7 +63,7 @@ export function ViewBar({ listId }: ViewBarProps) {
         <ToggleGroupItem
           value="board"
           aria-label="Board view"
-          className="gap-1.5 rounded-control px-2.5 text-body data-[state=on]:bg-brand-50 data-[state=on]:text-brand data-[state=on]:hover:bg-brand-100"
+          className="gap-1.5 rounded-control px-2.5 text-body data-[state=on]:bg-brand data-[state=on]:text-brand-foreground data-[state=on]:hover:bg-brand-600"
         >
           <LayoutGrid className="size-4" />
           Board
@@ -71,7 +71,7 @@ export function ViewBar({ listId }: ViewBarProps) {
         <ToggleGroupItem
           value="list"
           aria-label="List view"
-          className="gap-1.5 rounded-control px-2.5 text-body data-[state=on]:bg-brand-50 data-[state=on]:text-brand data-[state=on]:hover:bg-brand-100"
+          className="gap-1.5 rounded-control px-2.5 text-body data-[state=on]:bg-brand data-[state=on]:text-brand-foreground data-[state=on]:hover:bg-brand-600"
         >
           <List className="size-4" />
           List
@@ -79,6 +79,18 @@ export function ViewBar({ listId }: ViewBarProps) {
       </ToggleGroup>
 
       <div className="min-w-0 flex-1" />
+
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="h-8 gap-1.5 rounded-control text-body"
+        disabled
+        aria-label="Filter (coming soon)"
+      >
+        <Filter className="size-3.5" />
+        Filter
+      </Button>
 
       <Tooltip>
         <TooltipTrigger asChild>
@@ -93,6 +105,9 @@ export function ViewBar({ listId }: ViewBarProps) {
           >
             <Plus className="size-4" />
             Task
+            <kbd className="ml-0.5 rounded-badge bg-brand-foreground/15 px-1 text-[10px] leading-4 text-brand-foreground">
+              C
+            </kbd>
           </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">Create a task (C)</TooltipContent>

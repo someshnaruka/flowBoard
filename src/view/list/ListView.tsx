@@ -5,6 +5,7 @@ import {
   useListRef,
   type RowComponentProps,
 } from 'react-window'
+import { Search } from 'lucide-react'
 import { selectTasksForListQuery } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Task } from '@/model/types'
@@ -163,10 +164,15 @@ export function ListView({ listId }: ListViewProps) {
   if (sorted.length === 0) {
     return (
       <EmptyState
-        title={searching ? 'No matching tasks' : 'No tasks here'}
+        icon={searching ? <Search className="size-5" aria-hidden /> : undefined}
+        title={
+          searching
+            ? `No tasks match “${searchQuery.trim()}”`
+            : 'No tasks here'
+        }
         description={
           searching
-            ? `Nothing matches “${searchQuery.trim()}” in this list.`
+            ? 'Try another title or description keyword. Search is scoped to the current list.'
             : 'Create a task to populate this list.'
         }
         className="h-full"

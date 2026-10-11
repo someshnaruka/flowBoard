@@ -10,11 +10,13 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
+import { Search } from 'lucide-react'
 import {
   selectStatusesForList,
   selectTasksForListQuery,
 } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
+import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { EmptyState } from '@/view/ui/empty-state'
 import { Button } from '@/view/ui/button'
 import { Column } from './Column'
@@ -39,6 +41,7 @@ const dropAnimation: DropAnimation = {
 export function KanbanBoard({ listId }: KanbanBoardProps) {
   const currentUserId = useFlowStore((state) => state.currentUserId)
   const openDrawer = useFlowStore((state) => state.openDrawer)
+  const createTask = useFlowStore((state) => state.createTask)
   const searchQuery = useFlowStore((state) => state.searchQuery)
   const setSearchQuery = useFlowStore((state) => state.setSearchQuery)
   const tasksStamp = useFlowStore((state) =>
@@ -109,11 +112,29 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
   }
 
   const searching = searchQuery.trim().length > 0
+
+  const addTaskInStatus = (statusId: string) => {
+    void (async () => {
+      const result = await createTask({
+        listId,
+        title: 'New task',
+        statusId,
+      })
+      if ('error' in result) {
+        notifyMutationError(result.error)
+        return
+      }
+      toastSuccess('Task created')
+      openDrawer(result.data.id)
+    })()
+  }
+
   if (searching && matchCount === 0) {
     return (
       <EmptyState
-        title="No matching tasks"
-        description={`Nothing matches “${searchQuery.trim()}” in this list.`}
+        icon={<Search className="size-5" aria-hidden />}
+        title={`No tasks match “${searchQuery.trim()}”`}
+        description="Try another title or description keyword. Search is scoped to the current list."
         className="h-full"
         action={
           <Button
@@ -161,6 +182,13 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
                 dnd.highlightedContainer === status.id && Boolean(dnd.activeId)
               }
               onToggleCollapse={() => toggleCollapse(status.id)}
+              onAddTask={
+                searching
+                  ? undefined
+                  : () => {
+                      addTaskInStatus(status.id)
+                    }
+              }
             >
               <SortableContext
                 id={status.id}

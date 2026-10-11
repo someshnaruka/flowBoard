@@ -96,9 +96,9 @@ export function TaskCard({ taskId, onOpen, className }: TaskCardProps) {
       onKeyDown={onKeyDown}
       className={cn(
         'group relative flex w-full flex-col gap-2 rounded-card border border-border bg-card p-3 text-left shadow-card',
-        'transition-colors duration-150 hover:border-brand/40 hover:bg-accent/40',
+        'transition-colors duration-150 hover:border-brand/40 hover:bg-brand-50/40 dark:hover:bg-brand/10',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40',
-        'active:bg-accent/60',
+        'active:bg-brand-50/60 dark:active:bg-brand/15',
         isShaking && 'animate-shake',
         className,
       )}

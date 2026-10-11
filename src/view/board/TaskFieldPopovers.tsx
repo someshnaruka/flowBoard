@@ -1,4 +1,5 @@
 import type { MouseEvent, SyntheticEvent } from 'react'
+import { Check } from 'lucide-react'
 import { selectCanEditTask } from '@/controller/selectors'
 import { useFlowStore } from '@/controller/store'
 import type { Priority, User } from '@/model/types'
@@ -60,15 +61,21 @@ export function PriorityPopover({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-40 rounded-card p-1"
+        className="w-44 rounded-card p-1 shadow-panel"
         onClick={stop}
       >
+        <p className="px-2 py-1.5 text-meta font-medium uppercase tracking-wide text-muted-foreground">
+          Priority
+        </p>
         {PRIORITIES.map((item) => (
           <Button
             key={item}
             type="button"
             variant="ghost"
-            className="h-8 w-full justify-start rounded-control px-2"
+            className={cn(
+              'h-8 w-full justify-between rounded-control px-2',
+              item === priority && 'bg-accent',
+            )}
             onClick={(event: MouseEvent) => {
               stop(event)
               void (async () => {
@@ -80,6 +87,9 @@ export function PriorityPopover({
             }}
           >
             <PriorityBadge priority={item} />
+            {item === priority ? (
+              <Check className="size-3.5 text-muted-foreground" aria-hidden />
+            ) : null}
           </Button>
         ))}
       </PopoverContent>
