@@ -4,24 +4,23 @@
 **Status:** Done
 
 ## Goal
-Dense table with sorting and virtualization.
+Dense table with sorting and offset pagination.
 
 ## Requirements
 - Sticky header, 36px rows: status, title, assignees, priority, due date
 - Status and priority rendered as `StatusBadge` / `PriorityBadge`
 - Sort by due date and priority
-- Virtualized rows with `react-window`
 - Simulated offset pagination over in-memory data (page size 10 + Load more)
 - Row click opens drawer; new tasks appear and scroll into view
 
 ## Acceptance criteria
-- [x] Sort works both directions; virtualized list + Load more pages in-memory tasks
+- [x] Sort works both directions; Load more pages in-memory tasks
 
 ## Commit plan
 - [x] `feat(list): table layout (T12)`
 - [x] `feat(list): sorting (T12)`
 - [x] `feat(list): load-more pagination (T12)`
-- [x] `fix(list): virtualize rows and badge chips (T12)`
+- [x] `fix(list): badge chips; drop react-window for pagination (T12)`
 
 ## Tested
 - [x] `npm run typecheck` / `test` / `build`
@@ -30,4 +29,5 @@ Dense table with sorting and virtualization.
 - [x] Manual: Board|List toggle; sort headers; + Task appears in list; status/priority badges
 
 ## AI notes
-Virtualized window + simulated offset pagination (Load more) over in-memory tasks.
+Offset pagination (Load more) over in-memory tasks — no virtualization library.
+

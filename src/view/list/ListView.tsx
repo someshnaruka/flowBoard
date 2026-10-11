@@ -1,14 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
-import {
-  List,
-  useListRef,
-  type RowComponentProps,
-} from 'react-window'
-import { Search } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from 'lucide-react'
 import { selectTasksForListQuery } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
-import type { Task } from '@/model/types'
 import { EmptyState } from '@/view/ui/empty-state'
 import { Button } from '@/view/ui/button'
 import { cn } from '@/view/ui/utils'
@@ -25,8 +18,6 @@ import {
   type ListSortKey,
 } from './list-sort'
 
-const ROW_HEIGHT = 36
-
 type ListViewProps = {
   listId: string
 }
@@ -37,11 +28,6 @@ type SortHeaderProps = {
   activeKey: ListSortKey | null
   dir: ListSortDir
   onSort: (key: ListSortKey) => void
-}
-
-type RowProps = {
-  tasks: Task[]
-  onOpen: (taskId: string) => void
 }
 
 function SortHeader({
@@ -69,25 +55,6 @@ function SortHeader({
       {label}
       <Icon className="size-3.5" aria-hidden />
     </Button>
-  )
-}
-
-function VirtualRow({
-  index,
-  style,
-  tasks,
-  onOpen,
-}: RowComponentProps<RowProps>) {
-  const task = tasks[index]
-  if (!task) {
-    return null
-  }
-
-  return (
-    // VIRTUALIZE-STYLE-EXCEPTION — react-window requires absolute row geometry via style
-    <div style={style}>
-      <ListRow taskId={task.id} onOpen={() => onOpen(task.id)} />
-    </div>
   )
 }
 
@@ -182,18 +149,17 @@ export function ListView({ listId }: ListViewProps) {
   )
   const canLoadMore = hasMore(visibleCount, sorted.length)
 
-  const listRef = useListRef(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const prevLengthRef = useRef(page.length)
 
   useEffect(() => {
     if (page.length > prevLengthRef.current) {
-      listRef.current?.scrollToRow({
-        index: page.length - 1,
-        align: 'smart',
-      })
+      const container = scrollRef.current
+      const lastRow = container?.lastElementChild
+      lastRow?.scrollIntoView({ block: 'nearest' })
     }
     prevLengthRef.current = page.length
-  }, [listRef, page.length])
+  }, [page.length])
 
   const onSort = (key: ListSortKey) => {
     if (sortKey === key) {
@@ -203,19 +169,6 @@ export function ListView({ listId }: ListViewProps) {
     setSortKey(key)
     setSortDir(key === 'priority' ? 'desc' : 'asc')
   }
-
-  const rowProps = useMemo<RowProps>(
-    () => ({
-      tasks: page,
-      onOpen: openDrawer,
-    }),
-    [page, openDrawer],
-  )
-
-  const rowKey = useCallback(
-    (index: number, data: RowProps) => data.tasks[index]?.id ?? index,
-    [],
-  )
 
   const searching = searchQuery.trim().length > 0
   if (page.length === 0 && sorted.length === 0) {
@@ -282,16 +235,14 @@ export function ListView({ listId }: ListViewProps) {
         <span className="sr-only">Actions</span>
       </div>
 
-      <div className="min-h-0 flex-1">
-        <List
-          listRef={listRef}
-          className="h-full outline-none"
-          rowCount={page.length}
-          rowHeight={ROW_HEIGHT}
-          rowComponent={VirtualRow}
-          rowProps={rowProps}
-          rowKey={rowKey}
-        />
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+        {page.map((task) => (
+          <ListRow
+            key={task.id}
+            taskId={task.id}
+            onOpen={() => openDrawer(task.id)}
+          />
+        ))}
       </div>
 
       <footer className="flex h-10 shrink-0 items-center justify-between gap-3 border-t border-border px-4">

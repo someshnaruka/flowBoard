@@ -13,6 +13,39 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return
+          }
+          // Keep React runtime together to avoid vendor ↔ react cycles.
+          if (
+            /node_modules[/\\](react|react-dom|scheduler)[/\\]/.test(id)
+          ) {
+            return 'react'
+          }
+          if (id.includes('@dnd-kit')) {
+            return 'dnd-kit'
+          }
+          if (id.includes('@radix-ui')) {
+            return 'radix'
+          }
+          if (id.includes('lucide-react')) {
+            return 'icons'
+          }
+          if (id.includes('react-day-picker') || id.includes('date-fns')) {
+            return 'dates'
+          }
+          if (id.includes('zustand') || id.includes('immer')) {
+            return 'state'
+          }
+          return 'vendor'
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],

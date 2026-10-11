@@ -40,13 +40,11 @@ type GrantsDialogProps = {
 }
 
 export function GrantsDialog({ open, onOpenChange }: GrantsDialogProps) {
-  const currentUserId = useFlowStore((state) => state.currentUserId)
   const isAdmin = useFlowStore(
     (state) => state.users[state.currentUserId]?.role === 'admin',
   )
   const upsertGrant = useFlowStore((state) => state.upsertGrant)
   const setNodePrivate = useFlowStore((state) => state.setNodePrivate)
-  const createTask = useFlowStore((state) => state.createTask)
 
   const grantsStamp = useFlowStore((state) =>
     Object.values(state.grants)
@@ -88,19 +86,6 @@ export function GrantsDialog({ open, onOpenChange }: GrantsDialogProps) {
       return
     }
     toastSuccess('Grant updated')
-  }
-
-  const onTryForbidden = async () => {
-    const result = await createTask({
-      listId: 'list-sprint',
-      title: 'Should be forbidden',
-      statusId: 'status-sprint-todo',
-    })
-    if ('error' in result) {
-      notifyMutationError(result.error)
-      return
-    }
-    toastSuccess('Unexpected success — grant may allow Sprint')
   }
 
   return (
@@ -207,24 +192,6 @@ export function GrantsDialog({ open, onOpenChange }: GrantsDialogProps) {
               </ul>
             </section>
           ))}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="rounded-control"
-            onClick={() => {
-              void onTryForbidden()
-            }}
-          >
-            Try forbidden create on Sprint
-          </Button>
-          <p className="text-meta text-muted-foreground">
-            As {currentUserId === 'user-bob' ? 'Bob' : 'current user'} — expects
-            403 if Sprint is denied.
-          </p>
         </div>
       </DialogContent>
     </Dialog>

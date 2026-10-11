@@ -1,11 +1,22 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useFlowStore, type BoardView } from '@/controller/store'
-import { ListView } from '@/view/list/ListView'
-import { TaskDrawer } from '@/view/task/TaskDrawer'
 import { EmptyState } from '@/view/ui/empty-state'
 import { BoardSkeleton } from './BoardSkeleton'
-import { KanbanBoard } from './KanbanBoard'
 import { ViewBar } from './ViewBar'
+
+const KanbanBoard = lazy(() =>
+  import('./KanbanBoard').then((module) => ({ default: module.KanbanBoard })),
+)
+const ListView = lazy(() =>
+  import('@/view/list/ListView').then((module) => ({
+    default: module.ListView,
+  })),
+)
+const TaskDrawer = lazy(() =>
+  import('@/view/task/TaskDrawer').then((module) => ({
+    default: module.TaskDrawer,
+  })),
+)
 
 export function BoardWorkspace() {
   const selectedListId = useFlowStore((state) => state.selectedListId)
@@ -55,16 +66,20 @@ function BoardWorkspaceBody({
           <>
             <ViewBar listId={listId} />
             <div className="min-h-0 flex-1 overflow-hidden">
-              {view === 'list' ? (
-                <ListView listId={listId} />
-              ) : (
-                <KanbanBoard listId={listId} />
-              )}
+              <Suspense fallback={<BoardSkeleton />}>
+                {view === 'list' ? (
+                  <ListView listId={listId} />
+                ) : (
+                  <KanbanBoard listId={listId} />
+                )}
+              </Suspense>
             </div>
           </>
         )}
       </div>
-      <TaskDrawer />
+      <Suspense fallback={null}>
+        <TaskDrawer />
+      </Suspense>
     </div>
   )
 }

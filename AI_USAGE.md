@@ -20,7 +20,7 @@ Cursor (Composer / agent) was used throughout the Flowboard take-home. This log 
 | Status dots on badges | Removed after Figma review; column dots remain |
 | List “infinite” scroll | Spec’d as offset pagination (page size 10) + Load more, not infinite |
 | User switcher copy | Display names Alice/Bob/Carol; capitalize role separately |
-| Inline styles | Only dnd-kit + react-window exceptions; removed redundant `height: '100%'` on List |
+| Inline styles | Only dnd-kit exceptions; removed `react-window` (pagination covers list length) |
 | Lint `setState` in effects | Refactored BoardWorkspace, board DnD columns, ListView paging, SearchInput, DrawerPanel, RenameDialog, autosave ref sync |
 | Status model | Added required `color` field and wired column dots / badges through a hex→token map |
 
