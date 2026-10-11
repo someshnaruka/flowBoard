@@ -23,12 +23,16 @@ export function Sidebar({ tree, footer }: SidebarProps) {
           collapsed && 'justify-center px-0',
         )}
       >
-        <div className="flex size-6 items-center justify-center rounded-control bg-brand text-badge font-semibold text-brand-foreground">
-          F
-        </div>
+        <img
+          src="/flowboard-brand/logo-mark.svg"
+          alt=""
+          className="size-6 shrink-0 rounded-control"
+          width={24}
+          height={24}
+        />
         {!collapsed ? (
           <p className="min-w-0 truncate text-body font-medium text-foreground">
-            Flowboard HQ
+            Flowboard
           </p>
         ) : null}
       </div>
