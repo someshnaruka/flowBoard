@@ -80,10 +80,10 @@ export function Column({
 
   return (
     <section
-      ref={setNodeRef}
       className={cn(
         'flex h-full w-column shrink-0 flex-col rounded-card bg-muted/70 transition-colors duration-150 dark:bg-muted/40',
-        dropActive && 'bg-brand/5 ring-2 ring-brand/25 ring-offset-2 ring-offset-background',
+        dropActive &&
+          'bg-brand/5 ring-2 ring-brand/25 ring-offset-2 ring-offset-background',
       )}
       aria-label={`${name} column`}
     >
@@ -133,7 +133,10 @@ export function Column({
         </Tooltip>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2">
+      <div
+        ref={setNodeRef}
+        className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2"
+      >
         {children}
       </div>
 

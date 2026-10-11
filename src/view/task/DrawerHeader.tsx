@@ -49,14 +49,17 @@ export function DrawerHeader({
 
   return (
     <header className="flex shrink-0 flex-col gap-2 border-b border-border/70 px-6 pb-3 pt-4">
-      <div className="flex items-start gap-2">
+      <div className="flex items-center gap-1.5">
         <div className="min-w-0 flex-1">
           <p className="truncate text-meta text-slate-500 dark:text-slate-400">
             {breadcrumb}
           </p>
         </div>
         {!readOnly ? (
-          <SaveIndicator status={saveStatus} className="shrink-0" />
+          <SaveIndicator
+            status={saveStatus}
+            className="h-8 shrink-0 items-center px-1"
+          />
         ) : null}
         {!readOnly ? (
           <DropdownMenu>
@@ -65,7 +68,7 @@ export function DrawerHeader({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="size-8 rounded-control"
+                className="size-8 shrink-0 rounded-control"
                 aria-label="Task menu"
               >
                 <MoreHorizontal className="size-4" />
@@ -116,7 +119,7 @@ export function DrawerHeader({
               type="button"
               variant="ghost"
               size="icon"
-              className="size-8 rounded-control"
+              className="size-8 shrink-0 rounded-control"
               aria-label="Close drawer"
               onClick={onClose}
             >

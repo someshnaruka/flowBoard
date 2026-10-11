@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   KeyboardSensor,
   PointerSensor,
@@ -14,6 +14,7 @@ import type { Status, Task } from '@/model/types'
 import { notifyMutationError } from '@/view/feedback/toasts'
 import {
   buildColumnItems,
+  createBoardCollisionDetection,
   findContainer,
   neighborsForIndex,
   type ColumnItems,
@@ -217,11 +218,17 @@ export function useBoardDnd(
     resetColumnsFromStore()
   }
 
+  const collisionDetection = useMemo(
+    () => createBoardCollisionDetection(columns),
+    [columns],
+  )
+
   return {
     columns,
     activeId,
     overId,
     sensors,
+    collisionDetection,
     onDragStart,
     onDragOver,
     onDragEnd,

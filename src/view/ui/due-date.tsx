@@ -38,7 +38,7 @@ type DueDateProps = {
   dueDate: string | null
   today?: string
   /**
-   * `compact` (cards): "Oct 8 · overdue"
+   * `compact` (board/list): "Oct 8" with overdue color only
    * `detail` (drawer): "Oct 8 (2 days overdue)"
    */
   variant?: 'compact' | 'detail'
@@ -85,11 +85,8 @@ export function DueDate({
   }
 
   let label = formatLabel(dueDate)
-  if (tone === 'overdue') {
-    label =
-      mode === 'detail'
-        ? `${formatLabel(dueDate)} (${overdueDays(dueDate, today)} days overdue)`
-        : `${formatLabel(dueDate)} · overdue`
+  if (tone === 'overdue' && mode === 'detail') {
+    label = `${formatLabel(dueDate)} (${overdueDays(dueDate, today)} days overdue)`
   }
 
   return (

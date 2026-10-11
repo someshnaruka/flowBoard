@@ -70,7 +70,7 @@ export function UserSwitcher() {
             className={cn(
               'rounded-badge px-1.5 py-0 text-meta font-medium',
               currentUser.role === 'admin' &&
-                'border-transparent bg-brand-50 text-brand dark:bg-brand/25 dark:text-brand-foreground',
+                'border-transparent bg-brand-50 text-brand dark:border-brand/40 dark:bg-brand/20 dark:text-brand',
             )}
           >
             {currentUser.role}
@@ -101,10 +101,10 @@ export function UserSwitcher() {
                 'shrink-0 rounded-badge px-1.5 py-0 text-meta font-medium',
                 user.role === 'admin' &&
                   user.id === currentUser.id &&
-                  'border-transparent bg-brand text-brand-foreground',
+                  'border-transparent bg-brand text-white',
                 user.role === 'admin' &&
                   user.id !== currentUser.id &&
-                  'border-transparent bg-brand-50 text-brand dark:bg-brand/25 dark:text-brand-foreground',
+                  'border-transparent bg-brand-50 text-brand dark:border-brand/40 dark:bg-brand/20 dark:text-brand',
               )}
             >
               {user.role}

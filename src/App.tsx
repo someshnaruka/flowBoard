@@ -2,6 +2,7 @@ import { BoardWorkspace } from '@/view/board/BoardWorkspace'
 import { PendingTaskConfirmDialog } from '@/view/feedback/PendingTaskConfirmDialog'
 import { AppShell } from '@/view/layout/AppShell'
 import { DevMenu } from '@/view/layout/DevMenu'
+import { ShortcutsButton } from '@/view/layout/ShortcutsButton'
 import { UserSwitcher } from '@/view/layout/UserSwitcher'
 import { KeyboardShortcuts } from '@/view/shortcuts/KeyboardShortcuts'
 import { ThemeProvider, useTheme } from '@/view/theme/ThemeProvider'
@@ -18,6 +19,7 @@ function FlowboardApp() {
         tree={<SidebarTree />}
         topBarTrailing={
           <>
+            <ShortcutsButton />
             <DevMenu />
             <UserSwitcher />
           </>

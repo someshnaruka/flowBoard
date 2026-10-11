@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react'
 import {
   DndContext,
   DragOverlay,
-  closestCorners,
   defaultDropAnimationSideEffects,
   type DropAnimation,
 } from '@dnd-kit/core'
@@ -154,7 +153,7 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
   return (
     <DndContext
       sensors={dnd.sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={dnd.collisionDetection}
       onDragStart={dnd.onDragStart}
       onDragOver={dnd.onDragOver}
       onDragEnd={(event) => {
@@ -204,7 +203,7 @@ export function KanbanBoard({ listId }: KanbanBoardProps) {
                         : 'Drop a task or add one.'
                     }
                     icon={<ClipboardList className="size-5" aria-hidden />}
-                    className="pointer-events-none rounded-card border border-dashed border-border/80 bg-background/50 py-7"
+                    className="pointer-events-none min-h-[7.5rem] flex-1 rounded-card border border-dashed border-border/80 bg-background/50 py-7"
                   />
                 ) : (
                   columnTaskIds.map((taskId) => (

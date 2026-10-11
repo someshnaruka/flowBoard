@@ -3,12 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { DueDate, resolveTone } from './due-date'
 
 describe('DueDate', () => {
-  it('marks past dates overdue with Figma compact label', () => {
+  it('marks past dates overdue by tone only in compact board/list view', () => {
     expect(resolveTone('2026-10-01', '2026-10-10')).toBe('overdue')
     render(<DueDate dueDate="2026-10-01" today="2026-10-10" />)
-    const el = screen.getByText(/overdue/)
+    const el = screen.getByText(/Oct 1/)
     expect(el.getAttribute('data-tone')).toBe('overdue')
-    expect(el.textContent).toMatch(/· overdue/)
+    expect(el.textContent).not.toMatch(/overdue/)
   })
 
   it('uses detail overdue copy in the drawer', () => {

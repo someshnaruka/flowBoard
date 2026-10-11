@@ -47,7 +47,7 @@ export function StatusBadge({
     >
       {showIcon ? (
         <span
-          className="size-1 shrink-0 rounded-full bg-current"
+          className="size-2 shrink-0 rounded-full bg-current"
           aria-hidden
         />
       ) : null}
