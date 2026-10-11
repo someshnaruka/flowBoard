@@ -152,3 +152,25 @@ export function selectArchivedRoots(state: AppState): ContainerNode[] {
       return a.name.localeCompare(b.name)
     })
 }
+
+/**
+ * Archived top-level tasks the current user can see. Subtasks archived with a
+ * parent are restored via that parent (same stamp cascade).
+ */
+export function selectArchivedTaskRoots(state: AppState): Task[] {
+  return Object.values(state.tasks)
+    .filter((task) => {
+      if (!task.archivedAt || task.parentTaskId != null) {
+        return false
+      }
+      return canView(state, state.currentUserId, task.listId)
+    })
+    .sort((a, b) => {
+      const aTime = a.archivedAt ?? ''
+      const bTime = b.archivedAt ?? ''
+      if (aTime !== bTime) {
+        return bTime.localeCompare(aTime)
+      }
+      return a.title.localeCompare(b.title)
+    })
+}
