@@ -1,8 +1,9 @@
 # Flowboard
 
-A mini project-management app (ClickUp / Asana / Linear style) built as a frontend take-home.
+I built Flowboard as a frontend take-home: a small ClickUp-style board with hierarchy, permissions, and optimistic edits, all in the browser.
 
-**Includes:** hierarchy sidebar, kanban board with drag-and-drop, sortable list view, task drawer, client-side permissions with user switching, optimistic mutations with simulated network failures, and dark mode.
+Live demo: https://flow-board-one-pied.vercel.app/  
+Demo video: to be added
 
 ---
 
@@ -13,29 +14,46 @@ npm install
 npm run dev
 ```
 
-| Command | Description |
+| Command | What it does |
 | --- | --- |
-| `npm run dev` | Start Vite |
-| `npm run build` | Typecheck + production build |
-| `npm run typecheck` | TypeScript check |
-| `npm run test` | Vitest (unit + component) |
-| `npm run test:e2e` | Playwright permission-flow E2E |
+| `npm run typecheck` | TypeScript project check |
 | `npm run lint` | ESLint |
+| `npm run test` | Vitest unit and component tests |
+| `npm run build` | Typecheck + production build |
+| `npm run test:e2e` | Playwright permission-flow E2E |
+
+Playwright needs Chromium once: `npx playwright install chromium`.
 
 ---
 
-## Demo video
+## Try it in two minutes
 
-<!-- Paste Loom / YouTube URL before submission. -->
-**Link:** _add here_
+1. Open the app as **Alice** (admin). Expand Engineering → Platform and select **Backlog**.
+2. Switch to **Bob**. **Sprint** and the private **Leadership** space (including OKRs) disappear from the tree. Backlog stays.
+3. Switch to **Carol**. Open **Backlog** — she has a read-only grant there, so the drawer shows a read-only banner and edits stay disabled. She can still open Sprint and Leadership.
+4. As Alice, drag a card between columns on the board. Status and order update.
+5. Open **Dev** → **Fail next mutation**, then drag a card again. The move rolls back and you get an error toast with Retry.
+6. Type in the view-bar search to filter cards by title or description.
+7. Open a task and scroll the drawer activity feed.
 
-Suggested walkthrough (3–5 min): tree → kanban DnD → card/drawer → list sort → Alice → Bob permissions → Dev menu failure + rollback.
+Seed matrix and users: `src/model/seed.ts`.
+
+---
+
+## What is built
+
+- **Hierarchy** — workspace → space → folder → list (`src/model/`, `src/view/tree/`)
+- **Tasks** — CRUD, duplicate, archive/restore via `task.service` and the store
+- **Statuses** — per-list sets; category remap on cross-list move (`status.service`)
+- **Kanban / list** — board DnD in `src/view/board/`; sort + Load more in `src/view/list/`
+- **Sidebar** — permission-filtered tree, collapse, archived restore
+- **Permissions** — Alice / Bob / Carol; `permission.service` + store `assertCan`
+- **Data layer** — in-memory seed; Dev menu → Fail next (`simulateNetwork`)
+- **UX / tests** — skeletons, empty states, toasts; Vitest + one Playwright E2E
 
 ---
 
 ## Architecture
-
-Strict MVC under `src/`:
 
 ```mermaid
 flowchart LR
@@ -64,19 +82,15 @@ flowchart LR
   Store --> Sel
 ```
 
-**Mutation pipeline:** permission check → service validation → simulated network (Dev menu → Fail next) → apply → toast / activity.
+`model/` is pure TypeScript (`Result<T>`, no React). `controller/` is the only writer (Zustand). `view/` uses selectors and store actions only.
 
-| Layer | Responsibility |
-| --- | --- |
-| `model/` | Pure TypeScript. No React. Services return `Result<T>` and never mutate inputs. |
-| `controller/` | Only layer that mutates state (`store.ts`, `selectors.ts`). |
-| `view/` | React UI. Reads via selectors; calls store actions. No business rules. |
+**Mutation pipeline:** `assertCan` → service validation → `simulateNetwork` (Fail next) → apply → toast / activity. Status moves apply optimistically and roll back on failure.
 
 ---
 
 ## Data model
 
-Normalised `AppState` keyed by id (`src/model/types.ts`). Seed data: `src/model/seed.ts`.
+Normalised `AppState` in `src/model/types.ts`. Seed: `src/model/seed.ts`.
 
 | Entity | Key fields |
 | --- | --- |
@@ -86,123 +100,70 @@ Normalised `AppState` keyed by id (`src/model/types.ts`). Seed data: `src/model/
 | **User** | `id`, `name`, `email`, `role` (`admin` \| `member`), `color`, `avatarUrl` |
 | **Grant** | `id`, `userId`, `nodeId`, `effect` (`allow` \| `view` \| `deny`) |
 
-**Hierarchy:** workspace → space → folder → list → tasks.
-
-**Ordering:** fractional `position` via `between` / `after` / `before`. Siblings are never renumbered.
-
-### Naming vs the brief
-
-| Brief | This repo | Reason |
+| Brief | This repo | Why |
 | --- | --- | --- |
-| Node `type` | `kind` | Clearer in tree APIs; avoids clashing with TS `type` |
-| Task `primaryListId` | `listId` | One list per task in this scope |
-| Grant `resourceId` / `mode` | `nodeId` / `effect` | Clearer names; `view` added for read-only |
-| Status category `in_progress` | `active` | Shorter token; UI label is still “In Progress” |
-| `dueDate` ISO datetime | `YYYY-MM-DD` | Calendar-day semantics; avoids timezone display bugs |
-
-Also included beyond the minimal brief: Grant `view`, task `activity[]` for the drawer feed.
+| Node `type` | `kind` | Avoids clashing with TypeScript `type` |
+| Task `primaryListId` | `listId` | One list per task here |
+| Grant `resourceId` / `mode` | `nodeId` / `effect` | Clearer names; `view` for read-only |
+| Status `in_progress` | `active` | Shorter token; UI still says “In Progress” |
+| `dueDate` as datetime | `YYYY-MM-DD` | Calendar-day display without timezone noise |
 
 ---
 
-## Permissions
+## How permissions work
 
-Enforced in **model + controller**, never only in the UI.
+Admins bypass checks. For members, the nearest grant on the node or an ancestor wins: `allow` (view + edit), `view` (read-only), `deny` (hidden). With no grant, any private ancestor hides the node; otherwise it is visible.
 
-1. **Admin** bypasses all checks.
-2. **Members:** nearest grant on the node or ancestors wins — `allow` (view + edit), `view` (read-only), `deny` (hidden).
-3. If no grant applies: any `isPrivate` ancestor hides the node; otherwise the node is visible.
-4. Selectors return only what the current user can see. Every mutation calls `assertCan` first and returns `FORBIDDEN` on failure.
-5. Switching users resets selection if the target is no longer visible, closes the drawer, and shows a toast.
+Rules: `src/model/services/permission.service.ts`. The store calls `assertCan` before mutations (`FORBIDDEN` on failure). Selectors hide what the user cannot see. Forbidden actions get an amber lock toast; the drawer shows a read-only banner when `selectCanEditTask` is false.
 
-**Seed demo**
-
-- **Alice** (admin) — full access
-- **Bob** — denied Leadership / OKRs
-- **Carol** — `view` grant (read-only where granted)
-
-### Extending permissions
-
-- Add effects (e.g. `comment`) on `GrantEffect` and branch in `canView` / `canEdit`.
-- Scope grants to tasks by extending `assertCan` targets (today they are container-centric).
-- Keep `permission.service` pure; wire persistence later through the same store pipeline.
-- The admin Grants dialog is already in the UI; create/update/delete grants would follow the same mutation pattern as other actions.
+I would extend this with team grants, per-task grants, an inheritance override, and more roles — still through the same service + store pipeline.
 
 ---
 
-## Persistence and archive
+## Decisions
 
-| Decision | Detail |
-| --- | --- |
-| **No domain persistence** | Reload resets to seed. Only `flowboard.theme` (`light` \| `dark` \| `system`) is stored in `localStorage`. |
-| **Archive = soft delete** | Containers and tasks set `archivedAt`. Archive cascades to descendants; restore clears the flag. Tasks can be hard-deleted after confirmation. Soft delete keeps Undo toasts and the permission demo honest without a backend. |
-
----
-
-## Styling constraints
-
-Tailwind utility classes in JSX only. No CSS modules, SCSS, or styled-components.
-
-**Allowed `style=` exceptions** (dnd-kit requires transform/transition):
-
-- `src/view/board/SortableTaskCard.tsx` — `// DND-STYLE-EXCEPTION`
-- `src/view/tree/SortableTreeRow.tsx` — `// DND-STYLE-EXCEPTION`
-
-List view uses **offset pagination** (page size 10 + Load more). No virtualization library.
-
-Status `color` (hex) maps to Tailwind status tokens for column dots and badges; unknown hex falls back to category tokens.
+- **Archive** is soft delete (`archivedAt`) with cascade and restore. Tasks can also be hard-deleted after confirm.
+- **No domain persistence** — reload returns to seed. Only `flowboard.theme` is in `localStorage`.
+- **List pagination** is offset-based (page size 10 + Load more).
+- **Extra libraries:** dnd-kit for drag; Radix via shadcn for dialogs/menus; `react-day-picker` for due dates; `cmdk` for the shadcn Command primitive in `src/view/ui/command.tsx`.
 
 ---
 
-## Stack and extra libraries
+## Styling
 
-**Core:** Vite, React 18, TypeScript, Tailwind 3.4, shadcn/ui (Radix), Zustand + Immer, dnd-kit, lucide-react, sonner, date-fns, Vitest, Playwright.
-
-Board, list, and drawer load via `React.lazy`; vendor packages are split in `vite.config.ts` so no single JS chunk exceeds the Vite size warning.
-
-**Additional dependencies and why they are present:**
-
-| Library | Role |
-| --- | --- |
-| `cmdk` | Accessible command/menu patterns used with shadcn-style menus |
-| `react-day-picker` | Due-date calendar (shadcn date picker) |
+Tailwind utilities in JSX only. The only inline `style=` usages are dnd-kit transforms in `SortableTaskCard.tsx` and `SortableTreeRow.tsx` (`DND-STYLE-EXCEPTION`).
 
 ---
 
 ## Stretch goals
 
-Implemented beyond the core brief:
+I am claiming two stretch items: **optimistic UI with rollback** (Dev menu → Fail next mutation) and **client-side search**.
 
-- Dark mode + theme preference (brief lists dark mode as out of scope; kept non-breaking)
-- Keyboard shortcuts + cheatsheet (Figma 24–25)
-- Tree sibling drag-reorder
-- List offset pagination (page size 10 + Load more)
-- Admin grants dialog; Dev menu → Fail next
-- Brand favicons and sidebar logo
-
-**Service-only (no UI):** add / rename / reorder / delete statuses. `status.service` is implemented and tested; creating a list seeds TODO / In Progress / Done.
+Smaller extras I also built: drawer activity feed, keyboard shortcuts, tree drag reorder, admin grants dialog, and dark mode (brief calls dark mode out of scope). That is more than the suggested two; required features and tests came first.
 
 ---
 
-## Design decisions and next steps
+## Trade-offs and next steps
 
-| Decision | Rationale | Natural next step |
-| --- | --- | --- |
-| Optimistic updates roll back via a domain snapshot | Simple, correct for single in-flight mutations in a take-home | Scope rollback to the affected task (or per-mutation undo tokens) so concurrent drags cannot clobber each other |
-| In-memory seed + `simulateNetwork` | No backend required; Dev menu → Fail next | Replace with a real API and persistence; keep the same service + store pipeline |
-| Status colors as hex → Tailwind class map | Satisfies the `color` field without inline styles | Support arbitrary hex via CSS variables if custom statuses become editable in UI |
+**What I cut:** status management UI (service exists; new lists still seed TODO / In Progress / Done), domain persistence, per-task rollback tokens.
+
+**Known issue:** a failed optimistic move restores the whole domain snapshot, so two quick overlapping drags can undo each other.
+
+**Week 2:** real API + persistence, team grants, per-mutation undo, DnD E2E tests, status editor UI.
+
+---
+
+## Tests
+
+Permissions and hierarchy services, task rules (status remap), store rollback and activity, search, list sort/pagination, a few components, and one Playwright flow (Alice → Bob hides Leadership, then a status-change toast).
+
+```bash
+npm run test
+npm run test:e2e
+```
 
 ---
 
 ## AI usage
 
-Development used Cursor. Corrections, rejected suggestions, and human-owned decisions are logged in [`AI_USAGE.md`](./AI_USAGE.md).
-
----
-
-## Project plan
-
-Internal milestone tracking (optional for reviewers):
-
-- [`plan/CHECKLIST.md`](plan/CHECKLIST.md)
-- [`plan/PROGRESS.md`](plan/PROGRESS.md)
-- [`plan/TESTED.md`](plan/TESTED.md)
+I used Cursor for scaffolding, UI primitives, and tests. I reviewed diffs, corrected mismatches, and kept business rules in model/controller. Details: [`AI_USAGE.md`](./AI_USAGE.md). Plan notes: [`plan/`](plan/).
