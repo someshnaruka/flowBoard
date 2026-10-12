@@ -145,11 +145,19 @@ Smaller extras I also built: drawer activity feed, keyboard shortcuts, tree drag
 
 ## Trade-offs and next steps
 
-**What I cut:** status management UI (service exists; new lists still seed TODO / In Progress / Done), domain persistence, per-task rollback tokens.
+**Left out on purpose (not required by the brief):**
+- A screen for managing statuses. The service and tests exist; new lists start with To do / In progress / Done.
+- Saving data across reloads. The brief says persistence is optional, so a reload returns to the seed data.
 
-**Known issue:** a failed optimistic move restores the whole domain snapshot, so two quick overlapping drags can undo each other.
+**Known limitation:** when an optimistic move fails, I restore the whole saved state, not just that task.
+Two quick drags that overlap could undo each other. Fixing this means rolling back only the affected task.
 
-**Week 2:** real API + persistence, team grants, per-mutation undo, DnD E2E tests, status editor UI.
+**What I would do next:**
+- Replace the in-memory store with a real API and persistence.
+- Team-based grants.
+- Rollback per mutation, so overlapping drags are safe.
+- End-to-end tests for drag and drop.
+- A status editor in the UI.
 
 ---
 
