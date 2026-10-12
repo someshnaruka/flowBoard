@@ -1,38 +1,36 @@
 # AI usage log
 
-Cursor (Composer / agent) was used throughout the Flowboard take-home. This log summarizes what the AI did well, what was corrected or rejected, and where human judgment drove the design.
+I used Cursor (Composer / agent) throughout this take-home. Below is what helped, what I corrected, and what I decided myself.
 
-## What AI got right
+## What the AI helped with
 
-- Scaffolding the MVC split (`model` / `controller` / `view`) and keeping services pure with `Result<T>`.
-- Wiring dnd-kit board + tree reorder, Zustand mutation pipeline, and permission selectors consistent with the project rules.
-- Generating shadcn-style primitives under `src/view/ui` and aligning density with Figma (shell heights, column width, badges).
-- Producing Vitest coverage for services/store and a Playwright Alice→Bob permission E2E.
-- Fast iteration on Figma-driven polish (status/priority tokens, dark mode, dialogs, list Load more).
+- Scaffolding the MVC split (`model` / `controller` / `view`) and pure services that return `Result<T>`.
+- Wiring dnd-kit (board + tree), the Zustand mutation pipeline, and permission selectors.
+- Generating shadcn-style primitives under `src/view/ui` and iterating on density (shell heights, column width, badges).
+- Drafting Vitest coverage for services/store and the Playwright Alice→Bob permission E2E.
+- Fast UI polish passes (status/priority tokens, dark mode, dialogs, list Load more).
 
-## What was corrected or rejected
+## What I corrected or rejected
 
-| Topic | Correction |
+| Topic | What I changed |
 | --- | --- |
-| Badge borders / hardcoded hex stacks | Rejected; kept Figma 05 borderless badges + Tailwind status/priority tokens |
-| Confirm dialogs on `AlertDialog` | Switched to `Dialog` so outside-click dismiss works; modal overlay blocks board interaction |
-| Drawer closing under confirm | Overlay marked `data-flowboard-modal-overlay` so TaskDrawer ignores those clicks |
-| Status dots on badges | Removed after Figma review; column dots remain |
-| List “infinite” scroll | Spec’d as offset pagination (page size 10) + Load more, not infinite |
-| User switcher copy | Display names Alice/Bob/Carol; capitalize role separately |
-| Inline styles | Only dnd-kit exceptions; removed `react-window` (pagination covers list length) |
-| Lint `setState` in effects | Refactored BoardWorkspace, board DnD columns, ListView paging, SearchInput, DrawerPanel, RenameDialog, autosave ref sync |
-| Status model | Added required `color` field and wired column dots / badges through a hex→token map |
-| Network simulation | Dev menu → Fail next (`failNext`) only |
+| Badge borders / hardcoded hex | Kept borderless badges on Tailwind status/priority tokens |
+| Confirm on `AlertDialog` | Switched to `Dialog` so outside-click dismiss works |
+| Drawer closing under confirm | Overlay uses `data-flowboard-modal-overlay` so TaskDrawer ignores those clicks |
+| Status dots on badges | Removed from badges; column dots remain |
+| List “infinite” scroll | Offset pagination (page size 10) + Load more |
+| User switcher copy | Alice/Bob/Carol display names; role capitalized separately |
+| Inline styles / virtualization | Only dnd-kit `style=` exceptions; dropped `react-window` |
+| Lint `setState` in effects | Refactored BoardWorkspace, board DnD, ListView paging, SearchInput, DrawerPanel, RenameDialog, autosave; later remounted GrantsDialog form instead of effects |
+| Status `color` | Required hex field mapped to Tailwind tokens for dots/badges |
+| Network simulation | Cut latency / failure-rate controls; Dev menu → Fail next only — the extras were more to explain than they were worth |
 
-## Human-owned decisions
+## Decisions I made myself
 
-- Soft archive + cascade/restore instead of hard-delete-only.
-- No domain persistence; theme-only `localStorage`.
-- Grant `view` effect for Bob/Carol-style demos.
-- Documented full-domain rollback race as a trade-off rather than blocking delivery.
-- Stretch: dark mode, shortcuts, grants dialog, brand assets.
+- Soft archive with cascade and restore (not hard-delete-only).
+- No domain persistence; only `flowboard.theme` in `localStorage`.
+- Grant `view` effect so Carol can demo read-only Backlog.
+- Documented the full-domain optimistic rollback race instead of blocking delivery on per-mutation undo.
+- Stretch extras after the required features: dark mode, shortcuts, grants dialog, brand assets.
 
-## How to extend this log
-
-When correcting the agent again, append a dated bullet under **Corrected or rejected** with the file/area and the rule that won (Figma, brief, or project rules).
+When I correct the agent again, I append a row under **Corrected or rejected** with the file/area and the rule that won.
