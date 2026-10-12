@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Box, Folder, LayoutList, Lock, Shield } from 'lucide-react'
 import { selectEffectiveAccess } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
@@ -163,12 +163,51 @@ function restrictingAncestor(
   return null
 }
 
+function seedDrafts(
+  grantNodes: FlatGrantNode[],
+  accessFor: (userId: string, nodeId: string) => GrantEffect,
+  userId: string,
+): Record<string, GrantEffect> {
+  let next: Record<string, GrantEffect> = {}
+  for (const node of grantNodes) {
+    next[node.id] = accessFor(userId, node.id)
+  }
+  for (const node of grantNodes) {
+    if (isRestricting(next[node.id])) {
+      next = cascadeDrafts(grantNodes, next, node.id, next[node.id])
+    }
+  }
+  return next
+}
+
 type GrantsDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
 export function GrantsDialog({ open, onOpenChange }: GrantsDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="flex max-h-[85vh] max-w-lg flex-col gap-0 overflow-hidden rounded-drawer p-0">
+        <DialogHeader className="space-y-1 border-b border-border px-6 py-4 text-left">
+          <DialogTitle className="flex items-center gap-2 text-page-title">
+            <Shield className="size-5 text-brand" aria-hidden />
+            Access Management
+          </DialogTitle>
+          <DialogDescription className="text-body text-muted-foreground">
+            Choose a member, set access, then update. Read only or Hidden on a
+            parent applies to all children. Public defaults to read write.
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Remount when opened so form state resets without effects. */}
+        {open ? <GrantsDialogForm key="grants-form" /> : null}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function GrantsDialogForm() {
   const isAdmin = useFlowStore(
     (state) => state.users[state.currentUserId]?.role === 'admin',
   )
@@ -224,70 +263,56 @@ export function GrantsDialog({ open, onOpenChange }: GrantsDialogProps) {
   const [drafts, setDrafts] = useState<Record<string, GrantEffect>>({})
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    if (!open) {
-      setUserId(null)
-      setDrafts({})
-      setSaving(false)
-    }
-  }, [open])
+  // Drop selection if the member list no longer includes this id.
+  const effectiveUserId =
+    userId !== null && members.some((member) => member.id === userId)
+      ? userId
+      : null
 
-  useEffect(() => {
-    if (userId && !members.some((member) => member.id === userId)) {
-      setUserId(null)
-      setDrafts({})
-    }
-  }, [members, userId])
-
-  useEffect(() => {
-    if (!userId) {
-      setDrafts({})
-      return
-    }
-    // Seed from effective access, then cascade parent RO/Hidden onto children.
-    let next: Record<string, GrantEffect> = {}
-    for (const node of grantNodes) {
-      next[node.id] = accessFor(userId, node.id)
-    }
-    for (const node of grantNodes) {
-      if (isRestricting(next[node.id])) {
-        next = cascadeDrafts(grantNodes, next, node.id, next[node.id])
-      }
-    }
-    setDrafts(next)
-  }, [userId, grantNodes, accessFor, grantsStamp])
-
-  const selectedUser = members.find((member) => member.id === userId) ?? null
+  const selectedUser =
+    members.find((member) => member.id === effectiveUserId) ?? null
 
   const dirty = useMemo(() => {
-    if (!userId) {
+    if (!effectiveUserId) {
       return false
     }
     return grantNodes.some((node) => {
       const locked = restrictingAncestor(grantNodes, drafts, node.id)
       if (locked) {
         // Child grants must be cleared so parent RO/Hidden actually inherits.
-        return hasDirectGrant(userId, node.id)
+        return hasDirectGrant(effectiveUserId, node.id)
       }
-      return drafts[node.id] !== accessFor(userId, node.id)
+      return drafts[node.id] !== accessFor(effectiveUserId, node.id)
     })
-  }, [userId, grantNodes, drafts, accessFor, hasDirectGrant])
+  }, [effectiveUserId, grantNodes, drafts, accessFor, hasDirectGrant])
+
+  const selectMember = (nextUserId: string) => {
+    setUserId(nextUserId)
+    setDrafts(seedDrafts(grantNodes, accessFor, nextUserId))
+  }
+
+  const resetDrafts = () => {
+    if (!effectiveUserId) {
+      return
+    }
+    setDrafts(seedDrafts(grantNodes, accessFor, effectiveUserId))
+  }
 
   const onDraftChange = (nodeId: string, effect: GrantEffect) => {
     setDrafts((current) => cascadeDrafts(grantNodes, current, nodeId, effect))
   }
 
   const onUpdate = async () => {
-    if (!userId || !dirty || !isAdmin) {
+    if (!effectiveUserId || !dirty || !isAdmin) {
       return
     }
     setSaving(true)
     for (const node of grantNodes) {
       const locked = restrictingAncestor(grantNodes, drafts, node.id)
       if (locked) {
-        if (hasDirectGrant(userId, node.id)) {
+        if (hasDirectGrant(effectiveUserId, node.id)) {
           const result = await upsertGrant({
-            userId,
+            userId: effectiveUserId,
             nodeId: node.id,
             effect: null,
           })
@@ -301,11 +326,11 @@ export function GrantsDialog({ open, onOpenChange }: GrantsDialogProps) {
       }
 
       const desired = drafts[node.id] ?? 'allow'
-      if (desired === accessFor(userId, node.id)) {
+      if (desired === accessFor(effectiveUserId, node.id)) {
         continue
       }
       const result = await upsertGrant({
-        userId,
+        userId: effectiveUserId,
         nodeId: node.id,
         effect: desired,
       })
@@ -315,6 +340,14 @@ export function GrantsDialog({ open, onOpenChange }: GrantsDialogProps) {
         return
       }
     }
+    const fresh = getDefaultFlowStore().getState()
+    setDrafts(
+      seedDrafts(
+        flattenGrantNodes(fresh.nodes),
+        (uid, nodeId) => selectEffectiveAccess(fresh, uid, nodeId),
+        effectiveUserId,
+      ),
+    )
     setSaving(false)
     toastSuccess('Access updated')
   }
@@ -330,239 +363,215 @@ export function GrantsDialog({ open, onOpenChange }: GrantsDialogProps) {
         ? `${space.name} is public`
         : `${space.name} is private`,
     )
+    if (effectiveUserId) {
+      const fresh = getDefaultFlowStore().getState()
+      setDrafts(
+        seedDrafts(
+          flattenGrantNodes(fresh.nodes),
+          (uid, nodeId) => selectEffectiveAccess(fresh, uid, nodeId),
+          effectiveUserId,
+        ),
+      )
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[85vh] max-w-lg flex-col gap-0 overflow-hidden rounded-drawer p-0">
-        <DialogHeader className="space-y-1 border-b border-border px-6 py-4 text-left">
-          <DialogTitle className="flex items-center gap-2 text-page-title">
-            <Shield className="size-5 text-brand" aria-hidden />
-            Access Management
-          </DialogTitle>
-          <DialogDescription className="text-body text-muted-foreground">
-            Choose a member, set access, then update. Read only or Hidden on a
-            parent applies to all children. Public defaults to read write.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4 overflow-y-auto px-6 py-4">
-          <section className="space-y-2">
-            <h3 className="text-meta font-medium uppercase tracking-wide text-muted-foreground">
-              Space privacy
-            </h3>
-            <ul className="space-y-1.5">
-              {spaces.map((space) => (
-                <li
-                  key={space.id}
-                  className="flex items-center justify-between gap-3 rounded-control border border-border px-3 py-2"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-body font-medium text-foreground">
-                      {space.name}
-                    </p>
-                    <p className="text-meta text-muted-foreground">
-                      {space.isPrivate
-                        ? 'Private — members need read access'
-                        : 'Public — visible unless hidden by a grant'}
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={space.isPrivate ? 'default' : 'outline'}
-                    className="shrink-0 rounded-control"
-                    disabled={!isAdmin}
-                    onClick={() => {
-                      void toggleSpacePrivate(space)
-                    }}
-                  >
-                    <Lock className="size-3.5" aria-hidden />
-                    {space.isPrivate ? 'Private' : 'Public'}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className="space-y-2">
-            <label
-              htmlFor="access-member"
-              className="text-meta font-medium uppercase tracking-wide text-muted-foreground"
+    <div className="space-y-4 overflow-y-auto px-6 py-4">
+      <section className="space-y-2">
+        <h3 className="text-meta font-medium uppercase tracking-wide text-muted-foreground">
+          Space privacy
+        </h3>
+        <ul className="space-y-1.5">
+          {spaces.map((space) => (
+            <li
+              key={space.id}
+              className="flex items-center justify-between gap-3 rounded-control border border-border px-3 py-2"
             >
-              Member
-            </label>
-            <Select
-              value={userId ?? undefined}
-              onValueChange={(next) => setUserId(next)}
-            >
-              <SelectTrigger
-                id="access-member"
-                className="h-9 rounded-control text-body"
-              >
-                <SelectValue placeholder="Select a member…" />
-              </SelectTrigger>
-              <SelectContent className="rounded-control">
-                {members.map((member) => (
-                  <SelectItem
-                    key={member.id}
-                    value={member.id}
-                    className="rounded-control"
-                  >
-                    <span className="flex items-center gap-2">
-                      <UserAvatar
-                        name={member.name}
-                        avatarUrl={member.avatarUrl}
-                        size="sm"
-                        className="size-5 text-tiny"
-                      />
-                      <span>{member.name}</span>
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </section>
-
-          {selectedUser ? (
-            <section className="space-y-2">
-              <h3 className="text-meta font-medium uppercase tracking-wide text-muted-foreground">
-                Access for {selectedUser.name}
-              </h3>
-              <ul className="space-y-1.5">
-                {grantNodes.map((node) => {
-                  const Icon = KIND_ICON[node.kind]
-                  const lockedBy = restrictingAncestor(
-                    grantNodes,
-                    drafts,
-                    node.id,
-                  )
-                  const value = lockedBy ?? drafts[node.id] ?? 'allow'
-                  const locked = lockedBy != null
-
-                  const select = (
-                    <Select
-                      value={value}
-                      disabled={locked}
-                      onValueChange={(next) => {
-                        onDraftChange(node.id, next as GrantEffect)
-                      }}
-                    >
-                      <SelectTrigger
-                        className={cn(
-                          'h-8 rounded-control text-meta',
-                          value === 'deny' && 'text-priority-urgent',
-                          value === 'view' && 'text-priority-high',
-                          value === 'allow' && 'text-status-done',
-                          locked && 'opacity-70',
-                        )}
-                        aria-label={`Access for ${selectedUser.name} on ${node.name}`}
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-control">
-                        {EFFECTS.map((effect) => (
-                          <SelectItem
-                            key={effect.value}
-                            value={effect.value}
-                            className={cn(
-                              'rounded-control text-meta',
-                              effect.className,
-                            )}
-                          >
-                            {effect.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )
-
-                  return (
-                    <li
-                      key={node.id}
-                      className={cn(
-                        'grid grid-cols-[minmax(0,1fr)_9.5rem] items-center gap-2',
-                        DEPTH_PAD[Math.min(node.depth, DEPTH_PAD.length - 1)],
-                      )}
-                    >
-                      <span className="flex min-w-0 items-center gap-1.5 text-body text-foreground">
-                        <Icon
-                          className="size-3.5 shrink-0 text-muted-foreground"
-                          aria-hidden
-                        />
-                        <span className="min-w-0 truncate">{node.name}</span>
-                        {node.isPrivate ? (
-                          <Lock
-                            className="size-3 shrink-0 text-muted-foreground"
-                            aria-hidden
-                          />
-                        ) : null}
-                      </span>
-                      {locked ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div>{select}</div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            Inherited from parent (
-                            {lockedBy === 'view' ? 'Read only' : 'Hidden'})
-                          </TooltipContent>
-                        </Tooltip>
-                      ) : (
-                        select
-                      )}
-                    </li>
-                  )
-                })}
-              </ul>
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-control"
-                  disabled={!dirty || saving}
-                  onClick={() => {
-                    if (!userId) {
-                      return
-                    }
-                    let next: Record<string, GrantEffect> = {}
-                    for (const node of grantNodes) {
-                      next[node.id] = accessFor(userId, node.id)
-                    }
-                    for (const node of grantNodes) {
-                      if (isRestricting(next[node.id])) {
-                        next = cascadeDrafts(
-                          grantNodes,
-                          next,
-                          node.id,
-                          next[node.id],
-                        )
-                      }
-                    }
-                    setDrafts(next)
-                  }}
-                >
-                  Reset
-                </Button>
-                <Button
-                  type="button"
-                  className="rounded-control"
-                  disabled={!dirty || saving || !isAdmin}
-                  onClick={() => {
-                    void onUpdate()
-                  }}
-                >
-                  {saving ? 'Updating…' : 'Update access'}
-                </Button>
+              <div className="min-w-0">
+                <p className="truncate text-body font-medium text-foreground">
+                  {space.name}
+                </p>
+                <p className="text-meta text-muted-foreground">
+                  {space.isPrivate
+                    ? 'Private — members need read access'
+                    : 'Public — visible unless hidden by a grant'}
+                </p>
               </div>
-            </section>
-          ) : (
-            <p className="rounded-control border border-dashed border-border px-3 py-6 text-center text-meta text-muted-foreground">
-              Select a member to manage their access.
-            </p>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+              <Button
+                type="button"
+                size="sm"
+                variant={space.isPrivate ? 'default' : 'outline'}
+                className="shrink-0 rounded-control"
+                disabled={!isAdmin}
+                onClick={() => {
+                  void toggleSpacePrivate(space)
+                }}
+              >
+                <Lock className="size-3.5" aria-hidden />
+                {space.isPrivate ? 'Private' : 'Public'}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="space-y-2">
+        <label
+          htmlFor="access-member"
+          className="text-meta font-medium uppercase tracking-wide text-muted-foreground"
+        >
+          Member
+        </label>
+        <Select
+          value={effectiveUserId ?? undefined}
+          onValueChange={selectMember}
+        >
+          <SelectTrigger
+            id="access-member"
+            className="h-9 rounded-control text-body"
+          >
+            <SelectValue placeholder="Select a member…" />
+          </SelectTrigger>
+          <SelectContent className="rounded-control">
+            {members.map((member) => (
+              <SelectItem
+                key={member.id}
+                value={member.id}
+                className="rounded-control"
+              >
+                <span className="flex items-center gap-2">
+                  <UserAvatar
+                    name={member.name}
+                    avatarUrl={member.avatarUrl}
+                    size="sm"
+                    className="size-5 text-tiny"
+                  />
+                  <span>{member.name}</span>
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </section>
+
+      {selectedUser ? (
+        <section className="space-y-2">
+          <h3 className="text-meta font-medium uppercase tracking-wide text-muted-foreground">
+            Access for {selectedUser.name}
+          </h3>
+          <ul className="space-y-1.5">
+            {grantNodes.map((node) => {
+              const Icon = KIND_ICON[node.kind]
+              const lockedBy = restrictingAncestor(
+                grantNodes,
+                drafts,
+                node.id,
+              )
+              const value = lockedBy ?? drafts[node.id] ?? 'allow'
+              const locked = lockedBy != null
+
+              const select = (
+                <Select
+                  value={value}
+                  disabled={locked}
+                  onValueChange={(next) => {
+                    onDraftChange(node.id, next as GrantEffect)
+                  }}
+                >
+                  <SelectTrigger
+                    className={cn(
+                      'h-8 rounded-control text-meta',
+                      value === 'deny' && 'text-priority-urgent',
+                      value === 'view' && 'text-priority-high',
+                      value === 'allow' && 'text-status-done',
+                      locked && 'opacity-70',
+                    )}
+                    aria-label={`Access for ${selectedUser.name} on ${node.name}`}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-control">
+                    {EFFECTS.map((effect) => (
+                      <SelectItem
+                        key={effect.value}
+                        value={effect.value}
+                        className={cn(
+                          'rounded-control text-meta',
+                          effect.className,
+                        )}
+                      >
+                        {effect.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )
+
+              return (
+                <li
+                  key={node.id}
+                  className={cn(
+                    'grid grid-cols-[minmax(0,1fr)_9.5rem] items-center gap-2',
+                    DEPTH_PAD[Math.min(node.depth, DEPTH_PAD.length - 1)],
+                  )}
+                >
+                  <span className="flex min-w-0 items-center gap-1.5 text-body text-foreground">
+                    <Icon
+                      className="size-3.5 shrink-0 text-muted-foreground"
+                      aria-hidden
+                    />
+                    <span className="min-w-0 truncate">{node.name}</span>
+                    {node.isPrivate ? (
+                      <Lock
+                        className="size-3 shrink-0 text-muted-foreground"
+                        aria-hidden
+                      />
+                    ) : null}
+                  </span>
+                  {locked ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>{select}</div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Inherited from parent (
+                        {lockedBy === 'view' ? 'Read only' : 'Hidden'})
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    select
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-control"
+              disabled={!dirty || saving}
+              onClick={resetDrafts}
+            >
+              Reset
+            </Button>
+            <Button
+              type="button"
+              className="rounded-control"
+              disabled={!dirty || saving || !isAdmin}
+              onClick={() => {
+                void onUpdate()
+              }}
+            >
+              {saving ? 'Updating…' : 'Update access'}
+            </Button>
+          </div>
+        </section>
+      ) : (
+        <p className="rounded-control border border-dashed border-border px-3 py-6 text-center text-meta text-muted-foreground">
+          Select a member to manage their access.
+        </p>
+      )}
+    </div>
   )
 }
