@@ -40,7 +40,7 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        // Figma tokens (screens 04–05 / 21)
+        // Design tokens (brand + surfaces)
         brand: {
           50: '#F1EFFE',
           100: '#EEEAFC',
@@ -48,16 +48,16 @@ const config: Config = {
           300: '#c4b5fd',
           400: '#a78bfa',
           500: '#8b7cf0',
-          // Figma 05 / 04 tokens
+          // Brand violet scale
           600: '#6E56CF',
           700: '#5b45b0',
           800: '#4a3894',
           900: '#3b2d75',
-          // Tracks --primary so dark mode lifts brand (Figma 21–26)
+          // Tracks --primary so dark mode lifts brand
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
-        // Figma 05 Components — badge fill (muted) + label (DEFAULT)
+        // Badge fill (muted) + label (DEFAULT)
         status: {
           todo: {
             DEFAULT: '#64748B',

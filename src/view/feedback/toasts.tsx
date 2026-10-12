@@ -7,7 +7,7 @@ type RetryOptions = {
   onRetry?: () => void
 }
 
-/** Figma 04 — white card, left accent, circular icon, title + meta. */
+/** Toast card — white card, left accent, circular icon, title + meta. */
 const toastShell =
   '!rounded-card !border !border-border !bg-background !text-foreground !shadow-panel !gap-3 !items-start'
 

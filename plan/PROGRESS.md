@@ -10,11 +10,11 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 **As of:** 2026-10-12
 
-- **Done:** M1–M4 and M5 issues T16–T20. App is feature complete for submission.
-- **Remaining:** **T21** — paste demo video URL in README and tag v1.0.
-- **Tests:** Vitest 70 green; Playwright permission E2E (`e2e/permission-flow.spec.ts`)
+- **Done:** M1–M5 complete (T00–T21). App submitted with live demo and video.
+- **Tests:** Vitest 74 green; Playwright permission E2E (`e2e/permission-flow.spec.ts`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
 - **Live:** https://flow-board-one-pied.vercel.app/
+- **Demo video:** https://www.loom.com/share/220990e5a32f4da586878aaf6e2600a9
 - **Docs:** README + `AI_USAGE.md`
 - **Network sim:** Dev menu → Fail next mutation (`failNext`) only
 
@@ -162,24 +162,28 @@ Selectors (`selectVisibleTree`, `selectTasksForList`, …) always use `currentUs
 | T18 | Spacing / density audit |
 | T19 | Component + E2E tests |
 | T20 | README and AI usage |
-| T21 | Demo video + submission — **pending video URL** |
+| T21 | Demo video + submission — Loom link in README |
 
 ---
 
 ## What’s next
 
-1. Record / paste demo video URL in README (**T21**).
-2. Tag v1.0 and submit.
+Optional: tag v1.0 for a named release. Delivery criteria for T21 are otherwise complete.
 
 ---
 
 ## Changelog (append-only)
 
+### 2026-10-12 — T21 demo video
+
+- README Demo video points at the Loom walkthrough.
+- Checklist / progress: M5 6 / 6, all milestones Done.
+
 ### 2026-10-12 — Submission cleanup
 
 - Removed Vite scaffold assets; `.gitignore` covers `.env*`.
-- Network sim is `failNext` only (no latency / failure-rate controls).
-- Plan status: feature complete except demo video.
+- Network sim is `failNext` only.
+- Plan status: feature complete.
 
 ### 2026-10-11 — T18 consistency audit
 

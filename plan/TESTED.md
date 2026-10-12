@@ -148,8 +148,8 @@ npm run build   # also runs on husky pre-push
 - [x] README + `AI_USAGE.md` present and kept in sync with code
 
 ### T21 Demo video and submission
-- [ ] Demo video URL in README
-- [ ] Tag v1.0 + submit
+- [x] Demo video URL in README (Loom)
+- [ ] Tag v1.0 (optional release step)
 
 ---
 

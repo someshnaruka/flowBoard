@@ -8,7 +8,7 @@ const DOT_BY_COLOR: Record<string, string> = {
   '#047857': 'bg-status-done',
 }
 
-/** Badge chrome keyed by Status.color hex (Figma 05). */
+/** Badge chrome keyed by Status.color hex. */
 const DONE_BADGE =
   'bg-status-done-muted text-status-done dark:bg-emerald-500/20 dark:text-emerald-300'
 

@@ -17,7 +17,7 @@ function resolveTone(dueDate: string | null, today = '2026-10-10'): DueDateTone 
   return 'default'
 }
 
-/** Figma 05: "Oct 12" */
+/** Short date format, e.g. "Oct 12". */
 function formatLabel(dueDate: string): string {
   const date = new Date(`${dueDate}T00:00:00`)
   return date.toLocaleDateString('en-US', {

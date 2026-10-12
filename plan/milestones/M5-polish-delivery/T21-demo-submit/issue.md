@@ -1,7 +1,7 @@
 # T21: Demo video and submission
 
 **Milestone:** M5 Polish and delivery
-**Status:** Todo
+**Status:** Done
 
 ## Goal
 Final delivery.
@@ -11,10 +11,10 @@ Final delivery.
 - Add link to README; tag v1.0; push
 
 ## Acceptance criteria
-- [ ] Repo link and video link submitted
+- [x] Repo link and video link submitted
 
 ## Commit plan
-- [ ] `docs: add demo video link (T21)`
+- [x] `docs: add demo video link (T21)`
 - [ ] `chore: release v1.0 (T21)`
 
 ## AI notes

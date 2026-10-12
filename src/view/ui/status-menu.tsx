@@ -26,7 +26,7 @@ type StatusMenuProps = {
 
 const fieldTriggerClass = cn(FIELD_TRIGGER_SHELL, FIELD_TRIGGER_INTERACTIVE)
 
-/** Figma drawer — compact status badges with check on selected row. */
+/** Drawer status menu — compact badges with check on selected row. */
 export function StatusMenu({
   value,
   statuses,

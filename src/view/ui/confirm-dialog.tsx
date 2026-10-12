@@ -17,7 +17,7 @@ type ConfirmDialogProps = {
   description: ReactNode
   confirmLabel?: string
   cancelLabel?: string
-  /** Optional leading icon inside the confirm button (Figma archive/delete). */
+  /** Optional leading icon inside the confirm button (archive/delete). */
   confirmIcon?: ReactNode
   /** Visual tone for the confirm action. */
   variant?: 'default' | 'destructive'

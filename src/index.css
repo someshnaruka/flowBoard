@@ -26,7 +26,7 @@
     --radius: 0.5rem;
   }
 
-  /* Figma screen 26 — Dark mode tokens */
+  /* Dark mode tokens */
   .dark {
     --background: 225 22% 5%; /* #0B0C10 */
     --foreground: 210 40% 96%; /* #F1F5F9 */

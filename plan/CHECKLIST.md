@@ -12,9 +12,9 @@ Master tracker for milestones and issues. Tick boxes here when an issue’s `iss
 | M2 Domain logic | Done | 4 / 4 |
 | M3 Core UI | Done | 6 / 6 |
 | M4 Flows and feedback | Done | 2 / 2 |
-| M5 Polish and delivery | In progress | 5 / 6 (T21 demo video pending) |
+| M5 Polish and delivery | Done | 6 / 6 |
 
-**Overall:** 21 / 22 issues (demo video link remaining)
+**Overall:** 22 / 22 issues
 
 ---
 
@@ -61,9 +61,9 @@ Milestone: [x] Done
 - [x] **T18** Spacing and density audit
 - [x] **T19** Component and E2E tests
 - [x] **T20** README and AI usage
-- [ ] **T21** Demo video and submission
+- [x] **T21** Demo video and submission
 
-Milestone: [ ] Done
+Milestone: [x] Done
 
 ---
 

@@ -30,7 +30,7 @@ type PriorityMenuProps = {
   trigger?: ReactNode
 }
 
-/** Figma 05 / card menu — PRIORITY header, badge rows, check on selected. */
+/** Card priority menu — PRIORITY header, badge rows, check on selected. */
 export function PriorityMenu({
   value,
   onChange,

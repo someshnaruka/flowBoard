@@ -35,7 +35,9 @@ Each milestone folder has a `milestone.md` and one folder per task containing an
 7. Record AI corrections in AI_USAGE.md as you go.
 
 ## Stretch goals chosen
-Optimistic UI with rollback (T15), client-side search (T17), dark mode (T01), keyboard shortcuts cheatsheet (T16).
+Primary: optimistic UI with rollback (Dev menu → Fail next mutation) and client-side search.
+
+Smaller extras: activity feed, keyboard shortcuts, dark mode, tree drag reorder, admin grants dialog.
 
 ## Cut list (if behind)
-Density toggle, tree drag reorder.
+Density toggle.

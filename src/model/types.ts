@@ -62,7 +62,7 @@ export type Grant = {
   effect: GrantEffect
 }
 
-/** Append-only drawer activity line (Figma 02 / 09). */
+/** Append-only drawer activity line. */
 export type TaskActivityItem = {
   id: string
   actorId: string
