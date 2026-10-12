@@ -6,6 +6,7 @@ import {
   SheetDescription,
   SheetTitle,
 } from '@/view/ui/sheet'
+import { cn } from '@/view/ui/utils'
 import { DrawerPanel } from './DrawerPanel'
 import { useMediaQuery } from './useMediaQuery'
 
@@ -43,6 +44,8 @@ export function TaskDrawer() {
   }, [taskId])
 
   const open = Boolean(taskId)
+  // Keep the last task mounted while the close animation plays.
+  const panelTaskId = taskId ?? lastTaskIdRef.current
 
   const close = () => {
     const focusId = lastTaskIdRef.current
@@ -96,17 +99,24 @@ export function TaskDrawer() {
   }, [open, isXl, taskId])
 
   if (isXl) {
-    if (!open || !taskId) {
-      return null
-    }
-
     return (
       <aside
         ref={panelRef}
-        className="flex h-full w-drawer shrink-0 flex-col border-l border-border bg-background shadow-panel"
+        aria-hidden={!open}
         aria-label="Task details"
+        className={cn(
+          'flex h-full shrink-0 flex-col overflow-hidden bg-background shadow-panel',
+          'transition-[width] duration-300 ease-in-out',
+          open
+            ? 'w-drawer border-l border-border'
+            : 'pointer-events-none w-0 border-l-0',
+        )}
       >
-        <DrawerPanel taskId={taskId} onClose={close} />
+        {panelTaskId ? (
+          <div className="flex h-full w-drawer min-w-drawer flex-col">
+            <DrawerPanel taskId={panelTaskId} onClose={close} />
+          </div>
+        ) : null}
       </aside>
     )
   }
@@ -134,7 +144,9 @@ export function TaskDrawer() {
         <SheetDescription className="sr-only">
           Edit task properties, description, and subtasks.
         </SheetDescription>
-        {taskId ? <DrawerPanel taskId={taskId} onClose={close} /> : null}
+        {panelTaskId ? (
+          <DrawerPanel taskId={panelTaskId} onClose={close} />
+        ) : null}
       </SheetContent>
     </Sheet>
   )
