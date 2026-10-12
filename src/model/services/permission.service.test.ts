@@ -122,7 +122,8 @@ describe('permission service', () => {
       const forbidden = assertCan(state, 'user-member', 'list-backlog', 'edit')
       expect(isErr(forbidden)).toBe(true)
       if (isErr(forbidden)) {
-        expect(forbidden.error.message).toMatch(/403/)
+        expect(forbidden.error.message).toMatch(/Forbidden/)
+        expect(forbidden.error.message).not.toMatch(/403/)
       }
     })
 

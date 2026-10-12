@@ -23,7 +23,8 @@ describe('flow store', () => {
     expect(isErr(result)).toBe(true)
     if (isErr(result)) {
       expect(result.error.code).toBe('FORBIDDEN')
-      expect(result.error.message).toMatch(/403/)
+      expect(result.error.message).toMatch(/Forbidden/)
+      expect(result.error.message).not.toMatch(/403/)
     }
     expect(store.getState().tasks['task-should-not-exist']).toBeUndefined()
   })

@@ -19,10 +19,11 @@ describe('notifyMutationError', () => {
   it('maps FORBIDDEN to the permission-denied toast title', () => {
     notifyMutationError({
       code: 'FORBIDDEN',
-      message: '403 Forbidden: edit on list-sprint',
+      message: 'Forbidden — cannot edit on list-sprint',
     })
 
     expect(toastMock).toHaveBeenCalled()
-    expect(toastMock.mock.calls[0]?.[0]).toBe('403 Forbidden')
+    expect(toastMock.mock.calls[0]?.[0]).toBe('Forbidden')
+    expect(String(toastMock.mock.calls[0]?.[0])).not.toMatch(/403/)
   })
 })

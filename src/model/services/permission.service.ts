@@ -154,7 +154,7 @@ export function assertCan(
   if (!allowed) {
     return fail(
       'FORBIDDEN',
-      `403 Forbidden — cannot ${action} “${node.name}”`,
+      `Forbidden — cannot ${action} “${node.name}”`,
     )
   }
 
@@ -176,7 +176,7 @@ export function upsertGrant(
 ): Result<{ state: AppState; grant: Grant | null }> {
   const actor = getUser(state, actorId)
   if (!actor || actor.role !== 'admin') {
-    return fail('FORBIDDEN', '403 Forbidden — only admins can manage grants')
+    return fail('FORBIDDEN', 'Forbidden — only admins can manage grants')
   }
   const target = getUser(state, input.userId)
   if (!target) {
@@ -223,7 +223,7 @@ export function setNodePrivate(
 ): Result<{ state: AppState; node: ContainerNode }> {
   const actor = getUser(state, actorId)
   if (!actor || actor.role !== 'admin') {
-    return fail('FORBIDDEN', '403 Forbidden — only admins can edit privacy')
+    return fail('FORBIDDEN', 'Forbidden — only admins can edit privacy')
   }
   const node = getNode(state, nodeId)
   if (!node) {
