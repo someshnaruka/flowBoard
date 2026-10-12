@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFlowStore } from '@/controller/store'
 import {
   Sheet,
@@ -34,21 +34,19 @@ export function TaskDrawer() {
   const taskId = useFlowStore((state) => state.drawerTaskId)
   const openDrawer = useFlowStore((state) => state.openDrawer)
   const isXl = useMediaQuery('(min-width: 1280px)')
-  const lastTaskIdRef = useRef<string | null>(taskId)
+  const [lastTaskId, setLastTaskId] = useState(taskId)
   const panelRef = useRef<HTMLElement | null>(null)
 
-  useEffect(() => {
-    if (taskId) {
-      lastTaskIdRef.current = taskId
-    }
-  }, [taskId])
+  // Adjust state during render so the panel stays mounted through close.
+  if (taskId && taskId !== lastTaskId) {
+    setLastTaskId(taskId)
+  }
 
   const open = Boolean(taskId)
-  // Keep the last task mounted while the close animation plays.
-  const panelTaskId = taskId ?? lastTaskIdRef.current
+  const panelTaskId = taskId ?? lastTaskId
 
   const close = () => {
-    const focusId = lastTaskIdRef.current
+    const focusId = lastTaskId
     openDrawer(null)
     window.requestAnimationFrame(() => {
       if (!focusId) {
