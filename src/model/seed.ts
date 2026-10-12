@@ -231,7 +231,7 @@ function statusesForList(
       id: `status-${prefix}-active`,
       listId,
       name: 'In progress',
-      category: 'active',
+      category: 'in_progress',
       color: '#2563EB',
       position: POSITION_GAP * 2,
     },

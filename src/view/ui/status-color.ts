@@ -23,13 +23,13 @@ const BADGE_BY_COLOR: Record<string, string> = {
 
 const DOT_BY_CATEGORY: Record<StatusCategory, string> = {
   todo: 'bg-status-todo',
-  active: 'bg-status-active',
+  in_progress: 'bg-status-active',
   done: 'bg-status-done',
 }
 
 const BADGE_BY_CATEGORY: Record<StatusCategory, string> = {
   todo: 'bg-status-todo-muted text-status-todo dark:bg-slate-800/80 dark:text-slate-300',
-  active:
+  in_progress:
     'bg-status-active-muted text-status-active dark:bg-blue-950/50 dark:text-blue-300',
   done: DONE_BADGE,
 }

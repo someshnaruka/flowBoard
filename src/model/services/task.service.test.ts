@@ -133,7 +133,7 @@ describe('status service', () => {
     const added = addStatus(state, 'user-alice', {
       listId: 'list-backlog',
       name: 'Blocked',
-      category: 'active',
+      category: 'in_progress',
     })
     expect(isOk(added)).toBe(true)
     if (!isOk(added)) {

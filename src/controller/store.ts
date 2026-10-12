@@ -740,10 +740,12 @@ export function createFlowStore(
 
         let domain = created.data.state
         if (created.data.node.kind === 'list') {
-          const defaults: Array<{ name: string; category: 'todo' | 'active' | 'done' }> =
-            [
+          const defaults: Array<{
+            name: string
+            category: 'todo' | 'in_progress' | 'done'
+          }> = [
               { name: 'To do', category: 'todo' },
-              { name: 'In progress', category: 'active' },
+              { name: 'In progress', category: 'in_progress' },
               { name: 'Done', category: 'done' },
             ]
           for (const status of defaults) {

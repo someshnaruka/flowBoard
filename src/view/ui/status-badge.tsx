@@ -7,7 +7,7 @@ import { cn } from '@/view/ui/utils'
 
 const STATUS_LABEL: Record<StatusCategory, string> = {
   todo: 'To do',
-  active: 'In progress',
+  in_progress: 'In progress',
   done: 'Done',
 }
 

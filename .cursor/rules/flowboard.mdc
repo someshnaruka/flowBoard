@@ -68,7 +68,7 @@ Rules:
 - Spacing on a 4px grid. Cards `p-3`, panels `p-4`, gaps `gap-2`/`gap-3`. Row heights: tree 28px, list rows 36px, top bar 48px, view bar 44px.
 - Radius: 4 badges, 6 controls, 8 cards, 12 drawer/dialogs.
 - Accent: brand violet (see `colors.brand` in the Tailwind config). Color is used only for selection/focus (violet) and for meaning (status and priority).
-- Status colors: todo=slate, active=blue, done=green. Priority colors: urgent=red, high=orange, normal=blue, low=slate, none=muted.
+- Status colors: todo=slate, in_progress=blue, done=green. Priority colors: urgent=red, high=orange, normal=blue, low=slate, none=muted.
 - Dark mode: `class="dark"` on `<html>` with shadcn dark variables. Theme preference Light | Dark | System in the user menu; persist `flowboard.theme` in localStorage. Dark brand may lift slightly for contrast; status/priority keep semantic hues. See Figma screens 21–26.
 - Every interactive element has `hover:`, `focus-visible:ring-2`, and `active:` states, plus `transition-colors duration-150`.
 - Truncate long text with `truncate` and always add `min-w-0` on flex children.

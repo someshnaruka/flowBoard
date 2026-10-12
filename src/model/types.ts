@@ -1,6 +1,6 @@
 export type NodeKind = 'workspace' | 'space' | 'folder' | 'list'
 
-export type StatusCategory = 'todo' | 'active' | 'done'
+export type StatusCategory = 'todo' | 'in_progress' | 'done'
 
 export type Priority = 'urgent' | 'high' | 'normal' | 'low' | 'none'
 
@@ -40,7 +40,7 @@ export type Status = {
 /** Default hex colors aligned with Tailwind `status.*` tokens. */
 export const DEFAULT_STATUS_COLOR: Record<StatusCategory, string> = {
   todo: '#64748B',
-  active: '#2563EB',
+  in_progress: '#2563EB',
   done: '#047857',
 }
 

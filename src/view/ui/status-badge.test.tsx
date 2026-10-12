@@ -13,7 +13,7 @@ describe('StatusBadge', () => {
       /border-status/,
     )
 
-    rerender(<StatusBadge status="active" label="In progress" />)
+    rerender(<StatusBadge status="in_progress" label="In progress" />)
     expect(screen.getByText('In progress').parentElement?.className).toContain(
       'text-status-active',
     )

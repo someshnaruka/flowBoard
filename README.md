@@ -3,7 +3,7 @@
 I built Flowboard as a frontend take-home: a small ClickUp-style board with hierarchy, permissions, and optimistic edits, all in the browser.
 
 Live demo: https://flow-board-one-pied.vercel.app/  
-Demo video: to be added
+Demo video: https://www.loom.com/share/220990e5a32f4da586878aaf6e2600a9
 
 ---
 
@@ -95,7 +95,7 @@ Normalised `AppState` in `src/model/types.ts`. Seed: `src/model/seed.ts`.
 | Entity | Key fields |
 | --- | --- |
 | **ContainerNode** | `id`, `kind` (`workspace` \| `space` \| `folder` \| `list`), `name`, `parentId`, `position`, `archivedAt`, `isPrivate` |
-| **Status** | `id`, `listId`, `name`, `category` (`todo` \| `active` \| `done`), `color` (hex), `position` |
+| **Status** | `id`, `listId`, `name`, `category` (`todo` \| `in_progress` \| `done`), `color` (hex), `position` |
 | **Task** | `id`, `listId`, `title`, `description`, `statusId`, `priority`, `assigneeIds`, `dueDate` (`YYYY-MM-DD` \| null), `position`, `parentTaskId`, `archivedAt`, `activity[]` |
 | **User** | `id`, `name`, `email`, `role` (`admin` \| `member`), `color`, `avatarUrl` |
 | **Grant** | `id`, `userId`, `nodeId`, `effect` (`allow` \| `view` \| `deny`) |
@@ -105,7 +105,6 @@ Normalised `AppState` in `src/model/types.ts`. Seed: `src/model/seed.ts`.
 | Node `type` | `kind` | Avoids clashing with TypeScript `type` |
 | Task `primaryListId` | `listId` | One list per task here |
 | Grant `resourceId` / `mode` | `nodeId` / `effect` | Clearer names; `view` for read-only |
-| Status `in_progress` | `active` | Shorter token; UI still says “In Progress” |
 | `dueDate` as datetime | `YYYY-MM-DD` | Calendar-day display without timezone noise |
 
 ---
