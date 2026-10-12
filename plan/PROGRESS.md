@@ -8,14 +8,15 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 
 ## Current status
 
-**As of:** 2026-10-11 (T20 done)
+**As of:** 2026-10-12
 
-- **Done:** M1–M4 + **T16–T20** (T21 = demo video link + tag)
-- **Next:** Paste demo URL in README; tag v1.0 (**T21**)
-- **Tests:** Vitest 69 green; Playwright permission E2E
+- **Done:** M1–M4 and M5 issues T16–T20. App is feature complete for submission.
+- **Remaining:** **T21** — paste demo video URL in README and tag v1.0.
+- **Tests:** Vitest 70 green; Playwright permission E2E (`e2e/permission-flow.spec.ts`)
 - **Repo:** https://github.com/someshnaruka/flowBoard
-- **Docs:** README architecture/data model/permissions; `AI_USAGE.md`
-- **Recent:** Status.`color`, lint clean (0 errors), list/DnD/docs polish
+- **Live:** https://flow-board-one-pied.vercel.app/
+- **Docs:** README + `AI_USAGE.md`
+- **Network sim:** Dev menu → Fail next mutation (`failNext`) only
 
 ---
 
@@ -25,7 +26,7 @@ Companion checklist: [CHECKLIST.md](./CHECKLIST.md).
 src/
   model/         # Pure TS — types, seed, services (no React)
   controller/    # Zustand store, selectors, simulateNetwork
-  view/          # React UI (theme + shadcn so far; shell comes in M3)
+  view/          # React UI
 ```
 
 **Rules that matter for every flow**
@@ -90,7 +91,7 @@ UI / test calls store action (e.g. createTask)
  return Result.data
 ```
 
-Today the store exposes the full pipeline for **`createTask`**. Remaining CRUD actions are wired in M4 (T14) on top of the same pattern.
+Optimistic paths (`placeTask`, status `updateTask`) apply before `simulateNetwork`, then roll back the domain snapshot on `NETWORK_ERROR`.
 
 Implementation: `src/controller/store.ts`, `src/controller/simulateNetwork.ts`
 
@@ -123,7 +124,7 @@ Selectors (`selectVisibleTree`, `selectTasksForList`, …) always use `currentUs
 | T00 | Vite + React 18 + TS, ESLint/Prettier/Vitest, Husky pre-push build |
 | T01 | Tailwind 3.4 tokens, shadcn in `src/view/ui`, Light/Dark/System theme |
 | T02 | Domain types, `Result`/`ErrorCode`, `newId`, position helpers + tests |
-| T03 | `createSeed()` — Acme tree, 19 tasks, grants matrix |
+| T03 | `createSeed()` — Acme tree, tasks, grants matrix |
 
 ### M2 — Domain logic
 
@@ -132,38 +133,59 @@ Selectors (`selectVisibleTree`, `selectTasksForList`, …) always use `currentUs
 | T04 | Permission service + tree filter/shells + tests |
 | T05 | Hierarchy CRUD / move / reorder / archive-restore + tests |
 | T06 | Task + status services (incl. list move remap) + tests |
-| T07 | Zustand+Immer store, selectors, network sim, gated `createTask` + tests |
+| T07 | Zustand+Immer store, selectors, network sim, gated mutations + tests |
+
+### M3 — Core UI
+
+| Issue | Outcome |
+|---|---|
+| T08 | App shell, sidebar tree, user switcher |
+| T09 | Shared UI primitives |
+| T10 | Kanban board |
+| T11 | Board DnD (dnd-kit) |
+| T12 | List view + sort + offset pagination |
+| T13 | Task drawer |
+
+### M4 — Flows and feedback
+
+| Issue | Outcome |
+|---|---|
+| T14 | Remaining CRUD through store pipeline; tree management |
+| T15 | Toasts, Dev menu (`failNext`), optimistic rollback |
+
+### M5 — Polish and delivery
+
+| Issue | Outcome |
+|---|---|
+| T16 | Card interactions, shortcuts |
+| T17 | Client-side search |
+| T18 | Spacing / density audit |
+| T19 | Component + E2E tests |
+| T20 | README and AI usage |
+| T21 | Demo video + submission — **pending video URL** |
 
 ---
 
-## What’s next (M3+)
+## What’s next
 
-```
-T08  App shell + sidebar tree + user switcher
-T09  Shared primitives (StatusBadge, ConfirmDialog, …)
-T10  Static kanban
-T11  DnD (dnd-kit)
-T12  List view
-T13  Task drawer
-   ↓
-T14  Wire remaining CRUD through the store pipeline
-T15  Toasts, Dev menu, optimistic UI + rollback
-   ↓
-T16–T21  Polish, search, tests, docs, demo
-```
-
-UI should read Figma as the visual source of truth:  
-https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
+1. Record / paste demo video URL in README (**T21**).
+2. Tag v1.0 and submit.
 
 ---
 
 ## Changelog (append-only)
 
+### 2026-10-12 — Submission cleanup
+
+- Removed Vite scaffold assets; `.gitignore` covers `.env*`.
+- Network sim is `failNext` only (no latency / failure-rate controls).
+- Plan status: feature complete except demo video.
+
 ### 2026-10-11 — T18 consistency audit
 
-- TopBar: workspace breadcrumbs + search + Dev/User (Figma 01).
+- TopBar: workspace breadcrumbs + search + Dev/User.
 - ViewBar: list title + Board/List + Filter + Task; solid active toggle.
-- Pass 2: Figma brand/status/priority colors; dark mode lift + badge surfaces; board skeleton; column Add task; search empty + `/`/`esc` hints; list selected/done.
+- Pass 2: brand/status/priority colors; dark mode lift + badge surfaces; board skeleton; column Add task; search empty + `/`/`esc` hints; list selected/done.
 
 ### 2026-10-11 — T17 client-side search
 
@@ -195,12 +217,10 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 - `AppShell` + collapsible sidebar (260↔56) + top bar.
 - `SidebarTree` from `selectVisibleTree` — Alice/Bob/Carol switch changes the tree.
 - `UserSwitcher` with role badges, theme menu, “Viewing as” toast.
-- Main pane still a placeholder until T10 kanban.
 
 ### 2026-10-10 — M1 + M2 complete
 
 - Pushed foundation + domain logic to `main`.
 - Added this progress log and the master [CHECKLIST.md](./CHECKLIST.md).
-- App is still a theme/smoke UI; domain is ready for the M3 shell to consume `useFlowStore` / selectors.
 
 <!-- Append new dated sections below as milestones ship. -->

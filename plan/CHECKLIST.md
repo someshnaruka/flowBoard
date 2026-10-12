@@ -12,9 +12,9 @@ Master tracker for milestones and issues. Tick boxes here when an issue’s `iss
 | M2 Domain logic | Done | 4 / 4 |
 | M3 Core UI | Done | 6 / 6 |
 | M4 Flows and feedback | Done | 2 / 2 |
-| M5 Polish and delivery | In progress | 5 / 6 |
+| M5 Polish and delivery | In progress | 5 / 6 (T21 demo video pending) |
 
-**Overall:** 21 / 22 issues
+**Overall:** 21 / 22 issues (demo video link remaining)
 
 ---
 

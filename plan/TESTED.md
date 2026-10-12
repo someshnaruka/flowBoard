@@ -115,12 +115,41 @@ npm run build   # also runs on husky pre-push
 - [x] Manual: tree Add/Rename/Archive/Move; archive ConfirmDialog + Undo; drawer Duplicate/Delete
 - [x] Manual: sidebar Archived section Restore
 
-### T15
-_Not done yet — fill when completing each issue._
+### T15 Feedback, Dev menu, optimistic rollback
+- [x] `typecheck` / `test` / `build`
+- [x] `store.test.ts` — `failNext` → NETWORK_ERROR; optimistic `placeTask` / status `updateTask` rollback + `shakeTaskId`
+- [x] Manual: Dev menu → Fail next mutation; drag rolls back with toast + Retry
 
-## M5
+---
 
-_Fill when completing each issue._
+## M5 — Polish and delivery
+
+### T16 Card interactions
+- [x] `typecheck` / `test` / `build`
+- [x] `TaskCard.test.tsx` — open handler / card chrome
+- [x] `shortcut-bindings.test.ts` — cheatsheet binding list + typing-target helper
+- [x] Manual: card menu (open / duplicate / archive / delete); inline field popovers; shortcuts
+
+### T17 Client-side search
+- [x] `typecheck` / `test` / `build`
+- [x] `selectors.search.test.ts` — title/description match; `selectTasksForListQuery`
+- [x] Manual: view-bar search filters board + list; empty-match Clear search; `/` focuses search
+
+### T18 Spacing and density audit
+- [x] `typecheck` / `test` / `build` / `lint`
+- [x] Manual: shell heights, column width, row density vs design
+
+### T19 Component and E2E tests
+- [x] `typecheck` / `test` / `build`
+- [x] Vitest (70): services, store, search, list sort/pagination, badges, due date, empty state, TaskCard, drawer escape, shortcuts
+- [x] `e2e/permission-flow.spec.ts` — Alice → Bob hides Leadership; status change toast
+
+### T20 README and AI usage
+- [x] README + `AI_USAGE.md` present and kept in sync with code
+
+### T21 Demo video and submission
+- [ ] Demo video URL in README
+- [ ] Tag v1.0 + submit
 
 ---
 
