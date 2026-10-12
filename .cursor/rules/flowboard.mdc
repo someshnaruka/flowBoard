@@ -33,7 +33,7 @@ src/
 ```
 Rules:
 1. `model/` never imports from `controller/` or `view/`. Services are pure functions: `(state, actor, input) => Result<T>`. They never throw and never mutate their inputs.
-2. `controller/` is the only layer that mutates state. Every mutation action runs this pipeline: permission check -> validation (via services) -> simulated latency/failure -> apply -> toast/activity.
+2. `controller/` is the only layer that mutates state. Every mutation action runs this pipeline: permission check -> validation (via services) -> simulateNetwork (failNext) -> apply -> toast/activity.
 3. `view/` components never import from `model/services`. They read via selectors/hooks and call store actions. No business rules in components.
 4. Components stay small (target under 150 lines). Split when a component does more than one job.
 

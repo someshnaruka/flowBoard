@@ -116,7 +116,6 @@ export type FlowStore = FlowState & {
   toggleExpanded: (nodeId: string) => void
   toggleSidebar: () => void
   switchUser: (userId: string) => void
-  setNetworkConfig: (patch: Partial<NetworkConfig>) => void
   setFailNext: (value?: boolean) => void
   clearShakeTask: () => void
   setCheatsheetOpen: (open: boolean) => void
@@ -223,12 +222,6 @@ export function createFlowStore(
       toggleSidebar: () => {
         set((state) => {
           state.sidebarCollapsed = !state.sidebarCollapsed
-        })
-      },
-
-      setNetworkConfig: (patch) => {
-        set((state) => {
-          state.network = { ...state.network, ...patch }
         })
       },
 

@@ -81,7 +81,7 @@ UI / test calls store action (e.g. createTask)
  model service (createTask, archiveNode, …)
         │ VALIDATION / … → return Result.error
         ▼
- simulateNetwork({ latencyMs, failureRate, failNext })
+ simulateNetwork({ failNext })
         │ NETWORK_ERROR → clear failNext, do not apply
         ▼
  immer apply domain snapshot to store
@@ -181,7 +181,7 @@ https://www.figma.com/design/0D1riu0d45cFBhWbRUUTjd/Flowboard-UI-Design
 ### 2026-10-11 — T15 feedback / Dev menu / optimistic rollback
 
 - Toast helpers: success, error+Retry, forbidden (amber + lock).
-- Top-bar Dev menu: latency, failure rate, fail-next mutation.
+- Top-bar Dev menu: Fail next mutation (`failNext`).
 - `placeTask` / status `updateTask` apply optimistically; network fail restores snapshot, sets `shakeTaskId`, board offers Retry.
 
 ### 2026-10-10 — T09 UI primitives

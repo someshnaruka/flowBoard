@@ -23,6 +23,7 @@ Cursor (Composer / agent) was used throughout the Flowboard take-home. This log 
 | Inline styles | Only dnd-kit exceptions; removed `react-window` (pagination covers list length) |
 | Lint `setState` in effects | Refactored BoardWorkspace, board DnD columns, ListView paging, SearchInput, DrawerPanel, RenameDialog, autosave ref sync |
 | Status model | Added required `color` field and wired column dots / badges through a hex→token map |
+| Network simulation | Dev menu → Fail next (`failNext`) only |
 
 ## Human-owned decisions
 

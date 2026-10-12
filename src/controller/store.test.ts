@@ -149,7 +149,6 @@ describe('flow store', () => {
     expect(before.statusId).toBe('status-backlog-todo')
 
     store.getState().setFailNext(true)
-    store.getState().setNetworkConfig({ latencyMs: 0 })
 
     const placePromise = store.getState().placeTask({
       taskId: 'task-backlog-1',
@@ -178,7 +177,6 @@ describe('flow store', () => {
   it('rolls back optimistic status update on network failure', async () => {
     const store = createFlowStore(createSeed())
     store.getState().setFailNext(true)
-    store.getState().setNetworkConfig({ latencyMs: 0 })
 
     const updatePromise = store.getState().updateTask({
       taskId: 'task-backlog-1',

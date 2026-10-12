@@ -64,7 +64,7 @@ flowchart LR
   Store --> Sel
 ```
 
-**Mutation pipeline:** permission check → service validation → simulated latency/failure → apply → toast / activity.
+**Mutation pipeline:** permission check → service validation → simulated network (Dev menu → Fail next) → apply → toast / activity.
 
 | Layer | Responsibility |
 | --- | --- |
@@ -176,7 +176,7 @@ Implemented beyond the core brief:
 - Keyboard shortcuts + cheatsheet (Figma 24–25)
 - Tree sibling drag-reorder
 - List offset pagination (page size 10 + Load more)
-- Admin grants dialog; Dev menu for simulated network failure / latency
+- Admin grants dialog; Dev menu → Fail next
 - Brand favicons and sidebar logo
 
 **Service-only (no UI):** add / rename / reorder / delete statuses. `status.service` is implemented and tested; creating a list seeds TODO / In Progress / Done.
@@ -188,7 +188,7 @@ Implemented beyond the core brief:
 | Decision | Rationale | Natural next step |
 | --- | --- | --- |
 | Optimistic updates roll back via a domain snapshot | Simple, correct for single in-flight mutations in a take-home | Scope rollback to the affected task (or per-mutation undo tokens) so concurrent drags cannot clobber each other |
-| In-memory seed + `simulateNetwork` | No backend required; Dev menu can force failure/latency | Replace with a real API and persistence; keep the same service + store pipeline |
+| In-memory seed + `simulateNetwork` | No backend required; Dev menu → Fail next | Replace with a real API and persistence; keep the same service + store pipeline |
 | Status colors as hex → Tailwind class map | Satisfies the `color` field without inline styles | Support arbitrary hex via CSS variables if custom statuses become editable in UI |
 
 ---

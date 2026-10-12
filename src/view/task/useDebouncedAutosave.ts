@@ -31,7 +31,7 @@ export function useDebouncedAutosave<T>({
       return
     }
 
-    // Show Saving… immediately so zero-latency networks still flash the state.
+    // Show Saving… immediately so instant saves still flash the state.
     setStatus('saving')
     const timer = window.setTimeout(() => {
       void (async () => {

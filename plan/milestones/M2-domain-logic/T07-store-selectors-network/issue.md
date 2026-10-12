@@ -10,7 +10,7 @@ Controller layer that gates every mutation.
 - createFlowStore(seed) factory + useFlowStore hook (Zustand + Immer)
 - Pipeline: assertCan -> service -> simulateNetwork -> apply
 - selectVisibleTree, selectTasksForList, selectCurrentUser
-- simulateNetwork: latency, failureRate, failNext
+- simulateNetwork: failNext
 - UI state: selectedListId, view, drawerTaskId, expandedNodeIds; switchUser resets invalid selection and closes drawer
 
 ## Acceptance criteria

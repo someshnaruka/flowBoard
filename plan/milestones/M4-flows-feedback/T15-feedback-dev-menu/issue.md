@@ -8,7 +8,7 @@ Failures are visible and recoverable.
 
 ## Requirements
 - Toasts: success, error with Retry, permission denied (amber + lock)
-- Dev menu: latency, failure rate, Fail next mutation
+- Dev menu: Fail next mutation (`failNext`)
 - Optimistic drag and status change with snapshot rollback + shake
 
 ## Acceptance criteria
@@ -16,7 +16,7 @@ Failures are visible and recoverable.
 
 ## Commit plan
 - [x] `feat(feedback): toast variants (T15)`
-- [x] `feat(controller): dev menu for latency and failures (T15)`
+- [x] `feat(controller): Dev menu → Fail next (T15)`
 - [x] `feat(controller): optimistic updates with rollback (T15)`
 
 ## AI notes
