@@ -47,7 +47,7 @@ export function Column({
   if (collapsed) {
     return (
       <section
-        className="flex h-full w-10 shrink-0 flex-col items-center gap-2 rounded-card bg-board-column py-2 dark:bg-board-column-dark"
+        className="flex h-full w-12 shrink-0 flex-col items-center gap-2 rounded-card bg-board-column py-2 dark:bg-board-column-dark"
         aria-label={`${name} column (collapsed)`}
       >
         <Tooltip>
@@ -65,10 +65,10 @@ export function Column({
           </TooltipTrigger>
           <TooltipContent side="right">Expand column</TooltipContent>
         </Tooltip>
-        <div className="flex min-h-0 flex-1 items-center justify-center">
-          <span className="rotate-180 truncate text-meta font-medium text-foreground [writing-mode:vertical-rl]">
+        <div className="flex min-h-0 flex-1 items-center justify-center px-0.5">
+          <span className="rotate-180 text-body font-medium leading-snug text-foreground [writing-mode:vertical-rl]">
             {name}
-            <span className="ml-1 text-muted-foreground">({count})</span>
+            <span className="ml-2 text-muted-foreground">({count})</span>
           </span>
         </div>
       </section>

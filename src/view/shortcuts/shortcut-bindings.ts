@@ -29,9 +29,21 @@ export function isTypingTarget(target: EventTarget | null): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
 }
 
+/** True when focus / event target is inside a modal dialog (confirm, grants, etc.). */
+export function isDialogTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false
+  }
+  return Boolean(target.closest('[role="dialog"]'))
+}
+
 export function resolveFocusedTaskId(): string | null {
   const active = document.activeElement
   if (!(active instanceof HTMLElement)) {
+    return null
+  }
+  // Dialog portals to body — never treat modal focus as a focused card.
+  if (isDialogTarget(active)) {
     return null
   }
   const host = active.closest('[data-task-id]')

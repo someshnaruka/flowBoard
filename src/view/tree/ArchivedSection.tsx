@@ -9,7 +9,12 @@ import {
   LayoutList,
   RotateCcw,
 } from 'lucide-react'
-import { selectArchivedRoots, selectArchivedTaskRoots } from '@/controller/selectors'
+import {
+  selectArchivedRoots,
+  selectArchivedTaskRoots,
+  selectNodeOriginPath,
+  selectTaskOriginPath,
+} from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { NodeKind } from '@/model/types'
 import {
@@ -34,6 +39,13 @@ const KIND_LABEL: Record<Exclude<NodeKind, 'workspace'>, string> = {
   space: 'Space',
   folder: 'Folder',
   list: 'List',
+}
+
+function formatOrigin(path: string[]): string | null {
+  if (path.length === 0) {
+    return null
+  }
+  return path.join(' › ')
 }
 
 type ArchivedSectionProps = {
@@ -63,21 +75,26 @@ export function ArchivedSection({ collapsedRail = false }: ArchivedSectionProps)
       .join('\0'),
   )
 
-  const { archivedNodes, archivedTasks, listNames } = useMemo(() => {
+  const { archivedNodes, archivedTasks, nodeOrigins, taskOrigins } = useMemo(() => {
     void currentUserId
     void nodesStamp
     void tasksStamp
     const state = getDefaultFlowStore().getState()
-    const names: Record<string, string> = {}
-    for (const node of Object.values(state.nodes)) {
-      if (node.kind === 'list') {
-        names[node.id] = node.name
-      }
+    const nodes = selectArchivedRoots(state)
+    const tasks = selectArchivedTaskRoots(state)
+    const nodeOrigins: Record<string, string | null> = {}
+    const taskOrigins: Record<string, string | null> = {}
+    for (const node of nodes) {
+      nodeOrigins[node.id] = formatOrigin(selectNodeOriginPath(state, node.id))
+    }
+    for (const task of tasks) {
+      taskOrigins[task.id] = formatOrigin(selectTaskOriginPath(state, task.id))
     }
     return {
-      archivedNodes: selectArchivedRoots(state),
-      archivedTasks: selectArchivedTaskRoots(state),
-      listNames: names,
+      archivedNodes: nodes,
+      archivedTasks: tasks,
+      nodeOrigins,
+      taskOrigins,
     }
   }, [currentUserId, nodesStamp, tasksStamp])
 
@@ -131,19 +148,33 @@ export function ArchivedSection({ collapsedRail = false }: ArchivedSectionProps)
           {archivedNodes.map((node) => {
             const Icon = KIND_ICON[node.kind as Exclude<NodeKind, 'workspace'>]
             const label = KIND_LABEL[node.kind as Exclude<NodeKind, 'workspace'>]
+            const origin = nodeOrigins[node.id]
+            const restoreHint = origin
+              ? `Restore to ${origin}`
+              : `Restore ${label}`
 
             return (
               <li
                 key={node.id}
-                className="group flex h-tree-row items-center gap-1 rounded-control px-1 text-body text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
+                className="group flex min-h-tree-row items-center gap-1 rounded-control px-1 py-0.5 text-body text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
               >
                 <Icon className="size-3.5 shrink-0 opacity-80" aria-hidden />
-                <div className="min-w-0 flex-1 truncate">
-                  <span className="text-body text-foreground">{node.name}</span>
-                  <span className="text-meta text-muted-foreground">
-                    {' '}
-                    · {label}
-                  </span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate">
+                    <span className="text-body text-foreground">{node.name}</span>
+                    <span className="text-meta text-muted-foreground">
+                      {' '}
+                      · {label}
+                    </span>
+                  </div>
+                  {origin ? (
+                    <p
+                      className="truncate text-tiny text-muted-foreground"
+                      title={origin}
+                    >
+                      From {origin}
+                    </p>
+                  ) : null}
                 </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -163,33 +194,51 @@ export function ArchivedSection({ collapsedRail = false }: ArchivedSectionProps)
                             notifyMutationError(result.error)
                             return
                           }
-                          toastSuccess(`Restored “${node.name}”`)
+                          toastSuccess(
+                            origin
+                              ? `Restored “${node.name}” to ${origin}`
+                              : `Restored “${node.name}”`,
+                          )
                         })()
                       }}
                     >
                       <RotateCcw className="size-3.5" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right">Restore</TooltipContent>
+                  <TooltipContent side="right">{restoreHint}</TooltipContent>
                 </Tooltip>
               </li>
             )
           })}
 
           {archivedTasks.map((task) => {
-            const listName = listNames[task.listId] ?? 'List'
+            const origin = taskOrigins[task.id]
+            const restoreHint = origin
+              ? `Restore to ${origin}`
+              : 'Restore task'
+
             return (
               <li
                 key={task.id}
-                className="group flex h-tree-row items-center gap-1 rounded-control px-1 text-body text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
+                className="group flex min-h-tree-row items-center gap-1 rounded-control px-1 py-0.5 text-body text-muted-foreground transition-colors duration-150 hover:bg-accent hover:text-foreground"
               >
                 <CheckSquare className="size-3.5 shrink-0 opacity-80" aria-hidden />
-                <div className="min-w-0 flex-1 truncate">
-                  <span className="text-body text-foreground">{task.title}</span>
-                  <span className="text-meta text-muted-foreground">
-                    {' '}
-                    · {listName}
-                  </span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate">
+                    <span className="text-body text-foreground">{task.title}</span>
+                    <span className="text-meta text-muted-foreground">
+                      {' '}
+                      · Task
+                    </span>
+                  </div>
+                  {origin ? (
+                    <p
+                      className="truncate text-tiny text-muted-foreground"
+                      title={origin}
+                    >
+                      From {origin}
+                    </p>
+                  ) : null}
                 </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -209,14 +258,18 @@ export function ArchivedSection({ collapsedRail = false }: ArchivedSectionProps)
                             notifyMutationError(result.error)
                             return
                           }
-                          toastSuccess(`Restored “${task.title}”`)
+                          toastSuccess(
+                            origin
+                              ? `Restored “${task.title}” to ${origin}`
+                              : `Restored “${task.title}”`,
+                          )
                         })()
                       }}
                     >
                       <RotateCcw className="size-3.5" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right">Restore</TooltipContent>
+                  <TooltipContent side="right">{restoreHint}</TooltipContent>
                 </Tooltip>
               </li>
             )

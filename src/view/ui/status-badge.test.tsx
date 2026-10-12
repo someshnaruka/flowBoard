@@ -6,15 +6,15 @@ import { StatusBadge } from './status-badge'
 describe('StatusBadge', () => {
   it('renders status variants from theme tokens', () => {
     const { rerender } = render(<StatusBadge status="todo" />)
-    expect(screen.getByText('TODO').parentElement?.className).toContain(
+    expect(screen.getByText('To do').parentElement?.className).toContain(
       'bg-status-todo-muted',
     )
-    expect(screen.getByText('TODO').parentElement?.className).not.toMatch(
+    expect(screen.getByText('To do').parentElement?.className).not.toMatch(
       /border-status/,
     )
 
-    rerender(<StatusBadge status="active" label="In Progress" />)
-    expect(screen.getByText('In Progress').parentElement?.className).toContain(
+    rerender(<StatusBadge status="active" label="In progress" />)
+    expect(screen.getByText('In progress').parentElement?.className).toContain(
       'text-status-active',
     )
 

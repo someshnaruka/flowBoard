@@ -116,16 +116,18 @@ export function ListView({ listId }: ListViewProps) {
     }
     visibleCount = LIST_PAGE_SIZE
   } else if (
+    // Only grow the window when the user was already at the end of a real page
+    // (trackedTotal > 0). Initial trackedTotal=0 must not expand to "show all".
+    pageState.trackedTotal > 0 &&
     sorted.length > pageState.trackedTotal &&
     visibleCount >= pageState.trackedTotal
   ) {
-    // User was already at the end — include newly created tasks.
     nextPageState = {
       queryKey,
-      count: sorted.length,
+      count: Math.max(visibleCount, sorted.length),
       trackedTotal: sorted.length,
     }
-    visibleCount = sorted.length
+    visibleCount = nextPageState.count
   } else if (sorted.length !== pageState.trackedTotal) {
     nextPageState = { ...pageState, trackedTotal: sorted.length }
   }
@@ -235,7 +237,35 @@ export function ListView({ listId }: ListViewProps) {
         <span className="sr-only">Actions</span>
       </div>
 
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+      <div
+        ref={scrollRef}
+        tabIndex={0}
+        className="min-h-0 flex-1 overflow-y-auto outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand/30"
+        onKeyDown={(event) => {
+          if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+            return
+          }
+          const rows = Array.from(
+            scrollRef.current?.querySelectorAll<HTMLElement>('[data-task-id]') ??
+              [],
+          )
+          if (rows.length === 0) {
+            return
+          }
+          const active = document.activeElement
+          const index = rows.findIndex(
+            (row) => row === active || row.contains(active),
+          )
+          event.preventDefault()
+          if (event.key === 'ArrowDown') {
+            const next = rows[index < 0 ? 0 : Math.min(index + 1, rows.length - 1)]
+            next?.focus()
+            return
+          }
+          const prev = rows[index < 0 ? rows.length - 1 : Math.max(index - 1, 0)]
+          prev?.focus()
+        }}
+      >
         {page.map((task) => (
           <ListRow
             key={task.id}
@@ -243,29 +273,31 @@ export function ListView({ listId }: ListViewProps) {
             onOpen={() => openDrawer(task.id)}
           />
         ))}
-      </div>
 
-      <footer className="flex h-10 shrink-0 items-center justify-between gap-3 border-t border-border px-4">
-        <p className="text-meta text-muted-foreground">
-          Showing {page.length} of {sorted.length} task
-          {sorted.length === 1 ? '' : 's'}
-        </p>
-        {canLoadMore ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-7 rounded-control text-meta"
-            onClick={() =>
-              setVisibleCount((current) =>
-                nextVisibleCount(current, sorted.length),
-              )
-            }
-          >
-            Load more
-          </Button>
+        {sorted.length > 0 ? (
+          <div className="flex items-center gap-3 border-t border-border/60 px-4 py-3">
+            <p className="text-meta text-muted-foreground">
+              Showing {page.length} of {sorted.length} task
+              {sorted.length === 1 ? '' : 's'}
+            </p>
+            {canLoadMore ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 rounded-control px-0 text-meta font-medium text-brand shadow-none hover:bg-transparent hover:text-brand/80 focus-visible:ring-brand"
+                onClick={() =>
+                  setVisibleCount((current) =>
+                    nextVisibleCount(current, sorted.length),
+                  )
+                }
+              >
+                Load more
+              </Button>
+            ) : null}
+          </div>
         ) : null}
-      </footer>
+      </div>
     </div>
   )
 }

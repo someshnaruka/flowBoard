@@ -41,7 +41,7 @@ export type Status = {
 export const DEFAULT_STATUS_COLOR: Record<StatusCategory, string> = {
   todo: '#64748B',
   active: '#2563EB',
-  done: '#16A34A',
+  done: '#047857',
 }
 
 export type User = {

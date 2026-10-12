@@ -5,8 +5,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/view/ui/dropdown-menu'
+import {
+  FIELD_TRIGGER_INTERACTIVE,
+  FIELD_TRIGGER_SHELL,
+} from '@/view/ui/field-trigger'
 import { StatusBadge } from '@/view/ui/status-badge'
 import { cn } from '@/view/ui/utils'
 
@@ -19,8 +24,7 @@ type StatusMenuProps = {
   showChevron?: boolean
 }
 
-const fieldTriggerClass =
-  'h-auto w-fit shrink-0 justify-start gap-0 overflow-visible rounded-badge border border-transparent p-0 !text-body font-medium shadow-none hover:border-border hover:bg-accent/40 focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30'
+const fieldTriggerClass = cn(FIELD_TRIGGER_SHELL, FIELD_TRIGGER_INTERACTIVE)
 
 /** Figma drawer — compact status badges with check on selected row. */
 export function StatusMenu({
@@ -60,6 +64,9 @@ export function StatusMenu({
         sideOffset={6}
         className="w-44 rounded-card border-border p-1 shadow-panel"
       >
+        <DropdownMenuLabel className="px-2 py-1.5 text-meta font-medium uppercase tracking-wide text-muted-foreground">
+          Status
+        </DropdownMenuLabel>
         {statuses.map((status) => {
           const selected = status.id === value
           return (

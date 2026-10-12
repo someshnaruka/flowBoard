@@ -1,29 +1,32 @@
-import type { SyntheticEvent } from 'react'
+import type { ReactNode, SyntheticEvent } from 'react'
 import { selectCanEditTask } from '@/controller/selectors'
 import { useFlowStore } from '@/controller/store'
 import type { Priority, User } from '@/model/types'
 import { notifyMutationError } from '@/view/feedback/toasts'
+import { AssigneeMenu } from '@/view/ui/assignee-menu'
 import { AvatarStack } from '@/view/ui/avatar-stack'
-import { Button } from '@/view/ui/button'
 import { DueDate } from '@/view/ui/due-date'
 import { DueDatePicker } from '@/view/ui/due-date-picker'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/view/ui/dropdown-menu'
+import { FIELD_TRIGGER_SHELL } from '@/view/ui/field-trigger'
 import { PriorityBadge } from '@/view/ui/priority-badge'
 import { PriorityMenu } from '@/view/ui/priority-menu'
-import { UserAvatar } from '@/view/ui/user-avatar'
 import { cn } from '@/view/ui/utils'
 
 type Assignee = { id: string; name: string; avatarUrl?: string | null }
 
 function stop(event: SyntheticEvent) {
   event.stopPropagation()
+}
+
+/** Non-interactive shell matching editable field triggers (same border/box). */
+function FieldShell({
+  className,
+  children,
+}: {
+  className?: string
+  children: ReactNode
+}) {
+  return <span className={cn(FIELD_TRIGGER_SHELL, className)}>{children}</span>
 }
 
 type PriorityPopoverProps = {
@@ -43,7 +46,11 @@ export function PriorityPopover({
   const updateTask = useFlowStore((state) => state.updateTask)
 
   if (!canEdit) {
-    return <PriorityBadge priority={priority} className={className} />
+    return (
+      <FieldShell className={className}>
+        <PriorityBadge priority={priority} />
+      </FieldShell>
+    )
   }
 
   return (
@@ -81,7 +88,11 @@ export function DueDatePopover({
   const updateTask = useFlowStore((state) => state.updateTask)
 
   if (!canEdit) {
-    return <DueDate dueDate={dueDate} className={className} />
+    return (
+      <FieldShell className={className}>
+        <DueDate dueDate={dueDate} />
+      </FieldShell>
+    )
   }
 
   return (
@@ -121,97 +132,34 @@ export function AssigneePopover({
   const updateTask = useFlowStore((state) => state.updateTask)
 
   if (!canEdit) {
-    return assignees.length > 0 ? (
-      <AvatarStack users={assignees} max={3} size="sm" className={className} />
-    ) : (
-      <span
-        className={cn(
-          'text-badge text-muted-foreground',
-          className,
+    return (
+      <FieldShell className={className}>
+        {assignees.length > 0 ? (
+          <AvatarStack users={assignees} max={3} size="sm" />
+        ) : (
+          <span className="px-1.5 text-meta leading-none text-muted-foreground">
+            Unassigned
+          </span>
         )}
-      >
-        Unassigned
-      </span>
+      </FieldShell>
     )
   }
 
-  const assigneeIds = assignees.map((item) => item.id)
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          aria-label="Change assignees"
-          className={cn(
-            'h-auto rounded-control p-0.5 text-badge shadow-none hover:bg-accent/60',
-            className,
-          )}
-          onClick={stop}
-          onPointerDown={stop}
-        >
-          {assignees.length > 0 ? (
-            <AvatarStack users={assignees} max={3} size="sm" />
-          ) : (
-            <span className="text-badge text-muted-foreground">Unassigned</span>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        className="w-52 rounded-card border-border p-1 shadow-panel"
-        onClick={stop}
-        onCloseAutoFocus={(event) => event.preventDefault()}
-      >
-        <DropdownMenuItem
-          className="rounded-control text-body"
-          onSelect={() => {
-            void (async () => {
-              const result = await updateTask({ taskId, assigneeIds: [] })
-              if ('error' in result) {
-                notifyMutationError(result.error)
-              }
-            })()
-          }}
-        >
-          Clear assignees
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        {users.map((user) => {
-          const checked = assigneeIds.includes(user.id)
-          return (
-            <DropdownMenuCheckboxItem
-              key={user.id}
-              checked={checked}
-              className="rounded-control gap-2 text-body"
-              onSelect={(event) => event.preventDefault()}
-              onCheckedChange={(next) => {
-                void (async () => {
-                  const nextIds = next
-                    ? [...assigneeIds, user.id]
-                    : assigneeIds.filter((id) => id !== user.id)
-                  const result = await updateTask({
-                    taskId,
-                    assigneeIds: nextIds,
-                  })
-                  if ('error' in result) {
-                    notifyMutationError(result.error)
-                  }
-                })()
-              }}
-            >
-              <UserAvatar
-                name={user.name}
-                avatarUrl={user.avatarUrl}
-                size="sm"
-                className="size-5 text-tiny"
-              />
-              <span className="min-w-0 truncate">{user.name}</span>
-            </DropdownMenuCheckboxItem>
-          )
-        })}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <AssigneeMenu
+      assignees={assignees}
+      users={users}
+      className={className}
+      stopPropagation
+      contentClassName="z-[60]"
+      onChange={(assigneeIds) => {
+        void (async () => {
+          const result = await updateTask({ taskId, assigneeIds })
+          if ('error' in result) {
+            notifyMutationError(result.error)
+          }
+        })()
+      }}
+    />
   )
 }

@@ -1,9 +1,14 @@
 import { useMemo, useState } from 'react'
 import { Archive, ArrowDown, ArrowUp, MoreHorizontal, Plus } from 'lucide-react'
-import { toast } from 'sonner'
 import { selectSiblings } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { NodeKind } from '@/model/types'
+import {
+  notifyMutationError,
+  toastError,
+  toastInfo,
+  toastSuccess,
+} from '@/view/feedback/toasts'
 import { ConfirmDialog } from '@/view/ui/confirm-dialog'
 import { Button } from '@/view/ui/button'
 import {
@@ -80,10 +85,10 @@ export function TreeNodeMenu({
         parentId: id,
       })
       if ('error' in result) {
-        toast.error(result.error.message)
+        notifyMutationError(result.error)
         return
       }
-      toast.success(`${CHILD_LABEL[childKind]} created`)
+      toastSuccess(`${CHILD_LABEL[childKind]} created`)
       return
     }
 
@@ -93,7 +98,7 @@ export function TreeNodeMenu({
         .filter((item) => item.listId === id)
         .sort((a, b) => a.position - b.position)[0]
       if (!status) {
-        toast.error('This list has no statuses')
+        toastError('This list has no statuses')
         return
       }
       const result = await createTask({
@@ -102,10 +107,10 @@ export function TreeNodeMenu({
         statusId: status.id,
       })
       if ('error' in result) {
-        toast.error(result.error.message)
+        notifyMutationError(result.error)
         return
       }
-      toast.success('Task created')
+      toastSuccess('Task created')
     }
   }
 
@@ -120,7 +125,7 @@ export function TreeNodeMenu({
         beforeId: siblings[index - 1]?.id ?? null,
       })
       if ('error' in result) {
-        toast.error(result.error.message)
+        notifyMutationError(result.error)
       }
       return
     }
@@ -134,18 +139,18 @@ export function TreeNodeMenu({
       beforeId: siblings[index + 2]?.id ?? null,
     })
     if ('error' in result) {
-      toast.error(result.error.message)
+      notifyMutationError(result.error)
     }
   }
 
   const onArchive = async () => {
     const result = await archiveContainer(id)
     if ('error' in result) {
-      toast.error(result.error.message)
+      notifyMutationError(result.error)
       return
     }
 
-    toast.message(`Archived “${name}”`, {
+    toastInfo(`Archived “${name}”`, {
       description: 'Descendants were archived too.',
       action: {
         label: 'Undo',
@@ -153,10 +158,10 @@ export function TreeNodeMenu({
           void (async () => {
             const restored = await restoreContainer(id)
             if ('error' in restored) {
-              toast.error(restored.error.message)
+              notifyMutationError(restored.error)
               return
             }
-            toast.success(`Restored “${name}”`)
+            toastSuccess(`Restored “${name}”`)
           })()
         },
       },
@@ -267,10 +272,12 @@ export function TreeNodeMenu({
           void (async () => {
             const result = await renameContainer({ nodeId: id, name: nextName })
             if ('error' in result) {
-              toast.error(result.error.message)
+              notifyMutationError(result.error)
               return
             }
-            toast.success('Renamed')
+            toastSuccess(
+              `${CHILD_LABEL[kind]} renamed to “${result.data.name}”`,
+            )
           })()
         }}
       />

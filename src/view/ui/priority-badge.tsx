@@ -13,8 +13,8 @@ const priorityBadgeVariants = cva(BADGE_CHROME, {
       high: 'bg-priority-high-muted text-priority-high dark:bg-orange-950/45 dark:text-orange-300',
       normal:
         'bg-priority-normal-muted text-priority-normal dark:bg-blue-950/45 dark:text-blue-300',
-      low: 'bg-priority-low-muted text-priority-low dark:bg-slate-700/70 dark:text-slate-200',
-      none: 'bg-priority-none-muted text-priority-none dark:bg-transparent dark:text-slate-500',
+      low: 'bg-priority-low-muted text-priority-low dark:bg-slate-500/35 dark:text-slate-200',
+      none: 'bg-transparent text-priority-none ring-1 ring-inset ring-border dark:bg-transparent dark:text-slate-500 dark:ring-slate-600',
     },
   },
   defaultVariants: {

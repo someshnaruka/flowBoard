@@ -3,7 +3,6 @@ import { useMemo } from 'react'
 import { ChevronRight, PanelLeft } from 'lucide-react'
 import { selectBreadcrumb } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
-import { SearchInput } from '@/view/search/SearchInput'
 import { Button } from '@/view/ui/button'
 import {
   Tooltip,
@@ -87,10 +86,9 @@ export function TopBar({ trailing }: TopBarProps) {
         )}
       </nav>
 
-      <div className="flex shrink-0 items-center gap-2">
-        <SearchInput />
-        {trailing}
-      </div>
+      {trailing ? (
+        <div className="flex shrink-0 items-center gap-2">{trailing}</div>
+      ) : null}
     </header>
   )
 }

@@ -7,24 +7,21 @@ import {
 } from 'lucide-react'
 import { DropdownCaret } from '@/view/ui/dropdown-caret'
 import type { ContainerNode, Priority, Status, User } from '@/model/types'
+import { AssigneeMenu } from '@/view/ui/assignee-menu'
 import { AvatarStack } from '@/view/ui/avatar-stack'
 import { Button } from '@/view/ui/button'
 import { DueDate } from '@/view/ui/due-date'
 import { DueDatePicker } from '@/view/ui/due-date-picker'
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/view/ui/dropdown-menu'
 import { PriorityMenu } from '@/view/ui/priority-menu'
 import { StatusMenu } from '@/view/ui/status-menu'
-import { UserAvatar } from '@/view/ui/user-avatar'
 import { cn } from '@/view/ui/utils'
 
 type DrawerPropertiesProps = {
@@ -53,7 +50,7 @@ function PropertyLabel({
   children: string
 }) {
   return (
-        <span className="flex items-center gap-1.5 self-center text-meta text-muted-foreground">
+    <span className="flex items-center gap-1.5 self-center text-meta text-muted-foreground">
       <Icon className="size-3.5 shrink-0 opacity-80" aria-hidden />
       {children}
     </span>
@@ -83,8 +80,6 @@ export function DrawerProperties({
   onAssigneesChange,
   onListChange,
 }: DrawerPropertiesProps) {
-  const assigneeIds = assignees.map((user) => user.id)
-
   return (
     <section className="space-y-1 border-b border-border/70 px-6 py-3">
       <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] gap-x-3 gap-y-1.5">
@@ -97,14 +92,14 @@ export function DrawerProperties({
         />
 
         <PropertyLabel icon={Users}>Assignees</PropertyLabel>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              disabled={disabled}
-              className={triggerClass}
-            >
+        <AssigneeMenu
+          assignees={assignees}
+          users={users}
+          disabled={disabled}
+          className={triggerClass}
+          onChange={onAssigneesChange}
+          trigger={
+            <>
               {assignees.length > 0 ? (
                 <AvatarStack users={assignees} max={3} size="sm" />
               ) : null}
@@ -115,59 +110,16 @@ export function DrawerProperties({
                   Unassigned
                 </span>
               ) : null}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="w-52 rounded-card border-border p-1 shadow-panel"
-            onCloseAutoFocus={(event) => event.preventDefault()}
-          >
-            <DropdownMenuLabel className="text-meta font-medium text-muted-foreground">
-              Assignees
-            </DropdownMenuLabel>
-            <DropdownMenuItem
-              className="rounded-control text-body"
-              onSelect={() => onAssigneesChange([])}
-            >
-              Clear assignees
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {users.map((user) => {
-              const checked = assigneeIds.includes(user.id)
-              return (
-                <DropdownMenuCheckboxItem
-                  key={user.id}
-                  checked={checked}
-                  className="rounded-control gap-2 text-body"
-                  onCheckedChange={(next) => {
-                    if (next) {
-                      onAssigneesChange([...assigneeIds, user.id])
-                      return
-                    }
-                    onAssigneesChange(
-                      assigneeIds.filter((id) => id !== user.id),
-                    )
-                  }}
-                  onSelect={(event) => event.preventDefault()}
-                >
-                  <UserAvatar
-                    name={user.name}
-                    avatarUrl={user.avatarUrl}
-                    size="sm"
-                    className="size-5 text-tiny"
-                  />
-                  <span className="min-w-0 truncate">{user.name}</span>
-                </DropdownMenuCheckboxItem>
-              )
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </>
+          }
+        />
 
         <PropertyLabel icon={CalendarIcon}>Due date</PropertyLabel>
         <DueDatePicker
           dueDate={dueDate}
           disabled={disabled}
           showChevron={!disabled}
+          className="!text-body [&_svg]:!size-3.5"
           onChange={onDueDateChange}
           trigger={
             <DueDate dueDate={dueDate} variant="detail" showIcon={false} />
@@ -199,8 +151,12 @@ export function DrawerProperties({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
+            sideOffset={6}
             className="w-48 rounded-card border-border p-1 shadow-panel"
           >
+            <DropdownMenuLabel className="px-2 py-1.5 text-meta font-medium uppercase tracking-wide text-muted-foreground">
+              List
+            </DropdownMenuLabel>
             <DropdownMenuRadioGroup
               value={listId}
               onValueChange={onListChange}

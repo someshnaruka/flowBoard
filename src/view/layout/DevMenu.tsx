@@ -78,7 +78,7 @@ export function DevMenu() {
                 onSelect={() => setGrantsOpen(true)}
               >
                 <Shield className="size-3.5" />
-                Permissions & grants
+                Access Management
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>

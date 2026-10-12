@@ -2,7 +2,7 @@ import { Calendar } from 'lucide-react'
 import { DropdownCaret } from '@/view/ui/dropdown-caret'
 import { cn } from '@/view/ui/utils'
 
-export type DueDateTone = 'default' | 'overdue' | 'soon' | 'none'
+export type DueDateTone = 'default' | 'overdue' | 'today' | 'none'
 
 function resolveTone(dueDate: string | null, today = '2026-10-10'): DueDateTone {
   if (!dueDate) {
@@ -11,11 +11,8 @@ function resolveTone(dueDate: string | null, today = '2026-10-10'): DueDateTone 
   if (dueDate < today) {
     return 'overdue'
   }
-  const soonLimit = new Date(today)
-  soonLimit.setDate(soonLimit.getDate() + 3)
-  const soonIso = soonLimit.toISOString().slice(0, 10)
-  if (dueDate <= soonIso) {
-    return 'soon'
+  if (dueDate === today) {
+    return 'today'
   }
   return 'default'
 }
@@ -39,7 +36,7 @@ type DueDateProps = {
   dueDate: string | null
   today?: string
   /**
-   * `compact` (board/list): "Oct 8" with overdue color only
+   * `compact` (board/list): "Oct 8" with tone color only
    * `detail` (drawer): "Oct 8 (2 days overdue)"
    */
   variant?: 'compact' | 'detail'
@@ -50,12 +47,17 @@ type DueDateProps = {
   detail?: boolean
 }
 
+/** Spec: normal #6B7280/#9CA3AF, today #D97706/#FBBF24, overdue #DC2626/#F87171 */
 const TONE_CLASS: Record<DueDateTone, string> = {
-  none: 'text-muted-foreground',
-  default: 'text-muted-foreground',
-  soon: 'text-priority-high',
-  overdue: 'text-priority-urgent',
+  none: 'text-[#6B7280] dark:text-[#9CA3AF]',
+  default: 'text-[#6B7280] dark:text-[#9CA3AF]',
+  today: 'text-[#D97706] dark:text-[#FBBF24]',
+  overdue: 'text-[#DC2626] dark:text-[#F87171]',
 }
+
+/** Match PriorityBadge / BADGE_CHROME box + type in board & list. */
+const COMPACT_TEXT =
+  'inline-flex h-auto min-h-badge w-fit max-w-full shrink-0 items-center gap-1 whitespace-nowrap rounded-badge px-1.5 py-0.5 !text-body font-medium leading-none'
 
 export function DueDate({
   dueDate,
@@ -68,15 +70,15 @@ export function DueDate({
 }: DueDateProps) {
   const mode = variant ?? (detail ? 'detail' : 'compact')
   const tone = resolveTone(dueDate, today)
+  const sizeClass =
+    mode === 'detail'
+      ? 'inline-flex items-center gap-1 text-body font-medium leading-none'
+      : COMPACT_TEXT
 
   if (!dueDate) {
     return (
       <span
-        className={cn(
-          'inline-flex items-center gap-1 text-body font-medium leading-none',
-          TONE_CLASS.none,
-          className,
-        )}
+        className={cn(sizeClass, TONE_CLASS.none, className)}
         data-tone="none"
       >
         {showIcon ? (
@@ -95,11 +97,7 @@ export function DueDate({
 
   return (
     <span
-      className={cn(
-        'inline-flex items-center gap-1 text-body font-medium leading-none',
-        TONE_CLASS[tone],
-        className,
-      )}
+      className={cn(sizeClass, TONE_CLASS[tone], className)}
       data-tone={tone}
     >
       {showIcon ? (

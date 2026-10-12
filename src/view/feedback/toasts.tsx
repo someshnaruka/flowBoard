@@ -1,4 +1,5 @@
-import { AlertCircle, CheckCircle2, Lock } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { AlertCircle, CheckCircle2, Info, Lock } from 'lucide-react'
 import { toast } from 'sonner'
 import type { AppError } from '@/model/errors'
 
@@ -10,6 +11,7 @@ type RetryOptions = {
 const toastShell =
   '!rounded-card !border !border-border !bg-background !text-foreground !shadow-panel !gap-3 !items-start'
 
+/** Only three toast kinds: Success, Error, Info. */
 export function toastSuccess(message: string, description?: string): void {
   toast.success(message, {
     description: description ?? undefined,
@@ -53,31 +55,21 @@ export function toastError(
   })
 }
 
-export function toastForbidden(message: string, description?: string): void {
-  toast(message, {
-    description,
-    icon: (
-      <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-priority-high/15 text-priority-high">
-        <Lock className="size-3.5" aria-hidden />
-      </span>
-    ),
-    classNames: {
-      toast: `${toastShell} !border-l-[3px] !border-l-priority-high`,
-      title: '!text-body !font-medium !text-foreground',
-      description: '!text-meta !text-muted-foreground',
-    },
-  })
-}
-
 export function toastInfo(
   message: string,
   options?: {
     description?: string
     action?: { label: string; onClick: () => void }
+    icon?: ReactNode
   },
 ): void {
   toast(message, {
     description: options?.description,
+    icon: options?.icon ?? (
+      <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+        <Info className="size-3.5" aria-hidden />
+      </span>
+    ),
     classNames: {
       toast: `${toastShell} !border-l-[3px] !border-l-border`,
       title: '!text-body !font-medium !text-foreground',
@@ -86,6 +78,18 @@ export function toastInfo(
         '!bg-transparent !text-brand !shadow-none !font-medium hover:!bg-brand-50',
     },
     action: options?.action,
+  })
+}
+
+/** FORBIDDEN is an Info toast with a lock icon. */
+export function toastForbidden(message: string, description?: string): void {
+  toastInfo(message, {
+    description,
+    icon: (
+      <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-priority-high/15 text-priority-high">
+        <Lock className="size-3.5" aria-hidden />
+      </span>
+    ),
   })
 }
 

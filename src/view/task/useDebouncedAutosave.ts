@@ -31,8 +31,9 @@ export function useDebouncedAutosave<T>({
       return
     }
 
+    // Show Saving… immediately so zero-latency networks still flash the state.
+    setStatus('saving')
     const timer = window.setTimeout(() => {
-      setStatus('saving')
       void (async () => {
         const ok = await latestSave.current(value)
         setStatus(ok ? 'saved' : 'error')

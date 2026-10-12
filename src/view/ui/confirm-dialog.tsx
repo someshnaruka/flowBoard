@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { Button } from '@/view/ui/button'
 import {
   Dialog,
@@ -35,14 +35,72 @@ export function ConfirmDialog({
   variant = 'destructive',
   onConfirm,
 }: ConfirmDialogProps) {
+  const contentRef = useRef<HTMLDivElement | null>(null)
+
+  // Win focus back after DropdownMenu restores focus to its trigger on close.
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+    const timer = window.setTimeout(() => {
+      contentRef.current
+        ?.querySelector<HTMLButtonElement>('[data-confirm-cancel]')
+        ?.focus()
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [open])
+
+  const footerButtons = () =>
+    Array.from(
+      contentRef.current?.querySelectorAll<HTMLButtonElement>(
+        '[data-confirm-cancel], [data-confirm-action]',
+      ) ?? [],
+    )
+
+  const onDialogKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      const buttons = footerButtons()
+      if (buttons.length < 2) {
+        return
+      }
+      const active = document.activeElement
+      const index = buttons.findIndex((button) => button === active)
+      if (index < 0) {
+        return
+      }
+      event.preventDefault()
+      const next =
+        event.key === 'ArrowRight'
+          ? buttons[(index + 1) % buttons.length]
+          : buttons[(index - 1 + buttons.length) % buttons.length]
+      next?.focus()
+      return
+    }
+
+    if (event.key === 'Enter') {
+      const active = document.activeElement
+      const buttons = footerButtons()
+      if (
+        active instanceof HTMLButtonElement &&
+        buttons.includes(active)
+      ) {
+        event.preventDefault()
+        event.stopPropagation()
+        active.click()
+      }
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
+        ref={contentRef}
         className={cn(
           'z-[100] max-w-md gap-4 rounded-drawer border-border p-6 shadow-panel',
           // Hide the default Dialog X — Cancel / Esc / overlay cover dismiss.
           '[&>button.absolute]:hidden',
         )}
+        onKeyDown={onDialogKeyDown}
         onOpenAutoFocus={(event) => {
           // Prefer Cancel so destructive confirm isn't accidentally activated.
           event.preventDefault()
@@ -75,6 +133,7 @@ export function ConfirmDialog({
           </Button>
           <Button
             type="button"
+            data-confirm-action
             variant={variant === 'destructive' ? 'destructive' : 'default'}
             className="gap-1.5 rounded-control"
             onClick={() => {

@@ -11,6 +11,11 @@ describe('DueDate', () => {
     expect(el?.textContent).not.toMatch(/overdue/)
   })
 
+  it('marks today separately from upcoming', () => {
+    expect(resolveTone('2026-10-10', '2026-10-10')).toBe('today')
+    expect(resolveTone('2026-10-12', '2026-10-10')).toBe('default')
+  })
+
   it('uses detail overdue copy in the drawer', () => {
     render(
       <DueDate dueDate="2026-10-01" today="2026-10-10" variant="detail" />,

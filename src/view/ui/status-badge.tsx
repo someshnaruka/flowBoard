@@ -6,8 +6,8 @@ import { statusBadgeClass } from '@/view/ui/status-color'
 import { cn } from '@/view/ui/utils'
 
 const STATUS_LABEL: Record<StatusCategory, string> = {
-  todo: 'TODO',
-  active: 'In Progress',
+  todo: 'To do',
+  active: 'In progress',
   done: 'Done',
 }
 

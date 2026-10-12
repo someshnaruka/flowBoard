@@ -14,6 +14,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/view/ui/popover'
+import {
+  FIELD_TRIGGER_INTERACTIVE,
+  FIELD_TRIGGER_SHELL,
+} from '@/view/ui/field-trigger'
 import { cn } from '@/view/ui/utils'
 
 type DueDatePickerProps = {
@@ -64,9 +68,9 @@ export function DueDatePicker({
           variant="ghost"
           disabled={disabled}
           className={cn(
-            'h-auto w-fit justify-start gap-1 rounded-badge border border-transparent px-1 py-0.5 text-body font-medium leading-none shadow-none',
-            'hover:border-border hover:bg-accent/40',
-            'focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30',
+            FIELD_TRIGGER_SHELL,
+            FIELD_TRIGGER_INTERACTIVE,
+            'gap-1',
             className,
           )}
           onClick={onTriggerClick}

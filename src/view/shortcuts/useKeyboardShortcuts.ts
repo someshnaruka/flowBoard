@@ -4,6 +4,7 @@ import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
 import { useTheme } from '@/view/theme/ThemeProvider'
 import type { ThemePreference } from '@/view/theme/theme'
 import {
+  isDialogTarget,
   isTypingTarget,
   resolveFocusedTaskId,
 } from './shortcut-bindings'
@@ -97,6 +98,15 @@ export function useKeyboardShortcuts(): void {
       }
 
       if (typing || isMod(event) || event.altKey) {
+        return
+      }
+
+      // Let dialogs own keyboard (Enter confirms, letters type, etc.).
+      if (
+        store.pendingTaskConfirm ||
+        isDialogTarget(event.target) ||
+        isDialogTarget(document.activeElement)
+      ) {
         return
       }
 

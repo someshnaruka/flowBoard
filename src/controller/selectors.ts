@@ -3,8 +3,33 @@ import {
   canView,
   filterTree,
 } from '@/model/services/permission.service'
-import type { AppState, ContainerNode, Status, Task, User } from '@/model/types'
+import type {
+  AppState,
+  ContainerNode,
+  GrantEffect,
+  Status,
+  Task,
+  User,
+} from '@/model/types'
 import type { VisibleTreeNode } from '@/model/services/permission.service'
+
+/**
+ * Effective member access for Access Management UI.
+ * Mirrors canView/canEdit: public default is read-write; grants override.
+ */
+export function selectEffectiveAccess(
+  state: AppState,
+  userId: string,
+  nodeId: string,
+): GrantEffect {
+  if (!canView(state, userId, nodeId)) {
+    return 'deny'
+  }
+  if (!canEdit(state, userId, nodeId)) {
+    return 'view'
+  }
+  return 'allow'
+}
 
 export function selectCurrentUser(state: AppState): User | null {
   return state.users[state.currentUserId] ?? null
@@ -168,6 +193,41 @@ export function selectSiblings(
         sibling.parentId === node.parentId && sibling.archivedAt == null,
     )
     .sort((a, b) => a.position - b.position)
+}
+
+/**
+ * Ancestor names for a node (workspace → … → parent), used to show where an
+ * archived item lived. Includes archived ancestors so cascade context remains.
+ */
+export function selectNodeOriginPath(
+  state: AppState,
+  nodeId: string,
+): string[] {
+  const labels: string[] = []
+  let current: ContainerNode | undefined = state.nodes[nodeId]
+  if (!current) {
+    return labels
+  }
+  current = current.parentId ? state.nodes[current.parentId] : undefined
+  while (current) {
+    labels.unshift(current.name)
+    current = current.parentId ? state.nodes[current.parentId] : undefined
+  }
+  return labels
+}
+
+/** List breadcrumb path for an archived task (workspace → … → list). */
+export function selectTaskOriginPath(state: AppState, taskId: string): string[] {
+  const task = state.tasks[taskId]
+  if (!task) {
+    return []
+  }
+  const list = state.nodes[task.listId]
+  if (!list) {
+    return []
+  }
+  const path = selectNodeOriginPath(state, list.id)
+  return [...path, list.name]
 }
 
 /**

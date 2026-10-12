@@ -9,13 +9,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/view/ui/dropdown-menu'
+import {
+  FIELD_TRIGGER_INTERACTIVE,
+  FIELD_TRIGGER_SHELL,
+} from '@/view/ui/field-trigger'
 import { PriorityBadge } from '@/view/ui/priority-badge'
 import { cn } from '@/view/ui/utils'
 
 const PRIORITIES: Priority[] = ['urgent', 'high', 'normal', 'low', 'none']
 
-const fieldTriggerClass =
-  'h-auto w-fit shrink-0 justify-start gap-0 overflow-visible rounded-badge border border-transparent p-0 !text-body font-medium shadow-none hover:border-border hover:bg-accent/40 focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30'
+const fieldTriggerClass = cn(FIELD_TRIGGER_SHELL, FIELD_TRIGGER_INTERACTIVE)
 
 type PriorityMenuProps = {
   value: Priority

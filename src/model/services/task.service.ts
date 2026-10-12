@@ -197,6 +197,21 @@ export function createTask(
 
   const next = cloneState(state)
   next.tasks[task.id] = task
+
+  if (input.parentTaskId) {
+    const parent = next.tasks[input.parentTaskId]
+    if (parent) {
+      next.tasks[parent.id] = withActivity(
+        parent,
+        activityItem(
+          actorId,
+          `added subtask “${task.title}”`,
+          timestamp,
+        ),
+      )
+    }
+  }
+
   return ok({ state: next, task })
 }
 
@@ -260,6 +275,23 @@ export function updateTask(
     updatedAt: timestamp,
   }
 
+  if (input.title !== undefined && title !== existing.title) {
+    task = withActivity(
+      task,
+      activityItem(actorId, 'updated the title', timestamp),
+    )
+  }
+
+  if (
+    input.description !== undefined &&
+    input.description !== existing.description
+  ) {
+    task = withActivity(
+      task,
+      activityItem(actorId, 'updated the description', timestamp),
+    )
+  }
+
   if (input.priority !== undefined && input.priority !== existing.priority) {
     task = withActivity(
       task,
@@ -303,19 +335,6 @@ export function updateTask(
     }
   }
 
-  if (
-    input.title !== undefined &&
-    title !== existing.title &&
-    input.priority === undefined &&
-    input.dueDate === undefined &&
-    input.assigneeIds === undefined
-  ) {
-    task = withActivity(
-      task,
-      activityItem(actorId, 'updated the title', timestamp),
-    )
-  }
-
   const next = cloneState(state)
   next.tasks[task.id] = task
   return ok({ state: next, task })
@@ -327,7 +346,7 @@ export type DeleteTaskInput = {
 
 export function deleteTask(
   state: AppState,
-  _actorId: string,
+  actorId: string,
   input: DeleteTaskInput,
 ): Result<{ state: AppState; deletedIds: string[] }> {
   const existing = state.tasks[input.taskId]
@@ -348,6 +367,20 @@ export function deleteTask(
   ]
 
   const next = cloneState(state)
+  if (existing.parentTaskId) {
+    const parent = next.tasks[existing.parentTaskId]
+    if (parent) {
+      next.tasks[parent.id] = withActivity(
+        parent,
+        activityItem(
+          actorId,
+          `removed subtask “${existing.title}”`,
+          nowIso(),
+        ),
+      )
+    }
+  }
+
   for (const id of deletedIds) {
     delete next.tasks[id]
   }

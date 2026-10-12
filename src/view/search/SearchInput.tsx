@@ -6,7 +6,11 @@ import { cn } from '@/view/ui/utils'
 
 const SEARCH_DEBOUNCE_MS = 200
 
-export function SearchInput() {
+type SearchInputProps = {
+  disabled?: boolean
+}
+
+export function SearchInput({ disabled = false }: SearchInputProps) {
   const searchFocusNonce = useFlowStore((state) => state.searchFocusNonce)
   const searchQuery = useFlowStore((state) => state.searchQuery)
   const setSearchQuery = useFlowStore((state) => state.setSearchQuery)
@@ -28,10 +32,10 @@ export function SearchInput() {
   }
 
   useEffect(() => {
-    if (searchFocusNonce > 0) {
+    if (searchFocusNonce > 0 && !disabled) {
       searchRef.current?.focus()
     }
-  }, [searchFocusNonce])
+  }, [searchFocusNonce, disabled])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -53,7 +57,12 @@ export function SearchInput() {
   const hint = draft || focused ? 'esc' : '/'
 
   return (
-    <div className="relative min-w-0 w-[13.75rem]">
+    <div
+      className={cn(
+        'relative min-w-0 w-[13.75rem]',
+        disabled && 'pointer-events-none opacity-50',
+      )}
+    >
       <Search
         className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
         aria-hidden
@@ -62,6 +71,7 @@ export function SearchInput() {
         ref={searchRef}
         type="text"
         value={draft}
+        disabled={disabled}
         onChange={(event) => setDraft(event.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
@@ -75,8 +85,8 @@ export function SearchInput() {
             }
           }
         }}
-        placeholder="Search tasks"
-        aria-label="Search tasks"
+        placeholder="Search this list"
+        aria-label="Search tasks in current list"
         autoComplete="off"
         className={cn(
           'h-8 rounded-control border-border bg-muted/60 pl-8 pr-10 text-body shadow-none',

@@ -5,16 +5,20 @@ const DOT_BY_COLOR: Record<string, string> = {
   '#64748B': 'bg-status-todo',
   '#2563EB': 'bg-status-active',
   '#16A34A': 'bg-status-done',
+  '#047857': 'bg-status-done',
 }
 
 /** Badge chrome keyed by Status.color hex (Figma 05). */
+const DONE_BADGE =
+  'bg-status-done-muted text-status-done dark:bg-emerald-500/20 dark:text-emerald-300'
+
 const BADGE_BY_COLOR: Record<string, string> = {
   '#64748B':
     'bg-status-todo-muted text-status-todo dark:bg-slate-800/80 dark:text-slate-300',
   '#2563EB':
     'bg-status-active-muted text-status-active dark:bg-blue-950/50 dark:text-blue-300',
-  '#16A34A':
-    'bg-status-done-muted text-status-done dark:bg-emerald-950/40 dark:text-status-done',
+  '#16A34A': DONE_BADGE,
+  '#047857': DONE_BADGE,
 }
 
 const DOT_BY_CATEGORY: Record<StatusCategory, string> = {
@@ -27,7 +31,7 @@ const BADGE_BY_CATEGORY: Record<StatusCategory, string> = {
   todo: 'bg-status-todo-muted text-status-todo dark:bg-slate-800/80 dark:text-slate-300',
   active:
     'bg-status-active-muted text-status-active dark:bg-blue-950/50 dark:text-blue-300',
-  done: 'bg-status-done-muted text-status-done dark:bg-emerald-950/40 dark:text-status-done',
+  done: DONE_BADGE,
 }
 
 function normalizeHex(color: string): string {

@@ -1,6 +1,7 @@
 import { LayoutGrid, List, Plus } from 'lucide-react'
 import { useFlowStore, type BoardView } from '@/controller/store'
 import { notifyMutationError, toastSuccess } from '@/view/feedback/toasts'
+import { SearchInput } from '@/view/search/SearchInput'
 import { Button } from '@/view/ui/button'
 import { ToggleGroup, ToggleGroupItem } from '@/view/ui/toggle-group'
 import {
@@ -79,26 +80,29 @@ export function ViewBar({ listId }: ViewBarProps) {
 
       <div className="min-w-0 flex-1" />
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            type="button"
-            size="sm"
-            className="h-8 gap-1.5 rounded-control bg-brand text-brand-foreground hover:bg-brand-600"
-            disabled={!listId}
-            onClick={() => {
-              void onAddTask()
-            }}
-          >
-            <Plus className="size-4" />
-            Task
-            <kbd className="ml-0.5 rounded-badge bg-brand-foreground/15 px-1 text-tiny text-brand-foreground">
-              C
-            </kbd>
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Create a task (C)</TooltipContent>
-      </Tooltip>
+      <div className="flex shrink-0 items-center gap-2">
+        <SearchInput disabled={!listId} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              type="button"
+              size="sm"
+              className="h-8 gap-1.5 rounded-control bg-brand text-brand-foreground hover:bg-brand-600"
+              disabled={!listId}
+              onClick={() => {
+                void onAddTask()
+              }}
+            >
+              <Plus className="size-4" />
+              Task
+              <kbd className="ml-0.5 rounded-badge bg-brand-foreground/15 px-1 text-tiny text-brand-foreground">
+                C
+              </kbd>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Create a task (C)</TooltipContent>
+        </Tooltip>
+      </div>
     </div>
   )
 }

@@ -70,9 +70,9 @@ const config: Config = {
             muted: '#EFF6FF',
           },
           done: {
-            DEFAULT: '#16A34A',
+            DEFAULT: '#047857',
             foreground: '#ffffff',
-            muted: '#F0FDF4',
+            muted: '#D1FAE5',
           },
         },
         priority: {
@@ -92,14 +92,14 @@ const config: Config = {
             muted: '#EFF6FF',
           },
           low: {
-            DEFAULT: '#64748B',
+            DEFAULT: '#475569',
             foreground: '#ffffff',
-            muted: '#F8FAFC',
+            muted: '#E2E8F0',
           },
           none: {
-            DEFAULT: '#475569',
+            DEFAULT: '#94A3B8',
             foreground: '#0f172a',
-            muted: '#F1F5F9',
+            muted: '#F8FAFC',
           },
         },
         board: {

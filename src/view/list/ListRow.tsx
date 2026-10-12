@@ -1,4 +1,6 @@
 import { useMemo, type KeyboardEvent } from 'react'
+import { ListTree } from 'lucide-react'
+import { selectSubtaskProgress } from '@/controller/selectors'
 import { getDefaultFlowStore, useFlowStore } from '@/controller/store'
 import type { Status, Task, User } from '@/model/types'
 import { TaskCardMenu } from '@/view/board/TaskCardMenu'
@@ -50,11 +52,19 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
       )
       .join('\0'),
   )
+  const subtasksStamp = useFlowStore((state) =>
+    Object.values(state.tasks)
+      .filter((task) => task.parentTaskId === taskId)
+      .map((task) => `${task.id}:${task.statusId}:${task.archivedAt ?? ''}`)
+      .sort()
+      .join('\0'),
+  )
 
-  const { task, status, assignees, users } = useMemo(() => {
+  const { task, status, assignees, users, subtaskProgress } = useMemo(() => {
     void taskStamp
     void usersStamp
     void statusesStamp
+    void subtasksStamp
     const state = getDefaultFlowStore().getState()
     const found = state.tasks[taskId] ?? null
     if (!found) {
@@ -63,6 +73,7 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
         status: null as Status | null,
         assignees: [],
         users: [] as User[],
+        subtaskProgress: { done: 0, total: 0 },
       }
     }
     return {
@@ -70,8 +81,9 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
       status: state.statuses[found.statusId] ?? null,
       assignees: assigneesForTask(found, state.users),
       users: Object.values(state.users),
+      subtaskProgress: selectSubtaskProgress(state, taskId),
     }
-  }, [taskId, taskStamp, usersStamp, statusesStamp])
+  }, [taskId, taskStamp, usersStamp, statusesStamp, subtasksStamp])
 
   if (!task) {
     return null
@@ -114,14 +126,25 @@ export function ListRow({ taskId, onOpen }: ListRowProps) {
           <span className="text-meta text-muted-foreground">—</span>
         )}
       </div>
-      <p
-        className={cn(
-          'min-w-0 truncate text-body text-foreground',
-          isDone && 'text-muted-foreground line-through',
-        )}
-      >
-        <HighlightText text={task.title} query={searchQuery} />
-      </p>
+      <div className="flex min-w-0 items-center gap-2">
+        <p
+          className={cn(
+            'min-w-0 truncate text-body text-foreground',
+            isDone && 'text-muted-foreground line-through',
+          )}
+        >
+          <HighlightText text={task.title} query={searchQuery} />
+        </p>
+        {subtaskProgress.total > 0 ? (
+          <span
+            className="inline-flex shrink-0 items-center gap-1 text-meta text-muted-foreground"
+            aria-label={`${subtaskProgress.done} of ${subtaskProgress.total} subtasks done`}
+          >
+            <ListTree className="size-3.5" aria-hidden />
+            {subtaskProgress.done}/{subtaskProgress.total}
+          </span>
+        ) : null}
+      </div>
       <div className="min-w-0">
         <AssigneePopover
           taskId={taskId}
