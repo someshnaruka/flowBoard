@@ -277,4 +277,75 @@ describe('flow store', () => {
       expect(result.data.title).toBe('New task')
     }
   })
+
+  it('appends activity on successful status change and placeTask', async () => {
+    const store = createFlowStore(createSeed())
+    const beforeUpdate = store.getState().tasks['task-backlog-1']!
+    const updateLen = beforeUpdate.activity.length
+
+    const updated = await store.getState().updateTask({
+      taskId: 'task-backlog-1',
+      statusId: 'status-backlog-active',
+    })
+    expect(isOk(updated)).toBe(true)
+    const afterUpdate = store.getState().tasks['task-backlog-1']!
+    expect(afterUpdate.activity).toHaveLength(updateLen + 1)
+    expect(afterUpdate.activity[0]?.summary).toMatch(/changed status/i)
+
+    const beforePlace = store.getState().tasks['task-backlog-2']!
+    const placeLen = beforePlace.activity.length
+    const placed = await store.getState().placeTask({
+      taskId: 'task-backlog-2',
+      statusId: 'status-backlog-active',
+      afterId: null,
+      beforeId: null,
+    })
+    expect(isOk(placed)).toBe(true)
+    const afterPlace = store.getState().tasks['task-backlog-2']!
+    expect(afterPlace.activity).toHaveLength(placeLen + 1)
+    expect(afterPlace.activity[0]?.summary).toMatch(/changed status/i)
+  })
+
+  it('does not append activity when failNext rolls back a status change', async () => {
+    const store = createFlowStore(createSeed())
+    const before = store.getState().tasks['task-backlog-1']!
+    const activitySnapshot = before.activity.map((item) => ({ ...item }))
+
+    store.getState().setFailNext(true)
+    const result = await store.getState().updateTask({
+      taskId: 'task-backlog-1',
+      statusId: 'status-backlog-done',
+    })
+
+    expect(isErr(result)).toBe(true)
+    if (isErr(result)) {
+      expect(result.error.code).toBe('NETWORK_ERROR')
+    }
+
+    const after = store.getState().tasks['task-backlog-1']!
+    expect(after.statusId).toBe(before.statusId)
+    expect(after.activity).toEqual(activitySnapshot)
+  })
+
+  it('blocks Bob from archive and delete on a denied list', async () => {
+    const store = createFlowStore(createSeed())
+    const before = store.getState().tasks['task-sprint-1']!
+    expect(before.archivedAt).toBeNull()
+
+    store.getState().switchUser('user-bob')
+
+    const archived = await store.getState().archiveTask('task-sprint-1')
+    expect(isErr(archived)).toBe(true)
+    if (isErr(archived)) {
+      expect(archived.error.code).toBe('FORBIDDEN')
+    }
+    expect(store.getState().tasks['task-sprint-1']).toEqual(before)
+
+    const deleted = await store.getState().deleteTask('task-sprint-1')
+    expect(isErr(deleted)).toBe(true)
+    if (isErr(deleted)) {
+      expect(deleted.error.code).toBe('FORBIDDEN')
+    }
+    expect(store.getState().tasks['task-sprint-1']).toEqual(before)
+  })
 })
